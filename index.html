@@ -139,6 +139,7 @@
             right: 10px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
             gap: 10px;
             z-index: 10;
         }
@@ -154,7 +155,7 @@
             left: 10px;
             right: 10px;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             gap: 10px;
             z-index: 10;
         }
@@ -245,30 +246,27 @@
             border-radius: 50%;
             transform: translate(-50%,-50%);
         }
-        /* New circular action buttons at bottom right */
+        /* Circular action buttons moved to top */
         #action-buttons {
-            position: absolute;
-            bottom: 60px;
-            right: 20px;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
             z-index: 10;
         }
         .circle-btn {
-            width: 64px;
-            height: 64px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             background: linear-gradient(180deg, #fcd34d 0%, #d97706 100%);
-            border: 4px solid #78350f;
+            border: 3px solid #78350f;
             color: #fff;
-            font-size: 24px;
+            font-size: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: inset -3px -3px 0px rgba(0,0,0,0.3), inset 3px 3px 0px rgba(255,255,255,0.4);
-            text-shadow: 2px 2px 0px #451a03;
+            box-shadow: inset -2px -2px 0px rgba(0,0,0,0.3), inset 2px 2px 0px rgba(255,255,255,0.4);
+            text-shadow: 1px 1px 0px #451a03;
             cursor: pointer;
             position: relative;
             transition: all 0.1s;
@@ -286,29 +284,37 @@
         }
         .circle-btn .price-badge {
             position: absolute;
-            bottom: -5px;
-            right: -5px;
+            bottom: -4px;
+            right: -4px;
             background: #451a03;
             color: #fcd34d;
             border: 2px solid #854d0e;
-            border-radius: 12px;
-            font-size: 10px;
-            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 8px;
+            padding: 1px 4px;
             text-shadow: none;
             line-height: 1.2;
         }
         .circle-btn .bandage-count {
             position: absolute;
-            top: -5px;
-            right: -5px;
+            top: -4px;
+            right: -4px;
             background: #dc2626;
             color: white;
             border: 2px solid #451a03;
-            border-radius: 12px;
-            font-size: 10px;
-            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 8px;
+            padding: 1px 4px;
             text-shadow: none;
             line-height: 1.2;
+        }
+        .settings-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+            filter: drop-shadow(2px 2px 0px #451a03);
         }
         @media (max-width: 768px) {
             .hud-box {
@@ -326,9 +332,12 @@
                 padding: 8px 12px;
             }
             .circle-btn {
-                width: 56px;
-                height: 56px;
-                font-size: 22px;
+                width: 42px;
+                height: 42px;
+                font-size: 18px;
+            }
+            .settings-btn {
+                font-size: 20px;
             }
         }
     </style>
@@ -376,31 +385,26 @@
     <div id="game-screen">
         <canvas id="gameCanvas"></canvas>
         <div class="hud-top">
-            <div class="hud-box yellow-ui">Money: $<span id="ui-money">0</span></div>
-            <!-- Health removed from HUD, now above player -->
-            <button class="btn" onclick="openSettings()">Settings</button>
+            <div class="hud-box yellow-ui">$<span id="ui-money">0</span> | Score: <span id="ui-score">0</span></div>
+            <div id="action-buttons">
+                <button class="circle-btn" id="bomb-circle-btn" onclick="useBomb()" title="Bomb">
+                    💣
+                    <span class="price-badge" id="bomb-price-badge">$100</span>
+                </button>
+                <button class="circle-btn" id="heal-circle-btn" onclick="useBandage()" title="Heal">
+                    ❤️
+                    <span class="bandage-count" id="heal-bandage-count">0</span>
+                </button>
+                <button class="circle-btn" onclick="goToShop()" title="Shop">
+                    🛒
+                </button>
+                <button class="settings-btn" onclick="openSettings()" title="Settings">⚙️</button>
+            </div>
         </div>
         <div class="hud-bottom">
-            <div class="hud-box yellow-ui">Score: <span id="ui-score">0</span></div>
-            <!-- Inventory button removed -->
             <div class="hud-box yellow-ui">Time Lived: <span id="ui-time">0</span>s</div>
         </div>
         <div id="joystick-zone"><div id="joystick-knob"></div></div>
-
-        <!-- New circular action buttons bottom right -->
-        <div id="action-buttons">
-            <button class="circle-btn" id="bomb-circle-btn" onclick="useBomb()" title="Bomb">
-                💣
-                <span class="price-badge" id="bomb-price-badge">$100</span>
-            </button>
-            <button class="circle-btn" id="heal-circle-btn" onclick="useBandage()" title="Heal">
-                ❤️
-                <span class="bandage-count" id="heal-bandage-count">0</span>
-            </button>
-            <button class="circle-btn" onclick="goToShop()" title="Shop">
-                🛒
-            </button>
-        </div>
     </div>
 
     <div id="inventory-modal" class="modal-overlay">
@@ -698,16 +702,13 @@
         function updateHUD() {
             document.getElementById('ui-money').innerText = money;
             document.getElementById('ui-score').innerText = score;
-            // Health now only shown on canvas, not in HUD
             document.getElementById('ui-time').innerText = timeLived;
             document.getElementById('inv-bandages').innerText = bandages;
-            // Update circular button badges
             document.getElementById('heal-bandage-count').innerText = bandages;
             updateBombButton();
         }
 
         function openSettings() { isPaused = true; showModal('settings-modal'); }
-        // Inventory modal can still be opened from shop etc., but main button removed
         function openInventory() { isPaused = true; updateHUD(); showModal('inventory-modal'); }
         function resumeGame(modalId) { hideModal(modalId); isPaused = false; }
 
@@ -868,9 +869,13 @@
             enemies.push({
                 x: player.x + Math.cos(angle) * dist,
                 y: player.y + Math.sin(angle) * dist,
-                w: 24, h: 24, hp: 10, maxHp: 10,
+                w: 24,
+                h: 24,
+                hp: 10,
+                maxHp: 10,
                 speed: 0.8 + Math.random() * 0.4,
-                lastHitPlayer: 0, isBoss: false
+                lastHitPlayer: 0,
+                isBoss: false
             });
         }
 
@@ -880,8 +885,13 @@
             enemies.push({
                 x: player.x + Math.cos(angle) * dist,
                 y: player.y + Math.sin(angle) * dist,
-                w: 40, h: 40, hp: 20, maxHp: 20,
-                speed: 0.6, lastHitPlayer: 0, isBoss: true
+                w: 40,
+                h: 40,
+                hp: 20,
+                maxHp: 20,
+                speed: 0.6,
+                lastHitPlayer: 0,
+                isBoss: true
             });
         }
 
@@ -891,15 +901,18 @@
             chests.push({
                 x: player.x + Math.cos(angle) * dist,
                 y: player.y + Math.sin(angle) * dist,
-                w: 32, h: 32
+                w: 32,
+                h: 32
             });
         }
 
         function separateEnemies() {
             for (let i = 0; i < enemies.length; i++) {
                 for (let j = i + 1; j < enemies.length; j++) {
-                    let e1 = enemies[i], e2 = enemies[j];
-                    let dx = e2.x - e1.x, dy = e2.y - e1.y;
+                    let e1 = enemies[i],
+                        e2 = enemies[j];
+                    let dx = e2.x - e1.x,
+                        dy = e2.y - e1.y;
                     let d = Math.hypot(dx, dy);
                     let minDist = (e1.w + e2.w) / 2;
                     if (d < minDist && d > 0) {
@@ -938,12 +951,14 @@
             }
 
             // MOVEMENT
-            let dx = 0, dy = 0;
+            let dx = 0,
+                dy = 0;
             if (keys['w']) dy = -1;
             if (keys['s']) dy = 1;
             if (keys['a']) dx = -1;
             if (keys['d']) dx = 1;
-            if (isDragging) { dx = joyX; dy = joyY; }
+            if (isDragging) { dx = joyX;
+                dy = joyY; }
 
             let moveDist = Math.hypot(dx, dy);
             if (moveDist > 0) {
@@ -959,12 +974,15 @@
                 bossSpawnTimer = 0;
             }
 
-            let nearestEnemy = null, minDist = Infinity;
+            let nearestEnemy = null,
+                minDist = Infinity;
             for (let i = enemies.length - 1; i >= 0; i--) {
                 let e = enemies[i];
-                let edx = player.x - e.x, edy = player.y - e.y;
+                let edx = player.x - e.x,
+                    edy = player.y - e.y;
                 let d = Math.hypot(edx, edy);
-                if (d < minDist) { minDist = d; nearestEnemy = e; }
+                if (d < minDist) { minDist = d;
+                    nearestEnemy = e; }
                 if (d > 0) {
                     e.x += (edx / d) * e.speed;
                     e.y += (edy / d) * e.speed;
@@ -985,7 +1003,8 @@
                 }
 
                 // DRAW ENEMY WITH HEALTH BAR
-                let ex = e.x - camX, ey = e.y - camY;
+                let ex = e.x - camX,
+                    ey = e.y - camY;
                 if (e.isBoss) ctx.drawImage(texBoss, ex - 8, ey - 8, e.w, e.h);
                 else ctx.drawImage(texEnemy, ex, ey, e.w, e.h);
 
@@ -1002,11 +1021,15 @@
             separateEnemies();
 
             if (nearestEnemy && now - lastShot >= 1200) {
-                let bx = nearestEnemy.x - player.x, by = nearestEnemy.y - player.y;
+                let bx = nearestEnemy.x - player.x,
+                    by = nearestEnemy.y - player.y;
                 let bd = Math.hypot(bx, by);
                 bullets.push({
-                    x: player.x + 12, y: player.y + 12,
-                    vx: (bx / bd) * 8, vy: (by / bd) * 8, r: 4
+                    x: player.x + 12,
+                    y: player.y + 12,
+                    vx: (bx / bd) * 8,
+                    vy: (by / bd) * 8,
+                    r: 4
                 });
                 lastShot = now;
             }
@@ -1042,7 +1065,8 @@
 
             for (let i = drops.length - 1; i >= 0; i--) {
                 let d = drops[i];
-                let dropX = d.x - camX, dropY = d.y - camY;
+                let dropX = d.x - camX,
+                    dropY = d.y - camY;
                 if (d.type === 'money') ctx.drawImage(texMoney, dropX, dropY, 24, 24);
                 else ctx.drawImage(texBandage, dropX, dropY, 24, 24);
                 if (Math.hypot(player.x - d.x, player.y - d.y) < 30) {
@@ -1079,17 +1103,14 @@
             // DRAW PLAYER HEALTH BAR (pixel style, above player)
             const barWidth = 30;
             const barHeight = 6;
-            const barX = playerScreenX - barWidth/2;
-            const barY = playerScreenY - 25; // above the player sprite
+            const barX = playerScreenX - barWidth / 2;
+            const barY = playerScreenY - 25;
             const hpPercent = playerHp / maxHp;
-            // background
             ctx.fillStyle = '#422006';
             ctx.fillRect(barX, barY, barWidth, barHeight);
-            // health fill
             let fillColor = hpPercent > 0.5 ? '#22c55e' : hpPercent > 0.25 ? '#eab308' : '#dc2626';
             ctx.fillStyle = fillColor;
             ctx.fillRect(barX, barY, barWidth * hpPercent, barHeight);
-            // border
             ctx.strokeStyle = '#000';
             ctx.lineWidth = 1;
             ctx.strokeRect(barX, barY, barWidth, barHeight);
