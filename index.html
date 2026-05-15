@@ -336,957 +336,436 @@
             border-bottom: 1px solid #854d0e;
         }
         @media (max-width: 768px) {
-            .hud-box {
-                font-size: 8px;
-                padding: 6px;
-            }
-            .menu-title {
-                font-size: 24px;
-            }
-            #joystick-zone {
-                display: block;
-            }
-            .btn {
-                font-size: 10px;
-                padding: 8px 12px;
-            }
-            .circle-btn {
-                width: 42px;
-                height: 42px;
-                font-size: 18px;
-            }
-            .settings-btn {
-                font-size: 20px;
-            }
+            .hud-box { font-size: 8px; padding: 6px; }
+            .menu-title { font-size: 24px; }
+            #joystick-zone { display: block; }
+            .btn { font-size: 10px; padding: 8px 12px; }
+            .circle-btn { width: 42px; height: 42px; font-size: 18px; }
+            .settings-btn { font-size: 20px; }
         }
     </style>
 </head>
 <body>
 
-    <div id="splash-screen">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Visual_Studio_Code_1.35_icon.svg" width="100" class="vscode-logo" alt="VS Code">
-        <h2 style="font-family: sans-serif; letter-spacing: 2px; font-size: clamp(14px, 3vw, 18px);">Starting = Made With Visual Studio Code</h2>
-    </div>
+<div id="splash-screen">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Visual_Studio_Code_1.35_icon.svg" width="100" class="vscode-logo" alt="VS Code">
+    <h2 style="font-family: sans-serif; letter-spacing: 2px; font-size: clamp(14px, 3vw, 18px);">Starting = Made With Visual Studio Code</h2>
+</div>
 
-    <div id="menu-screen">
-        <div class="menu-top">
-            <button class="btn" onclick="showModal('credits-modal')">Credits</button>
-            <button class="btn" onclick="showLeaderboard()">Leaderboard</button>
-            <button class="btn" onclick="window.close()">Exit</button>
-            <div class="dropdown">
-                <button class="btn" id="username-btn" onclick="toggleUsername()">Username ▼</button>
-                <div class="dropdown-content yellow-ui" id="username-list">
-                    <div class="dropdown-item" onclick="selectUser('Sir')">Sir</div>
-                    <div class="dropdown-item" onclick="selectUser('Yash')">Yash</div>
-                    <div class="dropdown-item" onclick="selectUser('Ratcat (dev)')">Ratcat (dev)</div>
-                    <div class="dropdown-item" onclick="selectUser('Harshit')">Harshit</div>
-                    <div class="dropdown-item" onclick="showCustomUsernameInput()">Custom...</div>
-                </div>
-            </div>
-        </div>
-        <div class="menu-center">
-            <h1 class="menu-title">Defence Evolution</h1>
-            <button class="btn" style="font-size:clamp(20px, 4vw, 30px); padding:20px 40px;" onclick="startGame()">▶</button>
-            <p id="menu-error" style="color:#dc2626; font-size:10px; margin-top:20px; height:12px; text-shadow: 1px 1px 0 #000;"></p>
-        </div>
-        <div id="custom-username-container" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); text-align:center;">
-            <input type="text" class="custom-username-input" id="custom-username-input" placeholder="Enter name" maxlength="15">
-            <button class="btn" onclick="setCustomUsername()" style="margin-top:10px;">Set</button>
-            <button class="btn" onclick="hideCustomUsername()" style="margin-top:10px;">Cancel</button>
-        </div>
-    </div>
-
-    <div id="credits-modal" class="modal-overlay">
-        <div class="modal-box yellow-ui">
-            <h2 class="modal-title">Credits</h2>
-            <p style="font-size:12px; line-height:2;">
-                Ratnesh Kumar Class-7B<br><br>
-                DeepSeek<br><br>
-                Enhanced by Gemini
-            </p>
-            <button class="btn" onclick="hideModal('credits-modal')">Close</button>
-        </div>
-    </div>
-
-    <div id="leaderboard-modal" class="modal-overlay">
-        <div class="modal-box yellow-ui">
-            <h2 class="modal-title">🏆 Global Leaderboard</h2>
-            <ul class="leaderboard-list" id="leaderboard-list"></ul>
-            <button class="btn" onclick="hideModal('leaderboard-modal')">Close</button>
-        </div>
-    </div>
-
-    <div id="game-screen">
-        <canvas id="gameCanvas"></canvas>
-        <div class="hud-top">
-            <div class="hud-box yellow-ui">$<span id="ui-money">0</span> | Score: <span id="ui-score">0</span></div>
-            <div id="action-buttons">
-                <button class="circle-btn" id="bomb-circle-btn" onclick="useBomb()" title="Bomb">
-                    💣
-                    <span class="price-badge" id="bomb-price-badge">$100</span>
-                </button>
-                <button class="circle-btn" id="heal-circle-btn" onclick="useBandage()" title="Heal">
-                    ❤️
-                    <span class="bandage-count" id="heal-bandage-count">0</span>
-                </button>
-                <button class="circle-btn" onclick="goToShop()" title="Shop">
-                    🛒
-                </button>
-                <button class="settings-btn" onclick="openSettings()" title="Settings">⚙️</button>
-            </div>
-        </div>
-        <div class="hud-bottom">
-            <div class="hud-box yellow-ui">Time Lived: <span id="ui-time">0</span>s</div>
-        </div>
-        <div id="joystick-zone"><div id="joystick-knob"></div></div>
-    </div>
-
-    <div id="inventory-modal" class="modal-overlay">
-        <div class="modal-box yellow-ui">
-            <h2 class="modal-title">Inventory</h2>
-            <p style="font-size:14px;">Bandages: <span id="inv-bandages">0</span></p>
-            <button class="btn" onclick="useBandage()">Use Bandage (+2 HP)</button>
-            <button class="btn" onclick="goToShop()">Portal To Shop</button>
-            <button class="btn" onclick="resumeGame('inventory-modal')">Close</button>
-        </div>
-    </div>
-
-    <div id="shop-modal" class="modal-overlay">
-        <div class="modal-box yellow-ui">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h2 class="modal-title" style="margin:0; border:none;">Weapon Shop</h2>
-                <button class="btn" onclick="resumeGame('shop-modal')">X</button>
-            </div>
-            <p class="shop-msg" id="shop-message"></p>
-            <div class="shop-item yellow-ui">
-                <div class="shop-item-details">
-                    <strong>D-Eagle</strong><br>
-                    Damage: <span id="deagle-dmg">2</span> | Level: <span id="deagle-lvl">0</span>/3<br>
-                    Cost: $<span id="deagle-cost">100</span>
-                </div>
-                <div class="shop-item-buttons">
-                    <button class="btn" id="btn-buy-deagle" onclick="buyGun('D-Eagle')">BUY</button>
-                    <button class="btn" id="btn-upgrade-deagle" onclick="upgradeGun('D-Eagle')" style="display:none;">UPGRADE</button>
-                </div>
-            </div>
-            <div class="shop-item yellow-ui">
-                <div class="shop-item-details">
-                    <strong>AK47</strong><br>
-                    Damage: <span id="ak47-dmg">5</span> | Level: <span id="ak47-lvl">0</span>/3<br>
-                    Cost: $<span id="ak47-cost">500</span>
-                </div>
-                <div class="shop-item-buttons">
-                    <button class="btn" id="btn-buy-ak47" onclick="buyGun('AK47')">BUY</button>
-                    <button class="btn" id="btn-upgrade-ak47" onclick="upgradeGun('AK47')" style="display:none;">UPGRADE</button>
-                </div>
-            </div>
-            <div class="shop-item yellow-ui">
-                <div class="shop-item-details">
-                    <strong>Shortgun</strong><br>
-                    Damage: <span id="shortgun-dmg">10</span> | Level: <span id="shortgun-lvl">0</span>/3<br>
-                    Cost: $<span id="shortgun-cost">1000</span>
-                </div>
-                <div class="shop-item-buttons">
-                    <button class="btn" id="btn-buy-shortgun" onclick="buyGun('Shortgun')">BUY</button>
-                    <button class="btn" id="btn-upgrade-shortgun" onclick="upgradeGun('Shortgun')" style="display:none;">UPGRADE</button>
-                </div>
-            </div>
-            <div class="shop-item yellow-ui">
-                <div class="shop-item-details">
-                    <strong>❤️ Bandage Pack</strong><br>
-                    Quantity: 3 Bandages<br>
-                    Cost: $<span id="bandage-cost">150</span>
-                </div>
-                <div class="shop-item-buttons">
-                    <button class="btn" onclick="buyBandages()">BUY</button>
-                </div>
+<div id="menu-screen">
+    <div class="menu-top">
+        <button class="btn" onclick="showModal('credits-modal')">Credits</button>
+        <button class="btn" onclick="showLeaderboard()">🌍 Leaderboard</button>
+        <button class="btn" onclick="window.close()">Exit</button>
+        <div class="dropdown">
+            <button class="btn" id="username-btn" onclick="toggleUsername()">Username ▼</button>
+            <div class="dropdown-content yellow-ui" id="username-list">
+                <div class="dropdown-item" onclick="selectUser('Sir')">Sir</div>
+                <div class="dropdown-item" onclick="selectUser('Yash')">Yash</div>
+                <div class="dropdown-item" onclick="selectUser('Ratcat (dev)')">Ratcat (dev)</div>
+                <div class="dropdown-item" onclick="selectUser('Harshit')">Harshit</div>
+                <div class="dropdown-item" onclick="showCustomUsernameInput()">Custom...</div>
             </div>
         </div>
     </div>
+    <div class="menu-center">
+        <h1 class="menu-title">Defence Evolution</h1>
+        <button class="btn" style="font-size:clamp(20px, 4vw, 30px); padding:20px 40px;" onclick="startGame()">▶</button>
+        <p id="menu-error" style="color:#dc2626; font-size:10px; margin-top:20px; height:12px; text-shadow: 1px 1px 0 #000;"></p>
+    </div>
+    <div id="custom-username-container" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); text-align:center;">
+        <input type="text" class="custom-username-input" id="custom-username-input" placeholder="Enter name" maxlength="15">
+        <button class="btn" onclick="setCustomUsername()" style="margin-top:10px;">Set</button>
+        <button class="btn" onclick="hideCustomUsername()" style="margin-top:10px;">Cancel</button>
+    </div>
+</div>
 
-    <div id="settings-modal" class="modal-overlay">
-        <div class="modal-box yellow-ui">
-            <h2 class="modal-title">Settings</h2>
-            <button class="btn" onclick="resumeGame('settings-modal')">Resume Game</button>
-            <button class="btn" onclick="restartGame()">Restart Game</button>
-            <button class="btn" onclick="exitToMenu()">Main Menu</button>
+<div id="credits-modal" class="modal-overlay">
+    <div class="modal-box yellow-ui">
+        <h2 class="modal-title">Credits</h2>
+        <p style="font-size:12px; line-height:2;">Ratnesh Kumar Class-7B<br><br>DeepSeek<br><br>Enhanced by Gemini</p>
+        <button class="btn" onclick="hideModal('credits-modal')">Close</button>
+    </div>
+</div>
+
+<div id="leaderboard-modal" class="modal-overlay">
+    <div class="modal-box yellow-ui">
+        <h2 class="modal-title">🏆 Global Leaderboard</h2>
+        <ul class="leaderboard-list" id="leaderboard-list"><li>Loading scores...</li></ul>
+        <p style="font-size:8px; color:#854d0e;" id="leaderboard-status"></p>
+        <button class="btn" onclick="hideModal('leaderboard-modal')">Close</button>
+    </div>
+</div>
+
+<div id="game-screen">
+    <canvas id="gameCanvas"></canvas>
+    <div class="hud-top">
+        <div class="hud-box yellow-ui">$<span id="ui-money">0</span> | Score: <span id="ui-score">0</span></div>
+        <div id="action-buttons">
+            <button class="circle-btn" id="bomb-circle-btn" onclick="useBomb()" title="Bomb">💣<span class="price-badge" id="bomb-price-badge">$100</span></button>
+            <button class="circle-btn" id="heal-circle-btn" onclick="useBandage()" title="Heal">❤️<span class="bandage-count" id="heal-bandage-count">0</span></button>
+            <button class="circle-btn" onclick="goToShop()" title="Shop">🛒</button>
+            <button class="settings-btn" onclick="openSettings()" title="Settings">⚙️</button>
         </div>
     </div>
+    <div class="hud-bottom">
+        <div class="hud-box yellow-ui">Time Lived: <span id="ui-time">0</span>s</div>
+    </div>
+    <div id="joystick-zone"><div id="joystick-knob"></div></div>
+</div>
 
-    <div id="gameover-modal" class="modal-overlay">
-        <div class="modal-box yellow-ui">
-            <h2 class="modal-title" style="color:#dc2626;">YOU DIED</h2>
-            <p style="font-size:12px;">Player: <span id="go-player"></span></p>
-            <p style="font-size:12px;">Final Score: <span id="go-score"></span></p>
-            <p style="font-size:12px;">Time Lived: <span id="go-time"></span>s</p>
-            <p style="font-size:12px;">Kills: <span id="go-kills"></span></p>
-            <p style="font-size:12px; color:#facc15;" id="go-highscore-msg"></p>
-            <button class="btn" onclick="restartGame()">Restart Game</button>
-            <button class="btn" onclick="exitToMenu()">Main Menu</button>
+<div id="shop-modal" class="modal-overlay">
+    <div class="modal-box yellow-ui">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2 class="modal-title" style="margin:0; border:none;">Weapon Shop</h2>
+            <button class="btn" onclick="resumeGame('shop-modal')">X</button>
+        </div>
+        <p class="shop-msg" id="shop-message"></p>
+        <div class="shop-item yellow-ui">
+            <div class="shop-item-details"><strong>D-Eagle</strong><br>Damage: <span id="deagle-dmg">2</span> | Level: <span id="deagle-lvl">0</span>/3<br>Cost: $<span id="deagle-cost">100</span></div>
+            <div class="shop-item-buttons">
+                <button class="btn" id="btn-buy-deagle" onclick="buyGun('D-Eagle')">BUY</button>
+                <button class="btn" id="btn-upgrade-deagle" onclick="upgradeGun('D-Eagle')" style="display:none;">UPGRADE</button>
+            </div>
+        </div>
+        <div class="shop-item yellow-ui">
+            <div class="shop-item-details"><strong>AK47</strong><br>Damage: <span id="ak47-dmg">5</span> | Level: <span id="ak47-lvl">0</span>/3<br>Cost: $<span id="ak47-cost">500</span></div>
+            <div class="shop-item-buttons">
+                <button class="btn" id="btn-buy-ak47" onclick="buyGun('AK47')">BUY</button>
+                <button class="btn" id="btn-upgrade-ak47" onclick="upgradeGun('AK47')" style="display:none;">UPGRADE</button>
+            </div>
+        </div>
+        <div class="shop-item yellow-ui">
+            <div class="shop-item-details"><strong>Shortgun</strong><br>Damage: <span id="shortgun-dmg">10</span> | Level: <span id="shortgun-lvl">0</span>/3<br>Cost: $<span id="shortgun-cost">1000</span></div>
+            <div class="shop-item-buttons">
+                <button class="btn" id="btn-buy-shortgun" onclick="buyGun('Shortgun')">BUY</button>
+                <button class="btn" id="btn-upgrade-shortgun" onclick="upgradeGun('Shortgun')" style="display:none;">UPGRADE</button>
+            </div>
+        </div>
+        <div class="shop-item yellow-ui">
+            <div class="shop-item-details"><strong>❤️ Bandage Pack</strong><br>Quantity: 3 Bandages<br>Cost: $150</div>
+            <div class="shop-item-buttons"><button class="btn" onclick="buyBandages()">BUY</button></div>
         </div>
     </div>
+</div>
 
-    <script>
-        // --- UI & Menu Logic ---
-        setTimeout(() => {
-            document.getElementById('splash-screen').style.display = 'none';
-            document.getElementById('menu-screen').style.display = 'block';
-        }, 2500);
+<div id="settings-modal" class="modal-overlay">
+    <div class="modal-box yellow-ui">
+        <h2 class="modal-title">Settings</h2>
+        <button class="btn" onclick="resumeGame('settings-modal')">Resume Game</button>
+        <button class="btn" onclick="restartGame()">Restart Game</button>
+        <button class="btn" onclick="exitToMenu()">Main Menu</button>
+    </div>
+</div>
 
-        let selectedUser = "Username ▼";
+<div id="gameover-modal" class="modal-overlay">
+    <div class="modal-box yellow-ui">
+        <h2 class="modal-title" style="color:#dc2626;">YOU DIED</h2>
+        <p style="font-size:12px;">Player: <span id="go-player"></span></p>
+        <p style="font-size:12px;">Final Score: <span id="go-score"></span></p>
+        <p style="font-size:12px;">Time Lived: <span id="go-time"></span>s</p>
+        <p style="font-size:12px;">Kills: <span id="go-kills"></span></p>
+        <p style="font-size:12px; color:#facc15;" id="go-highscore-msg"></p>
+        <button class="btn" onclick="restartGame()">Restart Game</button>
+        <button class="btn" onclick="exitToMenu()">Main Menu</button>
+    </div>
+</div>
 
-        function toggleUsername() {
-            document.getElementById('username-list').classList.toggle('show');
-        }
+<script>
+// ============================================
+// JSONBIN.IO CONFIGURATION - FREE GLOBAL DATABASE
+// ============================================
+const JSONBIN_API_KEY = "$2a$10$RL8cAC0/yD5TzAZJmkxlv.DqI8oIGL1ZoSTjronXAAQgDo3HxkPHa"; // Replace with your key
+const JSONBIN_BIN_ID = "6a06f11aadc21f119aa36905"; // Replace with your bin ID
 
-        function selectUser(name) {
-            selectedUser = name;
-            document.getElementById('username-btn').innerText = name + " ▼";
-            document.getElementById('username-list').classList.remove('show');
-            document.getElementById('menu-error').innerText = "";
-        }
-
-        function showCustomUsernameInput() {
-            document.getElementById('username-list').classList.remove('show');
-            document.getElementById('custom-username-container').style.display = 'block';
-        }
-
-        function hideCustomUsername() {
-            document.getElementById('custom-username-container').style.display = 'none';
-        }
-
-        function setCustomUsername() {
-            const input = document.getElementById('custom-username-input');
-            const name = input.value.trim();
-            if (name) {
-                selectUser(name);
-                // Add to dropdown if not already present
-                const list = document.getElementById('username-list');
-                const existing = Array.from(list.children).some(item => item.innerText === name);
-                if (!existing && name !== 'Custom...') {
-                    const div = document.createElement('div');
-                    div.className = 'dropdown-item';
-                    div.onclick = function() { selectUser(name); };
-                    div.innerText = name;
-                    list.insertBefore(div, list.lastElementChild);
-                }
-            }
-            hideCustomUsername();
-            input.value = '';
-        }
-
-        function showModal(id) {
-            document.getElementById(id).style.display = 'flex';
-        }
-
-        function hideModal(id) {
-            document.getElementById(id).style.display = 'none';
-        }
-
-        // --- Leaderboard System ---
-        function getGlobalLeaderboard() {
-            const data = localStorage.getItem('defence_evolution_leaderboard');
-            return data ? JSON.parse(data) : [];
-        }
-
-        function saveGlobalLeaderboard(leaderboard) {
-            localStorage.setItem('defence_evolution_leaderboard', JSON.stringify(leaderboard));
-        }
-
-        function addHighScore(playerName, score, timeLived, kills) {
-            const leaderboard = getGlobalLeaderboard();
-            leaderboard.push({
-                name: playerName,
-                score: score,
-                time: timeLived,
-                kills: kills,
-                date: new Date().toISOString()
-            });
-            // Sort by score descending
-            leaderboard.sort((a, b) => b.score - a.score);
-            // Keep top 50
-            const top50 = leaderboard.slice(0, 50);
-            saveGlobalLeaderboard(top50);
-            return top50;
-        }
-
-        function isNewHighScore(score) {
-            const leaderboard = getGlobalLeaderboard();
-            if (leaderboard.length < 50) return true;
-            return score > leaderboard[leaderboard.length - 1].score;
-        }
-
-        function showLeaderboard() {
-            const leaderboard = getGlobalLeaderboard();
-            const list = document.getElementById('leaderboard-list');
-            list.innerHTML = '';
-            if (leaderboard.length === 0) {
-                list.innerHTML = '<li>No scores yet!</li>';
-            } else {
-                leaderboard.forEach((entry, index) => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `<strong>#${index + 1}</strong> ${entry.name} - ${entry.score} pts (${entry.time}s, ${entry.kills} kills)`;
-                    list.appendChild(li);
-                });
-            }
-            showModal('leaderboard-modal');
-        }
-
-        // --- Game State Variables ---
-        let money = 0,
-            bandages = 0,
-            kills = 0,
-            score = 0,
-            timeLived = 0;
-        let playerHp = 10;
-        const maxHp = 10;
-        let currentGun = 'Pistol',
-            gunDamage = 1;
-        let bombPrice = 100;
-        const bandagePackCost = 150;
-
-        let gunStats = {
-            'Pistol': { owned: true, level: 0, baseDamage: 1, baseCost: 0 },
-            'D-Eagle': { owned: false, level: 0, baseDamage: 2, baseCost: 100 },
-            'AK47': { owned: false, level: 0, baseDamage: 5, baseCost: 500 },
-            'Shortgun': { owned: false, level: 0, baseDamage: 10, baseCost: 1000 }
-        };
-
-        let isPaused = false,
-            gameLoopId, timeInterval;
-        let player = { x: 0, y: 0, w: 24, h: 24, speed: 2.5 };
-        let camX = 0,
-            camY = 0;
-        let enemies = [],
-            bullets = [],
-            drops = [],
-            chests = [];
-        let keys = {};
-        let joyX = 0,
-            joyY = 0,
-            isDragging = false;
-        let lastShot = 0;
-        let bossSpawnTimer = 0;
-
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        let CW, CH;
-
-        function resize() {
-            CW = window.innerWidth;
-            CH = window.innerHeight;
-            canvas.width = CW;
-            canvas.height = CH;
-        }
-        window.addEventListener('resize', resize);
-        resize();
-
-        function createPixelTexture(color, detailColor, type) {
-            let tc = document.createElement('canvas');
-            tc.width = 32;
-            tc.height = 32;
-            let tctx = tc.getContext('2d');
-            tctx.fillStyle = color;
-            tctx.fillRect(0, 0, 32, 32);
-            tctx.fillStyle = detailColor;
-
-            if (type === 'sand') {
-                for (let i = 0; i < 40; i++) {
-                    tctx.fillRect(Math.random() * 32, Math.random() * 32, 2, 2);
-                }
-            } else if (type === 'chest') {
-                tctx.fillStyle = '#451a03';
-                tctx.fillRect(2, 2, 28, 28);
-                tctx.fillStyle = '#854d0e';
-                tctx.fillRect(4, 4, 24, 24);
-                tctx.fillStyle = '#eab308';
-                tctx.fillRect(12, 14, 8, 8);
-            } else if (type === 'money') {
-                tctx.fillStyle = '#166534';
-                tctx.fillRect(4, 8, 24, 16);
-                tctx.fillStyle = '#4ade80';
-                tctx.fillRect(6, 10, 20, 12);
-                tctx.fillStyle = '#064e3b';
-                tctx.font = "10px monospace";
-                tctx.fillText("$", 12, 19);
-            } else if (type === 'bandage') {
-                tctx.fillStyle = '#f8fafc';
-                tctx.fillRect(6, 6, 20, 20);
-                tctx.fillStyle = '#dc2626';
-                tctx.fillRect(14, 8, 4, 16);
-                tctx.fillRect(8, 14, 16, 4);
-            } else if (type === 'enemy') {
-                tctx.fillStyle = '#166534';
-                tctx.fillRect(0, 0, 32, 32);
-                tctx.fillStyle = '#22c55e';
-                tctx.fillRect(4, 4, 24, 24);
-                tctx.fillStyle = '#000';
-                tctx.fillRect(6, 8, 6, 6);
-                tctx.fillRect(20, 8, 6, 6);
-            } else if (type === 'boss') {
-                tctx.fillStyle = '#7c2d12';
-                tctx.fillRect(0, 0, 32, 32);
-                tctx.fillStyle = '#dc2626';
-                tctx.fillRect(2, 2, 28, 28);
-                tctx.fillStyle = '#991b1b';
-                tctx.fillRect(4, 4, 24, 24);
-                tctx.fillStyle = '#000';
-                tctx.fillRect(4, 6, 10, 10);
-                tctx.fillRect(18, 6, 10, 10);
-                tctx.fillStyle = '#fbbf24';
-                tctx.fillRect(6, 0, 4, 6);
-                tctx.fillRect(14, 0, 4, 6);
-                tctx.fillRect(22, 0, 4, 6);
-            }
-            return tc;
-        }
-
-        const texSand = createPixelTexture('#d4b85c', '#b89838', 'sand');
-        const texChest = createPixelTexture('', '', 'chest');
-        const texMoney = createPixelTexture('', '', 'money');
-        const texBandage = createPixelTexture('', '', 'bandage');
-        const texEnemy = createPixelTexture('', '', 'enemy');
-        const texBoss = createPixelTexture('', '', 'boss');
-
-        function startGame() {
-            if (selectedUser === "Username ▼") {
-                document.getElementById('menu-error').innerText = "PLEASE CHOOSE A USERNAME!";
-                return;
-            }
-            document.getElementById('menu-error').innerText = "";
-            document.getElementById('menu-screen').style.display = 'none';
-            document.getElementById('game-screen').style.display = 'block';
-            resize();
-            restartGame();
-        }
-
-        function restartGame() {
-            hideModal('settings-modal');
-            hideModal('gameover-modal');
-            hideModal('inventory-modal');
-            hideModal('shop-modal');
-            money = 0;
-            bandages = 0;
-            kills = 0;
-            score = 0;
-            timeLived = 0;
-            playerHp = maxHp;
-            currentGun = 'Pistol';
-            gunDamage = 1;
-            bombPrice = 100;
-            gunStats = {
-                'Pistol': { owned: true, level: 0, baseDamage: 1, baseCost: 0 },
-                'D-Eagle': { owned: false, level: 0, baseDamage: 2, baseCost: 100 },
-                'AK47': { owned: false, level: 0, baseDamage: 5, baseCost: 500 },
-                'Shortgun': { owned: false, level: 0, baseDamage: 10, baseCost: 1000 }
-            };
-            updateShopUI();
-            updateHUD();
-            player.x = 0;
-            player.y = 0;
-            camX = 0;
-            camY = 0;
-            enemies = [];
-            bullets = [];
-            drops = [];
-            chests = [];
-            isPaused = false;
-            bossSpawnTimer = 0;
-            clearInterval(timeInterval);
-            timeInterval = setInterval(() => {
-                if (!isPaused) {
-                    timeLived++;
-                    updateHUD();
-                }
-            }, 1000);
-            lastShot = Date.now();
-            if (gameLoopId) cancelAnimationFrame(gameLoopId);
-            loop();
-        }
-
-        function exitToMenu() {
-            isPaused = true;
-            clearInterval(timeInterval);
-            hideModal('settings-modal');
-            hideModal('gameover-modal');
-            hideModal('shop-modal');
-            document.getElementById('game-screen').style.display = 'none';
-            document.getElementById('menu-screen').style.display = 'block';
-            if (gameLoopId) cancelAnimationFrame(gameLoopId);
-        }
-
-        function updateBombButton() {
-            const priceBadge = document.getElementById('bomb-price-badge');
-            const btn = document.getElementById('bomb-circle-btn');
-            if (priceBadge) priceBadge.innerText = '$' + bombPrice;
-            if (btn) {
-                btn.disabled = (money < bombPrice);
-                btn.style.opacity = (money < bombPrice) ? '0.6' : '1';
-            }
-        }
-
-        function updateHUD() {
-            document.getElementById('ui-money').innerText = money;
-            document.getElementById('ui-score').innerText = score;
-            document.getElementById('ui-time').innerText = timeLived;
-            document.getElementById('inv-bandages').innerText = bandages;
-            document.getElementById('heal-bandage-count').innerText = bandages;
-            updateBombButton();
-        }
-
-        function openSettings() { isPaused = true; showModal('settings-modal'); }
-        function openInventory() { isPaused = true; updateHUD(); showModal('inventory-modal'); }
-        function resumeGame(modalId) {
-            hideModal(modalId);
-            if (modalId === 'shop-modal' || modalId === 'settings-modal' || modalId === 'inventory-modal') {
-                isPaused = false;
-            }
-        }
-
-        function goToShop() {
-            hideModal('inventory-modal');
-            isPaused = true;
-            showModal('shop-modal');
-            updateShopUI();
-            document.getElementById('shop-message').innerText = "";
-        }
-
-        function buyBandages() {
-            if (money >= bandagePackCost) {
-                money -= bandagePackCost;
-                bandages += 3;
-                updateHUD();
-                document.getElementById('shop-message').innerText = "Purchased 3 Bandages!";
-                document.getElementById('shop-message').style.color = "#16a34a";
-            } else {
-                document.getElementById('shop-message').innerText = "You don't have enough money";
-                document.getElementById('shop-message').style.color = "#dc2626";
-            }
-        }
-
-        function useBandage() {
-            if (bandages > 0 && playerHp < maxHp) {
-                bandages--;
-                playerHp = Math.min(maxHp, playerHp + 2);
-                updateHUD();
-            }
-        }
-
-        function useBomb() {
-            if (money >= bombPrice) {
-                money -= bombPrice;
-                bombPrice *= 2;
-                const radius = 200;
-                for (let i = enemies.length - 1; i >= 0; i--) {
-                    const e = enemies[i];
-                    const d = Math.hypot(player.x - e.x, player.y - e.y);
-                    if (d <= radius) {
-                        e.hp = 0;
-                        score += 50;
-                        kills++;
-                        const val = e.isBoss ? 200 : 25;
-                        drops.push({ x: e.x, y: e.y, type: 'money', val: val });
-                        if (e.isBoss || Math.random() > 0.8) drops.push({ x: e.x + 10, y: e.y, type: 'bandage' });
-                        enemies.splice(i, 1);
-                    }
-                }
-                updateHUD();
-            }
-        }
-
-        function buyGun(name) {
-            let gun = gunStats[name];
-            if (gun.owned) {
-                currentGun = name;
-                gunDamage = gun.baseDamage + (gun.level * 2);
-                document.getElementById('shop-message').innerText = "Equipped " + name;
-                document.getElementById('shop-message').style.color = "#16a34a";
-                updateShopUI();
-            } else if (money >= gun.baseCost) {
-                money -= gun.baseCost;
-                gun.owned = true;
-                currentGun = name;
-                gunDamage = gun.baseDamage + (gun.level * 2);
-                updateHUD();
-                updateShopUI();
-                document.getElementById('shop-message').innerText = "Purchased & Equipped " + name;
-                document.getElementById('shop-message').style.color = "#16a34a";
-            } else {
-                document.getElementById('shop-message').innerText = "You don't have enough money";
-                document.getElementById('shop-message').style.color = "#dc2626";
-            }
-        }
-
-        function upgradeGun(name) {
-            let gun = gunStats[name];
-            if (!gun.owned) return;
-            if (gun.level >= 3) return;
-            let upgradeCost = gun.baseCost * (gun.level + 1);
-            if (money >= upgradeCost) {
-                money -= upgradeCost;
-                gun.level++;
-                gunDamage = gun.baseDamage + (gun.level * 2);
-                updateHUD();
-                updateShopUI();
-                document.getElementById('shop-message').innerText = name + " upgraded to Level " + gun.level + "!";
-                document.getElementById('shop-message').style.color = "#16a34a";
-            }
-        }
-
-        function updateShopUI() {
-            ['D-Eagle', 'AK47', 'Shortgun'].forEach(gunName => {
-                let gun = gunStats[gunName];
-                let key = gunName.toLowerCase();
-                if (key === 'd-eagle') key = 'deagle';
-                if (key === 'shortgun') key = 'shortgun';
-
-                let dmgEl = document.getElementById(key + '-dmg');
-                let lvlEl = document.getElementById(key + '-lvl');
-                let costEl = document.getElementById(key + '-cost');
-                let buyBtn = document.getElementById('btn-buy-' + key);
-                let upgradeBtn = document.getElementById('btn-upgrade-' + key);
-
-                if (!dmgEl || !lvlEl || !costEl || !buyBtn || !upgradeBtn) return;
-
-                dmgEl.innerText = gun.baseDamage + (gun.level * 2);
-                lvlEl.innerText = gun.level;
-
-                if (gun.owned) {
-                    buyBtn.innerText = (currentGun === gunName) ? "EQUIPPED" : "EQUIP";
-                    buyBtn.style.background = (currentGun === gunName) ? "#166534" : "#2563eb";
-                    costEl.innerText = "Owned";
-                    upgradeBtn.style.display = "inline-block";
-                    if (gun.level >= 3) {
-                        upgradeBtn.innerText = "MAX";
-                        upgradeBtn.disabled = true;
-                    } else {
-                        let upgradeCost = gun.baseCost * (gun.level + 1);
-                        upgradeBtn.innerText = "UPGRADE ($" + upgradeCost + ")";
-                        upgradeBtn.disabled = false;
-                    }
-                } else {
-                    buyBtn.innerText = "BUY";
-                    upgradeBtn.style.display = "none";
-                    costEl.innerText = gun.baseCost;
-                }
-            });
-        }
-
-        window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
-        window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
-
-        const joyZone = document.getElementById('joystick-zone');
-        const joyKnob = document.getElementById('joystick-knob');
-        joyZone.addEventListener('touchstart', e => {
-            isDragging = true;
-            handleJoy(e.touches[0]);
-        }, { passive: false });
-        joyZone.addEventListener('touchmove', e => {
-            if (isDragging) {
-                e.preventDefault();
-                handleJoy(e.touches[0]);
-            }
-        }, { passive: false });
-        joyZone.addEventListener('touchend', () => {
-            isDragging = false;
-            joyX = 0;
-            joyY = 0;
-            joyKnob.style.transform = 'translate(-50%, -50%)';
+async function getGlobalLeaderboard() {
+    try {
+        const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+            headers: { 'X-Master-Key': JSONBIN_API_KEY }
         });
+        const data = await response.json();
+        return data.record.scores || [];
+    } catch(e) {
+        console.log("Could not fetch global scores, using local");
+        return getLocalLeaderboard();
+    }
+}
 
-        function handleJoy(t) {
-            let r = joyZone.getBoundingClientRect();
-            let cx = r.left + r.width / 2;
-            let cy = r.top + r.height / 2;
-            let dx = t.clientX - cx;
-            let dy = t.clientY - cy;
-            let d = Math.hypot(dx, dy);
-            let maxR = 40;
-            if (d > maxR) { dx = (dx / d) * maxR; dy = (dy / d) * maxR; }
-            joyKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
-            joyX = dx / maxR;
-            joyY = dy / maxR;
-        }
-
-        function spawnEnemy() {
-            let angle = Math.random() * Math.PI * 2;
-            let dist = Math.max(CW, CH) * 0.6;
-            enemies.push({
-                x: player.x + Math.cos(angle) * dist,
-                y: player.y + Math.sin(angle) * dist,
-                w: 24,
-                h: 24,
-                hp: 10,
-                maxHp: 10,
-                speed: 0.8 + Math.random() * 0.4,
-                lastHitPlayer: 0,
-                isBoss: false
-            });
-        }
-
-        function spawnBoss() {
-            let angle = Math.random() * Math.PI * 2;
-            let dist = Math.max(CW, CH) * 0.6;
-            enemies.push({
-                x: player.x + Math.cos(angle) * dist,
-                y: player.y + Math.sin(angle) * dist,
-                w: 40,
-                h: 40,
-                hp: 20,
-                maxHp: 20,
-                speed: 0.6,
-                lastHitPlayer: 0,
-                isBoss: true
-            });
-        }
-
-        function spawnChest() {
-            let angle = Math.random() * Math.PI * 2;
-            let dist = Math.random() * 500 + 200;
-            chests.push({
-                x: player.x + Math.cos(angle) * dist,
-                y: player.y + Math.sin(angle) * dist,
-                w: 32,
-                h: 32
-            });
-        }
-
-        function separateEnemies() {
-            for (let i = 0; i < enemies.length; i++) {
-                for (let j = i + 1; j < enemies.length; j++) {
-                    let e1 = enemies[i],
-                        e2 = enemies[j];
-                    let dx = e2.x - e1.x,
-                        dy = e2.y - e1.y;
-                    let d = Math.hypot(dx, dy);
-                    let minDist = (e1.w + e2.w) / 2;
-                    if (d < minDist && d > 0) {
-                        let overlap = minDist - d;
-                        e1.x -= (dx / d) * overlap * 0.5;
-                        e1.y -= (dy / d) * overlap * 0.5;
-                        e2.x += (dx / d) * overlap * 0.5;
-                        e2.y += (dy / d) * overlap * 0.5;
-                    }
-                }
-            }
-        }
-
-        function loop() {
-            if (isPaused) {
-                gameLoopId = requestAnimationFrame(loop);
-                return;
-            }
-            let now = Date.now();
-
-            // CAMERA FOLLOW
-            camX = player.x - CW / 2;
-            camY = player.y - CH / 2;
-
-            // DRAW INFINITE BACKGROUND
-            ctx.clearRect(0, 0, CW, CH);
-
-            let tileSize = 32;
-            let offsetX = -camX % tileSize;
-            let offsetY = -camY % tileSize;
-
-            for (let x = offsetX - tileSize; x < CW + tileSize; x += tileSize) {
-                for (let y = offsetY - tileSize; y < CH + tileSize; y += tileSize) {
-                    ctx.drawImage(texSand, x, y, tileSize, tileSize);
-                }
-            }
-
-            // MOVEMENT
-            let dx = 0,
-                dy = 0;
-            if (keys['w']) dy = -1;
-            if (keys['s']) dy = 1;
-            if (keys['a']) dx = -1;
-            if (keys['d']) dx = 1;
-            if (isDragging) { dx = joyX;
-                dy = joyY; }
-
-            let moveDist = Math.hypot(dx, dy);
-            if (moveDist > 0) {
-                player.x += (dx / moveDist) * player.speed;
-                player.y += (dy / moveDist) * player.speed;
-            }
-
-            if (Math.random() < 0.012) spawnEnemy();
-            if (Math.random() < 0.001 && chests.length < 5) spawnChest();
-            bossSpawnTimer++;
-            if (bossSpawnTimer >= 1800) {
-                spawnBoss();
-                bossSpawnTimer = 0;
-            }
-
-            let nearestEnemy = null,
-                minDist = Infinity;
-            for (let i = enemies.length - 1; i >= 0; i--) {
-                let e = enemies[i];
-                let edx = player.x - e.x,
-                    edy = player.y - e.y;
-                let d = Math.hypot(edx, edy);
-                if (d < minDist) { minDist = d;
-                    nearestEnemy = e; }
-                if (d > 0) {
-                    e.x += (edx / d) * e.speed;
-                    e.y += (edy / d) * e.speed;
-                }
-
-                if (d < (e.isBoss ? 30 : 20) && now - e.lastHitPlayer > 1000) {
-                    playerHp -= 1;
-                    e.lastHitPlayer = now;
-                    updateHUD();
-                    if (playerHp <= 0) {
-                        isPaused = true;
-                        document.getElementById('go-player').innerText = selectedUser;
-                        document.getElementById('go-score').innerText = score;
-                        document.getElementById('go-time').innerText = timeLived;
-                        document.getElementById('go-kills').innerText = kills;
-                        const highscoreMsg = document.getElementById('go-highscore-msg');
-                        if (isNewHighScore(score)) {
-                            addHighScore(selectedUser, score, timeLived, kills);
-                            highscoreMsg.innerText = "🏆 NEW GLOBAL HIGH SCORE! 🏆";
-                        } else {
-                            highscoreMsg.innerText = "";
-                        }
-                        showModal('gameover-modal');
-                        return;
-                    }
-                }
-
-                // DRAW ENEMY WITH HEALTH BAR
-                let ex = e.x - camX,
-                    ey = e.y - camY;
-                if (e.isBoss) ctx.drawImage(texBoss, ex - 8, ey - 8, e.w, e.h);
-                else ctx.drawImage(texEnemy, ex, ey, e.w, e.h);
-
-                let barW = e.isBoss ? 50 : 30;
-                let barX = ex + (e.w / 2) - (barW / 2);
-                let barY = ey - 12;
-                ctx.fillStyle = 'rgba(0,0,0,0.5)';
-                ctx.fillRect(barX, barY, barW, 6);
-                let hpColor = e.hp > e.maxHp * 0.5 ? '#22c55e' : e.hp > e.maxHp * 0.25 ? '#eab308' : '#dc2626';
-                ctx.fillStyle = hpColor;
-                ctx.fillRect(barX, barY, barW * (e.hp / e.maxHp), 6);
-                // Display HP numbers
-                ctx.fillStyle = '#fff';
-                ctx.font = '8px "Press Start 2P"';
-                ctx.textAlign = 'center';
-                ctx.fillText(Math.ceil(e.hp) + '/' + e.maxHp, barX + barW/2, barY + 5);
-            }
-
-            separateEnemies();
-
-            if (nearestEnemy && now - lastShot >= 1200) {
-                let bx = nearestEnemy.x - player.x,
-                    by = nearestEnemy.y - player.y;
-                let bd = Math.hypot(bx, by);
-                bullets.push({
-                    x: player.x + 12,
-                    y: player.y + 12,
-                    vx: (bx / bd) * 8,
-                    vy: (by / bd) * 8,
-                    r: 4
-                });
-                lastShot = now;
-            }
-
-            ctx.fillStyle = '#000';
-            for (let i = bullets.length - 1; i >= 0; i--) {
-                let b = bullets[i];
-                b.x += b.vx;
-                b.y += b.vy;
-                ctx.fillRect(b.x - camX, b.y - camY, b.r * 2, b.r * 2);
-                if (Math.hypot(player.x - b.x, player.y - b.y) > 1000) {
-                    bullets.splice(i, 1);
-                    continue;
-                }
-                for (let j = enemies.length - 1; j >= 0; j--) {
-                    let e = enemies[j];
-                    if (b.x > e.x && b.x < e.x + e.w && b.y > e.y && b.y < e.y + e.h) {
-                        score += 50;
-                        e.hp -= gunDamage;
-                        bullets.splice(i, 1);
-                        updateHUD();
-                        if (e.hp <= 0) {
-                            kills++;
-                            let val = e.isBoss ? 200 : 25;
-                            drops.push({ x: e.x, y: e.y, type: 'money', val: val });
-                            if (e.isBoss || Math.random() > 0.8) drops.push({ x: e.x + 10, y: e.y, type: 'bandage' });
-                            enemies.splice(j, 1);
-                        }
-                        break;
-                    }
-                }
-            }
-
-            for (let i = drops.length - 1; i >= 0; i--) {
-                let d = drops[i];
-                let dropX = d.x - camX,
-                    dropY = d.y - camY;
-                if (d.type === 'money') ctx.drawImage(texMoney, dropX, dropY, 24, 24);
-                else ctx.drawImage(texBandage, dropX, dropY, 24, 24);
-                if (Math.hypot(player.x - d.x, player.y - d.y) < 30) {
-                    if (d.type === 'money') money += d.val;
-                    else bandages++;
-                    updateHUD();
-                    drops.splice(i, 1);
-                }
-            }
-
-            for (let i = chests.length - 1; i >= 0; i--) {
-                let c = chests[i];
-                ctx.drawImage(texChest, c.x - camX, c.y - camY, c.w, c.h);
-                if (Math.hypot(player.x - c.x, player.y - c.y) < 35) {
-                    drops.push({ x: c.x, y: c.y, type: 'money', val: 100 });
-                    chests.splice(i, 1);
-                }
-            }
-
-            // DRAW PLAYER
-            ctx.save();
-            let playerScreenX = player.x + 12 - camX;
-            let playerScreenY = player.y + 12 - camY;
-            ctx.translate(playerScreenX, playerScreenY);
-            if (nearestEnemy) ctx.rotate(Math.atan2(nearestEnemy.y - player.y, nearestEnemy.x - player.x));
-            ctx.fillStyle = '#451a03';
-            ctx.fillRect(10, -4, 14, 8);
-            ctx.fillStyle = '#1d4ed8';
-            ctx.fillRect(-12, -12, 24, 24);
-            ctx.fillStyle = '#3b82f6';
-            ctx.fillRect(-8, -8, 16, 16);
-            ctx.restore();
-
-            // DRAW PLAYER HEALTH BAR (pixel style, above player)
-            const barWidth = 30;
-            const barHeight = 6;
-            const barX = playerScreenX - barWidth / 2;
-            const barY = playerScreenY - 25;
-            const hpPercent = playerHp / maxHp;
-            ctx.fillStyle = '#422006';
-            ctx.fillRect(barX, barY, barWidth, barHeight);
-            let fillColor = hpPercent > 0.5 ? '#22c55e' : hpPercent > 0.25 ? '#eab308' : '#dc2626';
-            ctx.fillStyle = fillColor;
-            ctx.fillRect(barX, barY, barWidth * hpPercent, barHeight);
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 1;
-            ctx.strokeRect(barX, barY, barWidth, barHeight);
-            // Display HP numbers on player
-            ctx.fillStyle = '#fff';
-            ctx.font = '8px "Press Start 2P"';
-            ctx.textAlign = 'center';
-            ctx.fillText(playerHp + '/' + maxHp, playerScreenX, barY - 2);
-
-            gameLoopId = requestAnimationFrame(loop);
-        }
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.dropdown')) {
-                document.getElementById('username-list').classList.remove('show');
-            }
+async function addGlobalHighScore(playerName, score, timeLived, kills) {
+    try {
+        // Get current scores
+        const current = await getGlobalLeaderboard();
+        current.push({
+            name: playerName,
+            score: score,
+            time: timeLived,
+            kills: kills,
+            date: new Date().toISOString()
         });
-    </script>
+        current.sort((a, b) => b.score - a.score);
+        const top50 = current.slice(0, 50);
+        
+        // Update the bin
+        await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Master-Key': JSONBIN_API_KEY
+            },
+            body: JSON.stringify({ scores: top50 })
+        });
+        console.log("✅ Score added to global leaderboard");
+    } catch(e) {
+        console.log("⚠️ Saving locally");
+        const local = getLocalLeaderboard();
+        local.push({ name: playerName, score, time: timeLived, kills, date: new Date().toISOString() });
+        local.sort((a, b) => b.score - a.score);
+        saveLocalLeaderboard(local.slice(0, 50));
+    }
+}
+
+async function isNewGlobalHighScore(score) {
+    try {
+        const leaderboard = await getGlobalLeaderboard();
+        return leaderboard.length < 50 || score > (leaderboard[leaderboard.length - 1]?.score || 0);
+    } catch(e) {
+        return true;
+    }
+}
+
+function getLocalLeaderboard() {
+    try {
+        return JSON.parse(localStorage.getItem('defence_leaderboard') || '[]');
+    } catch(e) { return []; }
+}
+
+function saveLocalLeaderboard(leaderboard) {
+    localStorage.setItem('defence_leaderboard', JSON.stringify(leaderboard));
+}
+
+// UI Functions
+setTimeout(() => {
+    document.getElementById('splash-screen').style.display = 'none';
+    document.getElementById('menu-screen').style.display = 'block';
+}, 2500);
+
+let selectedUser = "Username ▼";
+
+function toggleUsername() { document.getElementById('username-list').classList.toggle('show'); }
+function selectUser(name) {
+    selectedUser = name;
+    document.getElementById('username-btn').innerText = name + " ▼";
+    document.getElementById('username-list').classList.remove('show');
+    document.getElementById('menu-error').innerText = "";
+}
+function showCustomUsernameInput() {
+    document.getElementById('username-list').classList.remove('show');
+    document.getElementById('custom-username-container').style.display = 'block';
+}
+function hideCustomUsername() { document.getElementById('custom-username-container').style.display = 'none'; }
+function setCustomUsername() {
+    const input = document.getElementById('custom-username-input');
+    const name = input.value.trim();
+    if(name) selectUser(name);
+    hideCustomUsername();
+    input.value = '';
+}
+function showModal(id) { document.getElementById(id).style.display = 'flex'; }
+function hideModal(id) { document.getElementById(id).style.display = 'none'; }
+
+async function showLeaderboard() {
+    showModal('leaderboard-modal');
+    const list = document.getElementById('leaderboard-list');
+    list.innerHTML = '<li>Loading global scores...</li>';
+    const leaderboard = await getGlobalLeaderboard();
+    list.innerHTML = '';
+    if(leaderboard.length === 0) list.innerHTML = '<li>No scores yet! Be the first!</li>';
+    else leaderboard.forEach((entry, i) => {
+        const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1);
+        list.innerHTML += `<li><strong>${medal}</strong> ${entry.name} - ${entry.score} pts</li>`;
+    });
+}
+
+// Game State
+let money=0, bandages=0, kills=0, score=0, timeLived=0, playerHp=10, maxHp=10;
+let currentGun='Pistol', gunDamage=1, bombPrice=100, bandagePackCost=150;
+let gunStats = {
+    'Pistol':{owned:true,level:0,baseDamage:1,baseCost:0},
+    'D-Eagle':{owned:false,level:0,baseDamage:2,baseCost:100},
+    'AK47':{owned:false,level:0,baseDamage:5,baseCost:500},
+    'Shortgun':{owned:false,level:0,baseDamage:10,baseCost:1000}
+};
+let isPaused=false, gameLoopId, timeInterval;
+let player={x:0,y:0,w:24,h:24,speed:2.5}, camX=0,camY=0;
+let enemies=[], bullets=[], drops=[], chests=[], keys={};
+let joyX=0,joyY=0,isDragging=false, lastShot=0, bossSpawnTimer=0;
+
+const canvas=document.getElementById('gameCanvas'), ctx=canvas.getContext('2d');
+let CW,CH;
+
+function resize(){CW=window.innerWidth;CH=window.innerHeight;canvas.width=CW;canvas.height=CH;}
+window.addEventListener('resize',resize);resize();
+
+function createPixelTexture(color,detailColor,type){
+    let tc=document.createElement('canvas');tc.width=32;tc.height=32;
+    let tctx=tc.getContext('2d');tctx.fillStyle=color;tctx.fillRect(0,0,32,32);tctx.fillStyle=detailColor;
+    if(type==='sand')for(let i=0;i<40;i++)tctx.fillRect(Math.random()*32,Math.random()*32,2,2);
+    else if(type==='chest'){tctx.fillStyle='#451a03';tctx.fillRect(2,2,28,28);tctx.fillStyle='#854d0e';tctx.fillRect(4,4,24,24);tctx.fillStyle='#eab308';tctx.fillRect(12,14,8,8);}
+    else if(type==='money'){tctx.fillStyle='#166534';tctx.fillRect(4,8,24,16);tctx.fillStyle='#4ade80';tctx.fillRect(6,10,20,12);tctx.fillStyle='#064e3b';tctx.font="10px monospace";tctx.fillText("$",12,19);}
+    else if(type==='bandage'){tctx.fillStyle='#f8fafc';tctx.fillRect(6,6,20,20);tctx.fillStyle='#dc2626';tctx.fillRect(14,8,4,16);tctx.fillRect(8,14,16,4);}
+    else if(type==='enemy'){tctx.fillStyle='#166534';tctx.fillRect(0,0,32,32);tctx.fillStyle='#22c55e';tctx.fillRect(4,4,24,24);tctx.fillStyle='#000';tctx.fillRect(6,8,6,6);tctx.fillRect(20,8,6,6);}
+    else if(type==='boss'){tctx.fillStyle='#7c2d12';tctx.fillRect(0,0,32,32);tctx.fillStyle='#dc2626';tctx.fillRect(2,2,28,28);tctx.fillStyle='#991b1b';tctx.fillRect(4,4,24,24);tctx.fillStyle='#000';tctx.fillRect(4,6,10,10);tctx.fillRect(18,6,10,10);tctx.fillStyle='#fbbf24';tctx.fillRect(6,0,4,6);tctx.fillRect(14,0,4,6);tctx.fillRect(22,0,4,6);}
+    return tc;
+}
+
+const texSand=createPixelTexture('#d4b85c','#b89838','sand'), texChest=createPixelTexture('','','chest');
+const texMoney=createPixelTexture('','','money'), texBandage=createPixelTexture('','','bandage');
+const texEnemy=createPixelTexture('','','enemy'), texBoss=createPixelTexture('','','boss');
+
+function startGame(){
+    if(selectedUser==="Username ▼"){document.getElementById('menu-error').innerText="PLEASE CHOOSE A USERNAME!";return;}
+    document.getElementById('menu-error').innerText="";
+    document.getElementById('menu-screen').style.display='none';
+    document.getElementById('game-screen').style.display='block';
+    resize();restartGame();
+}
+
+function restartGame(){
+    hideModal('settings-modal');hideModal('gameover-modal');hideModal('shop-modal');
+    money=0;bandages=0;kills=0;score=0;timeLived=0;playerHp=maxHp;
+    currentGun='Pistol';gunDamage=1;bombPrice=100;
+    gunStats={'Pistol':{owned:true,level:0,baseDamage:1,baseCost:0},'D-Eagle':{owned:false,level:0,baseDamage:2,baseCost:100},'AK47':{owned:false,level:0,baseDamage:5,baseCost:500},'Shortgun':{owned:false,level:0,baseDamage:10,baseCost:1000}};
+    updateShopUI();updateHUD();
+    player.x=0;player.y=0;camX=0;camY=0;
+    enemies=[];bullets=[];drops=[];chests=[];
+    isPaused=false;bossSpawnTimer=0;
+    clearInterval(timeInterval);
+    timeInterval=setInterval(()=>{if(!isPaused){timeLived++;updateHUD();}},1000);
+    lastShot=Date.now();
+    if(gameLoopId)cancelAnimationFrame(gameLoopId);
+    loop();
+}
+
+function exitToMenu(){
+    isPaused=true;clearInterval(timeInterval);
+    hideModal('settings-modal');hideModal('gameover-modal');hideModal('shop-modal');
+    document.getElementById('game-screen').style.display='none';
+    document.getElementById('menu-screen').style.display='block';
+    if(gameLoopId)cancelAnimationFrame(gameLoopId);
+}
+
+function updateBombButton(){
+    document.getElementById('bomb-price-badge').innerText='$'+bombPrice;
+    let btn=document.getElementById('bomb-circle-btn');
+    btn.disabled=(money<bombPrice);btn.style.opacity=(money<bombPrice)?'0.6':'1';
+}
+
+function updateHUD(){
+    document.getElementById('ui-money').innerText=money;
+    document.getElementById('ui-score').innerText=score;
+    document.getElementById('ui-time').innerText=timeLived;
+    document.getElementById('heal-bandage-count').innerText=bandages;
+    updateBombButton();
+}
+
+function openSettings(){isPaused=true;showModal('settings-modal');}
+function resumeGame(id){hideModal(id);if(id==='shop-modal'||id==='settings-modal')isPaused=false;}
+function goToShop(){isPaused=true;showModal('shop-modal');updateShopUI();document.getElementById('shop-message').innerText="";}
+function buyBandages(){if(money>=150){money-=150;bandages+=3;updateHUD();document.getElementById('shop-message').innerText="Purchased 3 Bandages!";}else{document.getElementById('shop-message').innerText="Not enough money!";}}
+function useBandage(){if(bandages>0&&playerHp<maxHp){bandages--;playerHp=Math.min(maxHp,playerHp+2);updateHUD();}}
+function useBomb(){if(money>=bombPrice){money-=bombPrice;bombPrice*=2;for(let i=enemies.length-1;i>=0;i--){if(Math.hypot(player.x-enemies[i].x,player.y-enemies[i].y)<=200){enemies[i].hp=0;score+=50;kills++;drops.push({x:enemies[i].x,y:enemies[i].y,type:'money',val:enemies[i].isBoss?200:25});if(enemies[i].isBoss||Math.random()>0.8)drops.push({x:enemies[i].x+10,y:enemies[i].y,type:'bandage'});enemies.splice(i,1);}}updateHUD();}}
+
+function buyGun(name){
+    let gun=gunStats[name];
+    if(gun.owned){currentGun=name;gunDamage=gun.baseDamage+(gun.level*2);document.getElementById('shop-message').innerText="Equipped "+name;updateShopUI();}
+    else if(money>=gun.baseCost){money-=gun.baseCost;gun.owned=true;currentGun=name;gunDamage=gun.baseDamage+(gun.level*2);updateHUD();updateShopUI();document.getElementById('shop-message').innerText="Purchased "+name;}
+    else document.getElementById('shop-message').innerText="Not enough money!";
+}
+
+function upgradeGun(name){
+    let gun=gunStats[name];if(!gun.owned||gun.level>=3)return;
+    let cost=gun.baseCost*(gun.level+1);
+    if(money>=cost){money-=cost;gun.level++;gunDamage=gun.baseDamage+(gun.level*2);updateHUD();updateShopUI();document.getElementById('shop-message').innerText=name+" upgraded!";}
+}
+
+function updateShopUI(){
+    ['D-Eagle','AK47','Shortgun'].forEach(name=>{
+        let gun=gunStats[name],key=name.toLowerCase().replace('-','');
+        if(key==='d-eagle')key='deagle';if(key==='shortgun')key='shortgun';
+        document.getElementById(key+'-dmg').innerText=gun.baseDamage+(gun.level*2);
+        document.getElementById(key+'-lvl').innerText=gun.level;
+        let buyBtn=document.getElementById('btn-buy-'+key),upgBtn=document.getElementById('btn-upgrade-'+key);
+        if(gun.owned){buyBtn.innerText=(currentGun===name)?'EQUIPPED':'EQUIP';document.getElementById(key+'-cost').innerText='Owned';upgBtn.style.display='inline-block';
+            if(gun.level>=3){upgBtn.innerText='MAX';upgBtn.disabled=true;}else{upgBtn.innerText='UPGRADE ($'+gun.baseCost*(gun.level+1)+')';upgBtn.disabled=false;}}
+        else{buyBtn.innerText='BUY';upgBtn.style.display='none';document.getElementById(key+'-cost').innerText=gun.baseCost;}
+    });
+}
+
+window.addEventListener('keydown',e=>keys[e.key.toLowerCase()]=true);
+window.addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+
+const joyZone=document.getElementById('joystick-zone'),joyKnob=document.getElementById('joystick-knob');
+joyZone.addEventListener('touchstart',e=>{isDragging=true;handleJoy(e.touches[0]);},{passive:false});
+joyZone.addEventListener('touchmove',e=>{if(isDragging){e.preventDefault();handleJoy(e.touches[0]);}},{passive:false});
+joyZone.addEventListener('touchend',()=>{isDragging=false;joyX=0;joyY=0;joyKnob.style.transform='translate(-50%,-50%)';});
+
+function handleJoy(t){let r=joyZone.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dx=t.clientX-cx,dy=t.clientY-cy,d=Math.hypot(dx,dy),maxR=40;if(d>maxR){dx=(dx/d)*maxR;dy=(dy/d)*maxR;}joyKnob.style.transform=`translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;joyX=dx/maxR;joyY=dy/maxR;}
+
+function spawnEnemy(){let a=Math.random()*Math.PI*2,d=Math.max(CW,CH)*0.6;enemies.push({x:player.x+Math.cos(a)*d,y:player.y+Math.sin(a)*d,w:24,h:24,hp:10,maxHp:10,speed:0.8+Math.random()*0.4,lastHitPlayer:0,isBoss:false});}
+function spawnBoss(){let a=Math.random()*Math.PI*2,d=Math.max(CW,CH)*0.6;enemies.push({x:player.x+Math.cos(a)*d,y:player.y+Math.sin(a)*d,w:40,h:40,hp:20,maxHp:20,speed:0.6,lastHitPlayer:0,isBoss:true});}
+function spawnChest(){let a=Math.random()*Math.PI*2,d=Math.random()*500+200;chests.push({x:player.x+Math.cos(a)*d,y:player.y+Math.sin(a)*d,w:32,h:32});}
+
+function separateEnemies(){for(let i=0;i<enemies.length;i++)for(let j=i+1;j<enemies.length;j++){let e1=enemies[i],e2=enemies[j],dx=e2.x-e1.x,dy=e2.y-e1.y,d=Math.hypot(dx,dy),min=(e1.w+e2.w)/2;if(d<min&&d>0){let o=min-d;e1.x-=(dx/d)*o*0.5;e1.y-=(dy/d)*o*0.5;e2.x+=(dx/d)*o*0.5;e2.y+=(dy/d)*o*0.5;}}}
+
+function loop(){
+    if(isPaused){gameLoopId=requestAnimationFrame(loop);return;}
+    let now=Date.now();camX=player.x-CW/2;camY=player.y-CH/2;
+    ctx.clearRect(0,0,CW,CH);
+    let ts=32,ox=-camX%ts,oy=-camY%ts;
+    for(let x=ox-ts;x<CW+ts;x+=ts)for(let y=oy-ts;y<CH+ts;y+=ts)ctx.drawImage(texSand,x,y,ts,ts);
+    let dx=0,dy=0;if(keys['w'])dy=-1;if(keys['s'])dy=1;if(keys['a'])dx=-1;if(keys['d'])dx=1;if(isDragging){dx=joyX;dy=joyY;}
+    let md=Math.hypot(dx,dy);if(md>0){player.x+=(dx/md)*player.speed;player.y+=(dy/md)*player.speed;}
+    if(Math.random()<0.012)spawnEnemy();if(Math.random()<0.001&&chests.length<5)spawnChest();
+    bossSpawnTimer++;if(bossSpawnTimer>=1800){spawnBoss();bossSpawnTimer=0;}
+    let nearest=null,minDist=Infinity;
+    for(let i=enemies.length-1;i>=0;i--){
+        let e=enemies[i],edx=player.x-e.x,edy=player.y-e.y,d=Math.hypot(edx,edy);
+        if(d<minDist){minDist=d;nearest=e;}
+        if(d>0){e.x+=(edx/d)*e.speed;e.y+=(edy/d)*e.speed;}
+        if(d<(e.isBoss?30:20)&&now-e.lastHitPlayer>1000){playerHp--;e.lastHitPlayer=now;updateHUD();
+            if(playerHp<=0){isPaused=true;
+                document.getElementById('go-player').innerText=selectedUser;
+                document.getElementById('go-score').innerText=score;
+                document.getElementById('go-time').innerText=timeLived;
+                document.getElementById('go-kills').innerText=kills;
+                isNewGlobalHighScore(score).then(isHigh=>{
+                    if(isHigh){addGlobalHighScore(selectedUser,score,timeLived,kills);document.getElementById('go-highscore-msg').innerText="🏆 NEW GLOBAL HIGH SCORE! 🏆";}
+                    else document.getElementById('go-highscore-msg').innerText="";
+                });
+                showModal('gameover-modal');return;
+            }
+        }
+        let ex=e.x-camX,ey=e.y-camY;
+        if(e.isBoss)ctx.drawImage(texBoss,ex-8,ey-8,e.w,e.h);else ctx.drawImage(texEnemy,ex,ey,e.w,e.h);
+        let bw=e.isBoss?50:30,bx=ex+e.w/2-bw/2,by=ey-12;
+        ctx.fillStyle='rgba(0,0,0,0.5)';ctx.fillRect(bx,by,bw,6);
+        ctx.fillStyle=e.hp>e.maxHp*0.5?'#22c55e':e.hp>e.maxHp*0.25?'#eab308':'#dc2626';
+        ctx.fillRect(bx,by,bw*(e.hp/e.maxHp),6);
+        ctx.fillStyle='#fff';ctx.font='8px "Press Start 2P"';ctx.textAlign='center';
+        ctx.fillText(Math.ceil(e.hp)+'/'+e.maxHp,bx+bw/2,by+5);
+    }
+    separateEnemies();
+    if(nearest&&now-lastShot>=1200){let bx=nearest.x-player.x,by=nearest.y-player.y,bd=Math.hypot(bx,by);bullets.push({x:player.x+12,y:player.y+12,vx:(bx/bd)*8,vy:(by/bd)*8,r:4});lastShot=now;}
+    ctx.fillStyle='#000';
+    for(let i=bullets.length-1;i>=0;i--){let b=bullets[i];b.x+=b.vx;b.y+=b.vy;ctx.fillRect(b.x-camX,b.y-camY,b.r*2,b.r*2);if(Math.hypot(player.x-b.x,player.y-b.y)>1000){bullets.splice(i,1);continue;}for(let j=enemies.length-1;j>=0;j--){let e=enemies[j];if(b.x>e.x&&b.x<e.x+e.w&&b.y>e.y&&b.y<e.y+e.h){score+=50;e.hp-=gunDamage;bullets.splice(i,1);updateHUD();if(e.hp<=0){kills++;drops.push({x:e.x,y:e.y,type:'money',val:e.isBoss?200:25});if(e.isBoss||Math.random()>0.8)drops.push({x:e.x+10,y:e.y,type:'bandage'});enemies.splice(j,1);}break;}}}
+    for(let i=drops.length-1;i>=0;i--){let d=drops[i];if(d.type==='money')ctx.drawImage(texMoney,d.x-camX,d.y-camY,24,24);else ctx.drawImage(texBandage,d.x-camX,d.y-camY,24,24);if(Math.hypot(player.x-d.x,player.y-d.y)<30){if(d.type==='money')money+=d.val;else bandages++;updateHUD();drops.splice(i,1);}}
+    for(let i=chests.length-1;i>=0;i--){let c=chests[i];ctx.drawImage(texChest,c.x-camX,c.y-camY,c.w,c.h);if(Math.hypot(player.x-c.x,player.y-c.y)<35){drops.push({x:c.x,y:c.y,type:'money',val:100});chests.splice(i,1);}}
+    ctx.save();let psx=player.x+12-camX,psy=player.y+12-camY;ctx.translate(psx,psy);if(nearest)ctx.rotate(Math.atan2(nearest.y-player.y,nearest.x-player.x));ctx.fillStyle='#451a03';ctx.fillRect(10,-4,14,8);ctx.fillStyle='#1d4ed8';ctx.fillRect(-12,-12,24,24);ctx.fillStyle='#3b82f6';ctx.fillRect(-8,-8,16,16);ctx.restore();
+    let bw=30,bh=6,bx=psx-bw/2,by=psy-25,hp=playerHp/maxHp;ctx.fillStyle='#422006';ctx.fillRect(bx,by,bw,bh);ctx.fillStyle=hp>0.5?'#22c55e':hp>0.25?'#eab308':'#dc2626';ctx.fillRect(bx,by,bw*hp,bh);ctx.strokeStyle='#000';ctx.lineWidth=1;ctx.strokeRect(bx,by,bw,bh);ctx.fillStyle='#fff';ctx.font='8px "Press Start 2P"';ctx.textAlign='center';ctx.fillText(playerHp+'/'+maxHp,psx,by-2);
+    gameLoopId=requestAnimationFrame(loop);
+}
+
+document.addEventListener('click',e=>{if(!e.target.closest('.dropdown'))document.getElementById('username-list').classList.remove('show');});
+</script>
 </body>
 </html>
