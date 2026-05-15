@@ -132,6 +132,16 @@
         .dropdown-item:hover {
             filter: brightness(1.2);
         }
+        .custom-username-input {
+            background: #fef08a;
+            border: 4px solid #854d0e;
+            color: #422006;
+            padding: 10px;
+            font-size: 12px;
+            text-align: center;
+            width: 200px;
+            font-family: 'Press Start 2P', monospace;
+        }
         .hud-top {
             position: absolute;
             top: 10px;
@@ -246,7 +256,6 @@
             border-radius: 50%;
             transform: translate(-50%,-50%);
         }
-        /* Circular action buttons moved to top */
         #action-buttons {
             display: flex;
             flex-direction: row;
@@ -316,6 +325,16 @@
             padding: 5px;
             filter: drop-shadow(2px 2px 0px #451a03);
         }
+        .leaderboard-list {
+            list-style: none;
+            padding: 0;
+            font-size: 10px;
+            line-height: 2;
+        }
+        .leaderboard-list li {
+            padding: 5px;
+            border-bottom: 1px solid #854d0e;
+        }
         @media (max-width: 768px) {
             .hud-box {
                 font-size: 8px;
@@ -352,6 +371,7 @@
     <div id="menu-screen">
         <div class="menu-top">
             <button class="btn" onclick="showModal('credits-modal')">Credits</button>
+            <button class="btn" onclick="showLeaderboard()">Leaderboard</button>
             <button class="btn" onclick="window.close()">Exit</button>
             <div class="dropdown">
                 <button class="btn" id="username-btn" onclick="toggleUsername()">Username ▼</button>
@@ -360,6 +380,7 @@
                     <div class="dropdown-item" onclick="selectUser('Yash')">Yash</div>
                     <div class="dropdown-item" onclick="selectUser('Ratcat (dev)')">Ratcat (dev)</div>
                     <div class="dropdown-item" onclick="selectUser('Harshit')">Harshit</div>
+                    <div class="dropdown-item" onclick="showCustomUsernameInput()">Custom...</div>
                 </div>
             </div>
         </div>
@@ -367,6 +388,11 @@
             <h1 class="menu-title">Defence Evolution</h1>
             <button class="btn" style="font-size:clamp(20px, 4vw, 30px); padding:20px 40px;" onclick="startGame()">▶</button>
             <p id="menu-error" style="color:#dc2626; font-size:10px; margin-top:20px; height:12px; text-shadow: 1px 1px 0 #000;"></p>
+        </div>
+        <div id="custom-username-container" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); text-align:center;">
+            <input type="text" class="custom-username-input" id="custom-username-input" placeholder="Enter name" maxlength="15">
+            <button class="btn" onclick="setCustomUsername()" style="margin-top:10px;">Set</button>
+            <button class="btn" onclick="hideCustomUsername()" style="margin-top:10px;">Cancel</button>
         </div>
     </div>
 
@@ -379,6 +405,14 @@
                 Enhanced by Gemini
             </p>
             <button class="btn" onclick="hideModal('credits-modal')">Close</button>
+        </div>
+    </div>
+
+    <div id="leaderboard-modal" class="modal-overlay">
+        <div class="modal-box yellow-ui">
+            <h2 class="modal-title">🏆 Global Leaderboard</h2>
+            <ul class="leaderboard-list" id="leaderboard-list"></ul>
+            <button class="btn" onclick="hideModal('leaderboard-modal')">Close</button>
         </div>
     </div>
 
@@ -457,6 +491,16 @@
                     <button class="btn" id="btn-upgrade-shortgun" onclick="upgradeGun('Shortgun')" style="display:none;">UPGRADE</button>
                 </div>
             </div>
+            <div class="shop-item yellow-ui">
+                <div class="shop-item-details">
+                    <strong>❤️ Bandage Pack</strong><br>
+                    Quantity: 3 Bandages<br>
+                    Cost: $<span id="bandage-cost">150</span>
+                </div>
+                <div class="shop-item-buttons">
+                    <button class="btn" onclick="buyBandages()">BUY</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -472,9 +516,11 @@
     <div id="gameover-modal" class="modal-overlay">
         <div class="modal-box yellow-ui">
             <h2 class="modal-title" style="color:#dc2626;">YOU DIED</h2>
+            <p style="font-size:12px;">Player: <span id="go-player"></span></p>
             <p style="font-size:12px;">Final Score: <span id="go-score"></span></p>
             <p style="font-size:12px;">Time Lived: <span id="go-time"></span>s</p>
             <p style="font-size:12px;">Kills: <span id="go-kills"></span></p>
+            <p style="font-size:12px; color:#facc15;" id="go-highscore-msg"></p>
             <button class="btn" onclick="restartGame()">Restart Game</button>
             <button class="btn" onclick="exitToMenu()">Main Menu</button>
         </div>
@@ -500,12 +546,90 @@
             document.getElementById('menu-error').innerText = "";
         }
 
+        function showCustomUsernameInput() {
+            document.getElementById('username-list').classList.remove('show');
+            document.getElementById('custom-username-container').style.display = 'block';
+        }
+
+        function hideCustomUsername() {
+            document.getElementById('custom-username-container').style.display = 'none';
+        }
+
+        function setCustomUsername() {
+            const input = document.getElementById('custom-username-input');
+            const name = input.value.trim();
+            if (name) {
+                selectUser(name);
+                // Add to dropdown if not already present
+                const list = document.getElementById('username-list');
+                const existing = Array.from(list.children).some(item => item.innerText === name);
+                if (!existing && name !== 'Custom...') {
+                    const div = document.createElement('div');
+                    div.className = 'dropdown-item';
+                    div.onclick = function() { selectUser(name); };
+                    div.innerText = name;
+                    list.insertBefore(div, list.lastElementChild);
+                }
+            }
+            hideCustomUsername();
+            input.value = '';
+        }
+
         function showModal(id) {
             document.getElementById(id).style.display = 'flex';
         }
 
         function hideModal(id) {
             document.getElementById(id).style.display = 'none';
+        }
+
+        // --- Leaderboard System ---
+        function getGlobalLeaderboard() {
+            const data = localStorage.getItem('defence_evolution_leaderboard');
+            return data ? JSON.parse(data) : [];
+        }
+
+        function saveGlobalLeaderboard(leaderboard) {
+            localStorage.setItem('defence_evolution_leaderboard', JSON.stringify(leaderboard));
+        }
+
+        function addHighScore(playerName, score, timeLived, kills) {
+            const leaderboard = getGlobalLeaderboard();
+            leaderboard.push({
+                name: playerName,
+                score: score,
+                time: timeLived,
+                kills: kills,
+                date: new Date().toISOString()
+            });
+            // Sort by score descending
+            leaderboard.sort((a, b) => b.score - a.score);
+            // Keep top 50
+            const top50 = leaderboard.slice(0, 50);
+            saveGlobalLeaderboard(top50);
+            return top50;
+        }
+
+        function isNewHighScore(score) {
+            const leaderboard = getGlobalLeaderboard();
+            if (leaderboard.length < 50) return true;
+            return score > leaderboard[leaderboard.length - 1].score;
+        }
+
+        function showLeaderboard() {
+            const leaderboard = getGlobalLeaderboard();
+            const list = document.getElementById('leaderboard-list');
+            list.innerHTML = '';
+            if (leaderboard.length === 0) {
+                list.innerHTML = '<li>No scores yet!</li>';
+            } else {
+                leaderboard.forEach((entry, index) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<strong>#${index + 1}</strong> ${entry.name} - ${entry.score} pts (${entry.time}s, ${entry.kills} kills)`;
+                    list.appendChild(li);
+                });
+            }
+            showModal('leaderboard-modal');
         }
 
         // --- Game State Variables ---
@@ -519,6 +643,7 @@
         let currentGun = 'Pistol',
             gunDamage = 1;
         let bombPrice = 100;
+        const bandagePackCost = 150;
 
         let gunStats = {
             'Pistol': { owned: true, level: 0, baseDamage: 1, baseCost: 0 },
@@ -684,6 +809,7 @@
             clearInterval(timeInterval);
             hideModal('settings-modal');
             hideModal('gameover-modal');
+            hideModal('shop-modal');
             document.getElementById('game-screen').style.display = 'none';
             document.getElementById('menu-screen').style.display = 'block';
             if (gameLoopId) cancelAnimationFrame(gameLoopId);
@@ -710,13 +836,32 @@
 
         function openSettings() { isPaused = true; showModal('settings-modal'); }
         function openInventory() { isPaused = true; updateHUD(); showModal('inventory-modal'); }
-        function resumeGame(modalId) { hideModal(modalId); isPaused = false; }
+        function resumeGame(modalId) {
+            hideModal(modalId);
+            if (modalId === 'shop-modal' || modalId === 'settings-modal' || modalId === 'inventory-modal') {
+                isPaused = false;
+            }
+        }
 
         function goToShop() {
             hideModal('inventory-modal');
+            isPaused = true;
             showModal('shop-modal');
             updateShopUI();
             document.getElementById('shop-message').innerText = "";
+        }
+
+        function buyBandages() {
+            if (money >= bandagePackCost) {
+                money -= bandagePackCost;
+                bandages += 3;
+                updateHUD();
+                document.getElementById('shop-message').innerText = "Purchased 3 Bandages!";
+                document.getElementById('shop-message').style.color = "#16a34a";
+            } else {
+                document.getElementById('shop-message').innerText = "You don't have enough money";
+                document.getElementById('shop-message').style.color = "#dc2626";
+            }
         }
 
         function useBandage() {
@@ -994,10 +1139,18 @@
                     updateHUD();
                     if (playerHp <= 0) {
                         isPaused = true;
-                        showModal('gameover-modal');
+                        document.getElementById('go-player').innerText = selectedUser;
                         document.getElementById('go-score').innerText = score;
                         document.getElementById('go-time').innerText = timeLived;
                         document.getElementById('go-kills').innerText = kills;
+                        const highscoreMsg = document.getElementById('go-highscore-msg');
+                        if (isNewHighScore(score)) {
+                            addHighScore(selectedUser, score, timeLived, kills);
+                            highscoreMsg.innerText = "🏆 NEW GLOBAL HIGH SCORE! 🏆";
+                        } else {
+                            highscoreMsg.innerText = "";
+                        }
+                        showModal('gameover-modal');
                         return;
                     }
                 }
@@ -1010,12 +1163,17 @@
 
                 let barW = e.isBoss ? 50 : 30;
                 let barX = ex + (e.w / 2) - (barW / 2);
-                let barY = ey - 10;
+                let barY = ey - 12;
                 ctx.fillStyle = 'rgba(0,0,0,0.5)';
-                ctx.fillRect(barX, barY, barW, 4);
+                ctx.fillRect(barX, barY, barW, 6);
                 let hpColor = e.hp > e.maxHp * 0.5 ? '#22c55e' : e.hp > e.maxHp * 0.25 ? '#eab308' : '#dc2626';
                 ctx.fillStyle = hpColor;
-                ctx.fillRect(barX, barY, barW * (e.hp / e.maxHp), 4);
+                ctx.fillRect(barX, barY, barW * (e.hp / e.maxHp), 6);
+                // Display HP numbers
+                ctx.fillStyle = '#fff';
+                ctx.font = '8px "Press Start 2P"';
+                ctx.textAlign = 'center';
+                ctx.fillText(Math.ceil(e.hp) + '/' + e.maxHp, barX + barW/2, barY + 5);
             }
 
             separateEnemies();
@@ -1114,6 +1272,11 @@
             ctx.strokeStyle = '#000';
             ctx.lineWidth = 1;
             ctx.strokeRect(barX, barY, barWidth, barHeight);
+            // Display HP numbers on player
+            ctx.fillStyle = '#fff';
+            ctx.font = '8px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText(playerHp + '/' + maxHp, playerScreenX, barY - 2);
 
             gameLoopId = requestAnimationFrame(loop);
         }
