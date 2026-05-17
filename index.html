@@ -148,6 +148,18 @@
             font-family: 'Press Start 2P', monospace;
             outline: none;
         }
+        .admin-code-input {
+            background: #1e1e1e;
+            border: 4px solid #facc15;
+            color: #facc15;
+            padding: 12px;
+            font-size: 12px;
+            text-align: center;
+            width: 100%;
+            font-family: 'Press Start 2P', monospace;
+            outline: none;
+            margin-top: 10px;
+        }
         .hud-top {
             position: absolute;
             top: 10px;
@@ -220,7 +232,7 @@
             text-align: center;
         }
         .credits-section .role {
-            color: #facc15;
+            color: #cfa600;
             font-size: 16px;
             text-shadow: 2px 2px 0px #713f12;
             margin-top: 20px;
@@ -370,6 +382,11 @@
             background: rgba(0,0,0,0.1);
             margin-bottom: 4px;
         }
+        .admin-badge {
+            color: #facc15;
+            font-size: 10px;
+            margin-left: 5px;
+        }
         @media (max-width: 768px) {
             .hud-box { font-size: 8px; padding: 6px; }
             .menu-title { font-size: 24px; }
@@ -395,7 +412,7 @@
         <div class="dropdown">
             <button class="btn" id="username-btn" onclick="toggleUsername()">Username ▼</button>
             <div class="dropdown-content yellow-ui" id="username-list">
-                <input type="text" class="username-input-in-dropdown" id="dropdown-username-input" placeholder="Type new username..." maxlength="15" onclick="event.stopPropagation()">
+                <input type="text" class="username-input-in-dropdown" id="dropdown-username-input" placeholder="Type new username..." maxlength="16" onclick="event.stopPropagation()">
                 <div id="username-history-items"></div>
                 <div class="dropdown-item" style="color:#dc2626;" onclick="clearUsernameHistory()">Clear History</div>
             </div>
@@ -408,12 +425,27 @@
     </div>
 </div>
 
+<!-- Admin Code Modal -->
+<div id="admin-code-modal" class="modal-overlay">
+    <div class="modal-box yellow-ui">
+        <h2 class="modal-title">🔐 Admin Verification</h2>
+        <p style="font-size:10px; color:#422006;">Welcome <span id="admin-name-display"></span>!</p>
+        <p style="font-size:10px; color:#422006;">Enter admin code to unlock powers:</p>
+        <input type="password" class="admin-code-input" id="admin-code-input" placeholder="Enter code..." maxlength="20">
+        <p id="admin-code-error" style="color:#dc2626; font-size:10px; height:12px;"></p>
+        <div style="display:flex; gap:10px; justify-content:center;">
+            <button class="btn" onclick="verifyAdminCode()">Submit</button>
+            <button class="btn" onclick="skipAdmin()">Skip (Play Normal)</button>
+        </div>
+    </div>
+</div>
+
 <div id="credits-modal" class="modal-overlay">
     <div class="modal-box yellow-ui">
         <h2 class="modal-title">Credits</h2>
         <div class="credits-section">
             <div class="role">👨‍💻 DEVELOPER</div><div class="names">Ratnesh Kumar</div>
-            <div class="role">👑 ORGANIZERS (Admins)</div><div class="names">Harshit</div><div class="names">Ujjawal</div><div class="names">Yash KR Singh</div>
+            <div class="role">👑 ORGANIZERS (Admins)</div><div class="names">Harshit</div><div class="names">Ujjawal</div><div class="names">Yash Kumar Singh</div>
             <div class="role">🎮 TEAM</div><div class="names">Yuvan</div><div class="names">Priyanshu</div><div class="names">Harsh</div><div class="names">Dipanshu</div>
         </div>
         <button class="btn" onclick="hideModal('credits-modal')">Close</button>
@@ -431,7 +463,7 @@
 <div id="game-screen">
     <canvas id="gameCanvas"></canvas>
     <div class="hud-top">
-        <div class="hud-box yellow-ui">$<span id="ui-money">0</span> | Score: <span id="ui-score">0</span></div>
+        <div class="hud-box yellow-ui">$<span id="ui-money">0</span> | Score: <span id="ui-score">0</span><span id="admin-badge" class="admin-badge" style="display:none;"> 👑ADMIN</span></div>
         <div id="action-buttons">
             <button class="circle-btn" id="bomb-circle-btn" onclick="useBomb()" title="Bomb">💣<span class="price-badge" id="bomb-price-badge">$100</span></button>
             <button class="circle-btn" id="heal-circle-btn" onclick="useBandage()" title="Heal">❤️<span class="bandage-count" id="heal-bandage-count">0</span></button>
@@ -440,7 +472,7 @@
         </div>
     </div>
     <div class="hud-bottom">
-        <div class="hud-box yellow-ui">Time: <span id="ui-time">0</span>s | <span id="ui-powerups"></span></div>
+        <div class="hud-box yellow-ui">Time: <span id="ui-time">0</span>s | Gun: <span id="ui-gun">Pistol</span> | <span id="ui-powerups"></span></div>
     </div>
     <div id="joystick-zone"><div id="joystick-knob"></div></div>
 </div>
@@ -463,28 +495,28 @@
         </div>
         <div class="shop-section-title">🔫 GUNS</div>
         <div class="shop-item yellow-ui">
-            <div class="shop-item-details"><strong>D-Eagle</strong><br>Bullet: 8 dmg | Lvl: <span id="deagle-lvl">0</span>/3<br>Cost: $<span id="deagle-cost">100</span></div>
+            <div class="shop-item-details"><strong>D-Eagle</strong><br>Bullet: 8 dmg | Lvl: <span id="deagle-lvl">0</span>/3<br>Semi-Auto (1200ms)<br>Cost: $<span id="deagle-cost">100</span></div>
             <div class="shop-item-buttons">
                 <button class="btn" id="btn-buy-deagle" onclick="buyGun('D-Eagle')">BUY</button>
                 <button class="btn" id="btn-upgrade-deagle" onclick="upgradeGun('D-Eagle')" style="display:none;">UPGRADE</button>
             </div>
         </div>
         <div class="shop-item yellow-ui">
-            <div class="shop-item-details"><strong>AK47</strong><br>Bullet: 12 dmg | Lvl: <span id="ak47-lvl">0</span>/3<br>Cost: $<span id="ak47-cost">500</span></div>
+            <div class="shop-item-details"><strong>🔥 AK47</strong><br>Bullet: 12 dmg | Lvl: <span id="ak47-lvl">0</span>/3<br>⚡ RAPID FIRE (400ms)<br>Cost: $<span id="ak47-cost">500</span></div>
             <div class="shop-item-buttons">
                 <button class="btn" id="btn-buy-ak47" onclick="buyGun('AK47')">BUY</button>
                 <button class="btn" id="btn-upgrade-ak47" onclick="upgradeGun('AK47')" style="display:none;">UPGRADE</button>
             </div>
         </div>
         <div class="shop-item yellow-ui">
-            <div class="shop-item-details"><strong>Shortgun</strong><br>Bullet: 18 dmg | Lvl: <span id="shortgun-lvl">0</span>/3<br>Cost: $<span id="shortgun-cost">1000</span></div>
+            <div class="shop-item-details"><strong>Shortgun</strong><br>5 Pellets (18 dmg each) | Lvl: <span id="shortgun-lvl">0</span>/3<br>Semi-Auto (1200ms)<br>Cost: $<span id="shortgun-cost">1000</span></div>
             <div class="shop-item-buttons">
                 <button class="btn" id="btn-buy-shortgun" onclick="buyGun('Shortgun')">BUY</button>
                 <button class="btn" id="btn-upgrade-shortgun" onclick="upgradeGun('Shortgun')" style="display:none;">UPGRADE</button>
             </div>
         </div>
         <div class="shop-item yellow-ui">
-            <div class="shop-item-details"><strong>🎯 AWM Sniper</strong><br>Bullet: 30 dmg | Lvl: <span id="awm-lvl">0</span>/3<br>Cost: $<span id="awm-cost">2000</span></div>
+            <div class="shop-item-details"><strong>🎯 AWM Sniper</strong><br>Bullet: 30 dmg | Lvl: <span id="awm-lvl">0</span>/3<br>Bolt-Action (2500ms)<br>Cost: $<span id="awm-cost">2000</span></div>
             <div class="shop-item-buttons">
                 <button class="btn" id="btn-buy-awm" onclick="buyGun('AWM')">BUY</button>
                 <button class="btn" id="btn-upgrade-awm" onclick="upgradeGun('AWM')" style="display:none;">UPGRADE</button>
@@ -523,6 +555,13 @@
 <script>
 const JSONBIN_API_KEY = "$2a$10$RL8cAC0/yD5TzAZJmkxlv.DqI8oIGL1ZoSTjronXAAQgDo3HxkPHa";
 const JSONBIN_BIN_ID = "6a06f11aadc21f119aa36905";
+
+// Admin list (case-insensitive check)
+const adminList = ["ratnesh (dev)","Ratnesh (Dev)", "harshit", "Harshit", "ujjawal", "Ujjawal","yash kumar singh", "Yash Kumar Singh", "Yash kumar singh"];
+const adminCode = "jai hind"; // Case insensitive
+
+let isAdmin = false;
+let pendingAdminCheck = false;
 
 async function getGlobalLeaderboard() {
     try {
@@ -611,6 +650,52 @@ function selectUser(name){selectedUser=name;document.getElementById('username-bt
 function showModal(id){document.getElementById(id).style.display='flex';}
 function hideModal(id){document.getElementById(id).style.display='none';}
 
+// Check if username is admin
+function isAdminUser(name) {
+    return adminList.includes(name.toLowerCase().trim());
+}
+
+function showAdminCodeModal() {
+    document.getElementById('admin-name-display').innerText = selectedUser;
+    document.getElementById('admin-code-input').value = '';
+    document.getElementById('admin-code-error').innerText = '';
+    showModal('admin-code-modal');
+}
+
+function verifyAdminCode() {
+    const code = document.getElementById('admin-code-input').value.trim().toLowerCase();
+    if (code === adminCode) {
+        isAdmin = true;
+        document.getElementById('admin-code-error').innerText = '';
+        hideModal('admin-code-modal');
+        document.getElementById('menu-error').innerText = '';
+        // Show admin badge
+        document.getElementById('admin-badge').style.display = 'inline';
+        // Start game with admin powers
+        document.getElementById('menu-screen').style.display='none';
+        document.getElementById('game-screen').style.display='block';
+        resize();
+        restartGame();
+        // Give infinite money
+        money = 999999;
+        updateHUD();
+    } else {
+        document.getElementById('admin-code-error').innerText = 'Wrong code! Try again.';
+    }
+}
+
+function skipAdmin() {
+    isAdmin = false;
+    document.getElementById('admin-badge').style.display = 'none';
+    hideModal('admin-code-modal');
+    document.getElementById('menu-error').innerText = '';
+    // Start game normally
+    document.getElementById('menu-screen').style.display='none';
+    document.getElementById('game-screen').style.display='block';
+    resize();
+    restartGame();
+}
+
 async function showLeaderboard(){
     showModal('leaderboard-modal');
     const list=document.getElementById('leaderboard-list');
@@ -627,6 +712,16 @@ function startGame(){
     const dropdownName=dropdownInput.value.trim();
     if(dropdownName){selectedUser=dropdownName;addGlobalUsername(dropdownName);document.getElementById('username-btn').innerText=dropdownName+" ▼";}
     if(!selectedUser){document.getElementById('menu-error').innerText="PLEASE CHOOSE A USERNAME!";return;}
+    
+    // Check if admin user
+    if (isAdminUser(selectedUser)) {
+        showAdminCodeModal();
+        return;
+    }
+    
+    // Normal player
+    isAdmin = false;
+    document.getElementById('admin-badge').style.display = 'none';
     document.getElementById('menu-error').innerText="";
     document.getElementById('menu-screen').style.display='none';
     document.getElementById('game-screen').style.display='block';
@@ -636,12 +731,14 @@ function startGame(){
 // Game State
 let money=0,bandages=0,kills=0,score=0,timeLived=0,playerHp=10,maxHp=10;
 let currentGun='Pistol',gunDamage=5,moneyMultiplier=1,moneyBoostTimer=0,potionTimer=0,potionActive=false,bombPrice=100;
+let enemyTier=1;
+
 let gunStats={
-    'Pistol':{owned:true,level:0,baseDamage:5,baseCost:0},
-    'D-Eagle':{owned:false,level:0,baseDamage:8,baseCost:100},
-    'AK47':{owned:false,level:0,baseDamage:12,baseCost:500},
-    'Shortgun':{owned:false,level:0,baseDamage:18,baseCost:1000},
-    'AWM':{owned:false,level:0,baseDamage:30,baseCost:2000}
+    'Pistol':{owned:true,level:0,baseDamage:5,baseCost:0,fireRate:1200},
+    'D-Eagle':{owned:false,level:0,baseDamage:8,baseCost:100,fireRate:1200},
+    'AK47':{owned:false,level:0,baseDamage:12,baseCost:500,fireRate:400},
+    'Shortgun':{owned:false,level:0,baseDamage:18,baseCost:1000,fireRate:1200},
+    'AWM':{owned:false,level:0,baseDamage:30,baseCost:2000,fireRate:2500}
 };
 let isPaused=false,gameLoopId,timeInterval;
 let player={x:0,y:0,w:24,h:24,speed:2.5},camX=0,camY=0;
@@ -653,6 +750,23 @@ let CW,CH;
 
 function resize(){CW=window.innerWidth;CH=window.innerHeight;canvas.width=CW;canvas.height=CH;}
 window.addEventListener('resize',resize);resize();
+
+function getEnemyHealthMultiplier(){
+    let totalUpgrades=0;
+    for(let gun in gunStats){
+        if(gunStats[gun].owned) totalUpgrades+=gunStats[gun].level;
+    }
+    enemyTier=1+Math.floor(totalUpgrades/2);
+    return 1+(enemyTier-1)*0.5;
+}
+
+function getFireRate(){
+    return gunStats[currentGun]?.fireRate || 1200;
+}
+
+function getBulletColor(damage) {
+    return '#000000'; // Black bullets for visibility
+}
 
 function createPixelTexture(color,detailColor,type){
     let tc=document.createElement('canvas');tc.width=32;tc.height=32;
@@ -672,16 +786,16 @@ const texEnemy=createPixelTexture('','','enemy'),texBoss=createPixelTexture('','
 
 function restartGame(){
     hideModal('settings-modal');hideModal('gameover-modal');hideModal('shop-modal');
-    money=0;bandages=0;kills=0;score=0;timeLived=0;playerHp=maxHp;
-    currentGun='Pistol';gunDamage=5;bombPrice=100;
+    money=isAdmin?999999:0;bandages=isAdmin?999:0;kills=0;score=0;timeLived=0;playerHp=maxHp;
+    currentGun='Pistol';gunDamage=5;bombPrice=100;enemyTier=1;
     moneyMultiplier=1;moneyBoostTimer=0;potionTimer=0;potionActive=false;
-    gunStats={'Pistol':{owned:true,level:0,baseDamage:5,baseCost:0},'D-Eagle':{owned:false,level:0,baseDamage:8,baseCost:100},'AK47':{owned:false,level:0,baseDamage:12,baseCost:500},'Shortgun':{owned:false,level:0,baseDamage:18,baseCost:1000},'AWM':{owned:false,level:0,baseDamage:30,baseCost:2000}};
+    gunStats={'Pistol':{owned:true,level:0,baseDamage:5,baseCost:0,fireRate:1200},'D-Eagle':{owned:false,level:0,baseDamage:8,baseCost:100,fireRate:1200},'AK47':{owned:false,level:0,baseDamage:5,aseCost:500,fireRate:400},'Shortgun':{owned:false,level:0,baseDamage:18,baseCost:1000,fireRate:1200},'AWM':{owned:false,level:0,baseDamage:30,baseCost:2000,fireRate:2500}};
     updateShopUI();updateHUD();
     player.x=0;player.y=0;camX=0;camY=0;
     enemies=[];bullets=[];drops=[];chests=[];
     isPaused=false;bossSpawnTimer=0;
     clearInterval(timeInterval);
-    timeInterval=setInterval(()=>{if(!isPaused){timeLived++;if(moneyBoostTimer>0){moneyBoostTimer--;if(moneyBoostTimer<=0)moneyMultiplier=1;}if(potionTimer>0){potionTimer--;if(potionTimer<=0)potionActive=false;}updateHUD();}},1000);
+    timeInterval=setInterval(()=>{if(!isPaused){timeLived++;if(moneyBoostTimer>0){moneyBoostTimer--;if(moneyBoostTimer<=0)moneyMultiplier=1;}if(potionTimer>0){potionTimer--;if(potionTimer<=0)potionActive=false;}if(isAdmin){playerHp=maxHp;money=999999;bandages=999;}updateHUD();}},1000);
     lastShot=Date.now();
     if(gameLoopId)cancelAnimationFrame(gameLoopId);
     loop();
@@ -707,6 +821,8 @@ function updateHUD(){
     document.getElementById('ui-score').innerText=score;
     document.getElementById('ui-time').innerText=timeLived;
     document.getElementById('heal-bandage-count').innerText=bandages;
+    document.getElementById('ui-gun').innerText=currentGun;
+    if(isAdmin) document.getElementById('admin-badge').style.display='inline';
     let powerupText='';
     if(moneyBoostTimer>0)powerupText+='💰2x '+moneyBoostTimer+'s ';
     if(potionActive)powerupText+='🧪+'+potionTimer+'s ';
@@ -718,14 +834,15 @@ function openSettings(){isPaused=true;showModal('settings-modal');}
 function resumeGame(id){hideModal(id);if(id==='shop-modal'||id==='settings-modal')isPaused=false;}
 function goToShop(){isPaused=true;showModal('shop-modal');updateShopUI();document.getElementById('shop-message').innerText="";}
 
-function buyBandages(){if(money>=150){money-=150;bandages+=3;updateHUD();document.getElementById('shop-message').innerText="Purchased 3 Bandages!";document.getElementById('shop-message').style.color="#16a34a";}else{document.getElementById('shop-message').innerText="Not enough money!";document.getElementById('shop-message').style.color="#dc2626";}}
-function buyPotion(){if(money>=500){money-=500;potionActive=true;potionTimer=90;document.getElementById('shop-message').innerText="+10 HP for 90s!";document.getElementById('shop-message').style.color="#16a34a";updateHUD();}else{document.getElementById('shop-message').innerText="Not enough money!";document.getElementById('shop-message').style.color="#dc2626";}}
-function buyMoneyBoost(){if(money>=1000){money-=1000;moneyMultiplier=2;moneyBoostTimer=90;document.getElementById('shop-message').innerText="2x Money for 90s!";document.getElementById('shop-message').style.color="#16a34a";updateHUD();}else{document.getElementById('shop-message').innerText="Not enough money!";document.getElementById('shop-message').style.color="#dc2626";}}
+function buyBandages(){if(money>=150||isAdmin){if(!isAdmin)money-=150;bandages+=3;updateHUD();document.getElementById('shop-message').innerText="Purchased 3 Bandages!";document.getElementById('shop-message').style.color="#16a34a";}else{document.getElementById('shop-message').innerText="Not enough money!";document.getElementById('shop-message').style.color="#dc2626";}}
+function buyPotion(){if(money>=500||isAdmin){if(!isAdmin)money-=500;potionActive=true;potionTimer=90;document.getElementById('shop-message').innerText="+10 HP for 90s!";document.getElementById('shop-message').style.color="#16a34a";updateHUD();}else{document.getElementById('shop-message').innerText="Not enough money!";document.getElementById('shop-message').style.color="#dc2626";}}
+function buyMoneyBoost(){if(money>=1000||isAdmin){if(!isAdmin)money-=1000;moneyMultiplier=2;moneyBoostTimer=90;document.getElementById('shop-message').innerText="2x Money for 90s!";document.getElementById('shop-message').style.color="#16a34a";updateHUD();}else{document.getElementById('shop-message').innerText="Not enough money!";document.getElementById('shop-message').style.color="#dc2626";}}
 function useBandage(){if(bandages>0&&playerHp<maxHp){bandages--;playerHp=Math.min(maxHp,playerHp+2);updateHUD();}}
 
 function useBomb(){
-    if(money>=bombPrice){
-        money-=bombPrice;bombPrice*=2;
+    if(money>=bombPrice||isAdmin){
+        if(!isAdmin)money-=bombPrice;
+        bombPrice*=2;
         let bombScore=0;
         for(let i=enemies.length-1;i>=0;i--){
             if(Math.hypot(player.x-enemies[i].x,player.y-enemies[i].y)<=200){
@@ -744,14 +861,14 @@ function useBomb(){
 function buyGun(name){
     let gun=gunStats[name];
     if(gun.owned){currentGun=name;gunDamage=gun.baseDamage+(gun.level*3);document.getElementById('shop-message').innerText="Equipped "+name;document.getElementById('shop-message').style.color="#16a34a";updateShopUI();}
-    else if(money>=gun.baseCost){money-=gun.baseCost;gun.owned=true;currentGun=name;gunDamage=gun.baseDamage+(gun.level*3);updateHUD();updateShopUI();document.getElementById('shop-message').innerText="Purchased "+name;document.getElementById('shop-message').style.color="#16a34a";}
+    else if(money>=gun.baseCost||isAdmin){if(!isAdmin)money-=gun.baseCost;gun.owned=true;currentGun=name;gunDamage=gun.baseDamage+(gun.level*3);updateHUD();updateShopUI();document.getElementById('shop-message').innerText="Purchased "+name;document.getElementById('shop-message').style.color="#16a34a";}
     else{document.getElementById('shop-message').innerText="Not enough money!";document.getElementById('shop-message').style.color="#dc2626";}
 }
 
 function upgradeGun(name){
     let gun=gunStats[name];if(!gun.owned||gun.level>=3)return;
     let cost=gun.baseCost*(gun.level+1);
-    if(money>=cost){money-=cost;gun.level++;gunDamage=gun.baseDamage+(gun.level*3);updateHUD();updateShopUI();document.getElementById('shop-message').innerText=name+" upgraded!";document.getElementById('shop-message').style.color="#16a34a";}
+    if(money>=cost||isAdmin){if(!isAdmin)money-=cost;gun.level++;gunDamage=gun.baseDamage+(gun.level*3);updateHUD();updateShopUI();document.getElementById('shop-message').innerText=name+" upgraded to Lvl "+gun.level+"!";document.getElementById('shop-message').style.color="#16a34a";}
 }
 
 function updateShopUI(){
@@ -777,8 +894,20 @@ joyZone.addEventListener('touchend',()=>{isDragging=false;joyX=0;joyY=0;joyKnob.
 
 function handleJoy(t){let r=joyZone.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dx=t.clientX-cx,dy=t.clientY-cy,d=Math.hypot(dx,dy),maxR=40;if(d>maxR){dx=(dx/d)*maxR;dy=(dy/d)*maxR;}joyKnob.style.transform=`translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;joyX=dx/maxR;joyY=dy/maxR;}
 
-function spawnEnemy(){let a=Math.random()*Math.PI*2,d=Math.max(CW,CH)*0.6;enemies.push({x:player.x+Math.cos(a)*d,y:player.y+Math.sin(a)*d,w:24,h:24,hp:10,maxHp:10,speed:0.8+Math.random()*0.4,lastHitPlayer:0,isBoss:false});}
-function spawnBoss(){let a=Math.random()*Math.PI*2,d=Math.max(CW,CH)*0.6;enemies.push({x:player.x+Math.cos(a)*d,y:player.y+Math.sin(a)*d,w:40,h:40,hp:25,maxHp:25,speed:0.6,lastHitPlayer:0,isBoss:true});}
+function spawnEnemy(){
+    let a=Math.random()*Math.PI*2,d=Math.max(CW,CH)*0.6;
+    let hmult=getEnemyHealthMultiplier();
+    let baseHp=Math.floor(30*hmult);
+    enemies.push({x:player.x+Math.cos(a)*d,y:player.y+Math.sin(a)*d,w:24,h:24,hp:baseHp,maxHp:baseHp,speed:0.8+Math.random()*0.4,lastHitPlayer:0,isBoss:false});
+}
+
+function spawnBoss(){
+    let a=Math.random()*Math.PI*2,d=Math.max(CW,CH)*0.6;
+    let hmult=getEnemyHealthMultiplier();
+    let baseHp=Math.floor(60*hmult);
+    enemies.push({x:player.x+Math.cos(a)*d,y:player.y+Math.sin(a)*d,w:40,h:40,hp:baseHp,maxHp:baseHp,speed:0.6,lastHitPlayer:0,isBoss:true});
+}
+
 function spawnChest(){let a=Math.random()*Math.PI*2,d=Math.random()*500+200;chests.push({x:player.x+Math.cos(a)*d,y:player.y+Math.sin(a)*d,w:32,h:32});}
 
 function separateEnemies(){for(let i=0;i<enemies.length;i++)for(let j=i+1;j<enemies.length;j++){let e1=enemies[i],e2=enemies[j],dx=e2.x-e1.x,dy=e2.y-e1.y,d=Math.hypot(dx,dy),min=(e1.w+e2.w)/2;if(d<min&&d>0){let o=min-d;e1.x-=(dx/d)*o*0.5;e1.y-=(dy/d)*o*0.5;e2.x+=(dx/d)*o*0.5;e2.y+=(dy/d)*o*0.5;}}}
@@ -796,11 +925,16 @@ function loop(){
     let nearest=null,minDist=Infinity;
     let currentMaxHp=potionActive?maxHp+10:maxHp;
     
+    // Admin infinite health
+    if(isAdmin) playerHp = currentMaxHp;
+    
     for(let i=enemies.length-1;i>=0;i--){
         let e=enemies[i],edx=player.x-e.x,edy=player.y-e.y,d=Math.hypot(edx,edy);
         if(d<minDist){minDist=d;nearest=e;}
         if(d>0){e.x+=(edx/d)*e.speed;e.y+=(edy/d)*e.speed;}
-        if(d<(e.isBoss?30:20)&&now-e.lastHitPlayer>1000){playerHp--;e.lastHitPlayer=now;updateHUD();
+        if(d<(e.isBoss?30:20)&&now-e.lastHitPlayer>1000){
+            if(!isAdmin) playerHp--;
+            e.lastHitPlayer=now;updateHUD();
             if(playerHp<=0){isPaused=true;
                 document.getElementById('go-player').innerText=selectedUser;
                 document.getElementById('go-score').innerText=score;
@@ -824,30 +958,91 @@ function loop(){
     }
     separateEnemies();
     
-    // Auto-shoot with bullet health system
-    if(nearest&&now-lastShot>=1200){
+    // Shooting logic with penetrating bullets
+    let fireRate=getFireRate();
+    if(nearest&&now-lastShot>=fireRate){
         let bx=nearest.x-player.x,by=nearest.y-player.y,bd=Math.hypot(bx,by);
         let bulletSpeed=8;
-        bullets.push({x:player.x+12,y:player.y+12,vx:(bx/bd)*bulletSpeed,vy:(by/bd)*bulletSpeed,r:4,damage:gunDamage,hitEnemies:[]});
+        let baseAngle=Math.atan2(by,bx);
+        
+        if(currentGun==='Shortgun'){
+            // Fire 5 pellets in a spread pattern
+            let pelletCount=5;
+            let spreadAngle=0.3; // Total spread angle in radians (~17 degrees)
+            for(let p=0;p<pelletCount;p++){
+                let angleOffset=(p-(pelletCount-1)/2)*(spreadAngle/(pelletCount-1));
+                let angle=baseAngle+angleOffset;
+                let vx=Math.cos(angle)*bulletSpeed;
+                let vy=Math.sin(angle)*bulletSpeed;
+                bullets.push({
+                    x:player.x+12,
+                    y:player.y+12,
+                    vx:vx,
+                    vy:vy,
+                    r:3,
+                    damage:Math.floor(gunDamage*0.6), // Each pellet does 60% damage
+                    hitEnemies:[]
+                });
+            }
+        } else {
+            // Single bullet for other guns
+            bullets.push({
+                x:player.x+12,
+                y:player.y+12,
+                vx:(bx/bd)*bulletSpeed,
+                vy:(by/bd)*bulletSpeed,
+                r:4,
+                damage:gunDamage,
+                hitEnemies:[]
+            });
+        }
         lastShot=now;
     }
     
-    ctx.fillStyle='#000';
+        // Bullet update and collision with penetrating mechanics
     for(let i=bullets.length-1;i>=0;i--){
-        let b=bullets[i];b.x+=b.vx;b.y+=b.vy;
+        let b=bullets[i];
+        b.x+=b.vx;
+        b.y+=b.vy;
+        
+        // Draw bullet in black with white outline for visibility
+        ctx.fillStyle='#000000';
         ctx.fillRect(b.x-camX,b.y-camY,b.r*2,b.r*2);
-        if(Math.hypot(player.x-b.x,player.y-b.y)>1500){bullets.splice(i,1);continue;}
+        ctx.strokeStyle='#ffffff';
+        ctx.lineWidth=1;
+        ctx.strokeRect(b.x-camX,b.y-camY,b.r*2,b.r*2);
+        
+        // Remove if too far from player
+        if(Math.hypot(player.x-b.x,player.y-b.y)>1500){
+            bullets.splice(i,1);
+            continue;
+        }
+        
         let bulletUsed=false;
         for(let j=enemies.length-1;j>=0;j--){
             let e=enemies[j];
             if(!b.hitEnemies.includes(j)&&b.x>e.x&&b.x<e.x+e.w&&b.y>e.y&&b.y<e.y+e.h){
                 b.hitEnemies.push(j);
+                
+                // Calculate actual damage (minimum of bullet damage and enemy HP)
                 let actualDamage=Math.min(b.damage,e.hp);
                 e.hp-=actualDamage;
+                
+                // Reduce bullet damage by the amount dealt
                 b.damage-=actualDamage;
-                // Bullet slows down
-                b.vx*=0.8;b.vy*=0.8;
+                
+                // Slow down bullet proportionally to damage dealt
+                let totalDamage=actualDamage+(b.damage||0.01);
+                let speedReduction=actualDamage/totalDamage;
+                let slowFactor=1-speedReduction*0.3; // Maximum 30% slowdown
+                b.vx*=slowFactor;
+                b.vy*=slowFactor;
+                
+                // Reduce bullet size slightly
+                b.r=Math.max(2,b.r-0.3);
+                
                 bulletUsed=true;
+                
                 if(e.hp<=0){
                     score+=50;
                     kills++;
@@ -856,11 +1051,19 @@ function loop(){
                     if(e.isBoss||Math.random()>0.8)drops.push({x:e.x+10,y:e.y,type:'bandage'});
                     enemies.splice(j,1);
                 }
-                if(b.damage<=0){bullets.splice(i,1);break;}
+                
+                // Only remove bullet if it has no damage left
+                if(b.damage<=0){
+                    bullets.splice(i,1);
+                    break;
+                }
             }
         }
-        if(bulletUsed&&b.damage<=0)continue;
-        if(b.damage<=0){bullets.splice(i,1);}
+        // Remove bullet if damage is depleted
+        if(b.damage<=0){
+            bullets.splice(i,1);
+            continue;
+        }
         updateHUD();
     }
     
