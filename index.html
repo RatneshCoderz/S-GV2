@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Defence Evolution</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
         * {
             margin: 0;
@@ -553,43 +554,70 @@
 </div>
 
 <script>
-const JSONBIN_API_KEY = "$2a$10$RL8cAC0/yD5TzAZJmkxlv.DqI8oIGL1ZoSTjronXAAQgDo3HxkPHa";
-const JSONBIN_BIN_ID = "6a06f11aadc21f119aa36905";
+// Supabase Configuration
+const SUPABASE_URL = 'https://cgnjarwxacpbgbbdendv.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNnbmphcnd4YWNwYmdiYmRlbmR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwMDY1MDYsImV4cCI6MjA5NDU4MjUwNn0.XeRmz5-8p1Fl16SbLkRNNTxAVyoKBpT_8LAhRAd7ikY';
+
+// Initialize Supabase client
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Admin list (case-insensitive check)
 const adminList = ["ratnesh (dev)","Ratnesh (Dev)", "harshit", "Harshit", "ujjawal", "Ujjawal","yash kumar singh", "Yash Kumar Singh", "Yash kumar singh"];
-const adminCode = "jai hind"; // Case insensitive
+const adminCode = "jai hind";
 
 let isAdmin = false;
-let pendingAdminCheck = false;
 
 async function getGlobalLeaderboard() {
     try {
-        const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {headers:{'X-Master-Key':JSONBIN_API_KEY}});
-        const data = await response.json();
-        return data.record.scores || [];
-    } catch(e) { return getLocalLeaderboard(); }
+        const { data, error } = await supabase
+            .from('leaderboard')
+            .select('*')
+            .order('score', { ascending: false })
+            .limit(50);
+        
+        if (error) throw error;
+        return data || [];
+    } catch(e) {
+        console.error('Error fetching leaderboard:', e);
+        return getLocalLeaderboard();
+    }
 }
 
 async function getGlobalUsernames() {
     try {
-        const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {headers:{'X-Master-Key':JSONBIN_API_KEY}});
-        const data = await response.json();
-        return data.record.usernames || [];
-    } catch(e) { return getLocalUsernames(); }
+        const { data, error } = await supabase
+            .from('usernames')
+            .select('username')
+            .order('last_used', { ascending: false })
+            .limit(20);
+        
+        if (error) throw error;
+        return data.map(row => row.username) || [];
+    } catch(e) {
+        console.error('Error fetching usernames:', e);
+        return getLocalUsernames();
+    }
 }
 
 async function addGlobalUsername(username) {
     try {
-        const current = await getGlobalUsernames();
-        const filtered = current.filter(name => name !== username);
+        const { error } = await supabase
+            .from('usernames')
+            .upsert({ 
+                username: username, 
+                last_used: new Date().toISOString() 
+            }, { 
+                onConflict: 'username' 
+            });
+        
+        if (error) throw error;
+        
+        const local = getLocalUsernames();
+        const filtered = local.filter(name => name !== username);
         filtered.unshift(username);
-        const usernames = filtered.slice(0, 20);
-        const scoresResponse = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {headers:{'X-Master-Key':JSONBIN_API_KEY}});
-        const scoresData = await scoresResponse.json();
-        const scores = scoresData.record.scores || [];
-        await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_API_KEY},body:JSON.stringify({scores:scores,usernames:usernames})});
+        saveLocalUsernames(filtered.slice(0, 20));
     } catch(e) {
+        console.error('Error saving username:', e);
         const local = getLocalUsernames();
         const filtered = local.filter(name => name !== username);
         filtered.unshift(username);
@@ -597,42 +625,83 @@ async function addGlobalUsername(username) {
     }
 }
 
-function getLocalUsernames() { try { return JSON.parse(localStorage.getItem('global_username_history')||'[]'); } catch(e) { return []; } }
-function saveLocalUsernames(usernames) { localStorage.setItem('global_username_history', JSON.stringify(usernames)); }
+function getLocalUsernames() { 
+    try { return JSON.parse(localStorage.getItem('global_username_history')||'[]'); } 
+    catch(e) { return []; } 
+}
+
+function saveLocalUsernames(usernames) { 
+    localStorage.setItem('global_username_history', JSON.stringify(usernames)); 
+}
 
 async function addGlobalHighScore(playerName, score, timeLived, kills) {
     try {
-        const current = await getGlobalLeaderboard();
-        current.push({name:playerName,score:score,time:timeLived,kills:kills,date:new Date().toISOString()});
-        current.sort((a,b)=>b.score-a.score);
-        const top50 = current.slice(0,50);
-        const usernamesResponse = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {headers:{'X-Master-Key':JSONBIN_API_KEY}});
-        const usernamesData = await usernamesResponse.json();
-        const usernames = usernamesData.record.usernames || [];
-        await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_API_KEY},body:JSON.stringify({scores:top50,usernames:usernames})});
-    } catch(e) {
+        const { error } = await supabase
+            .from('leaderboard')
+            .insert([
+                { 
+                    player_name: playerName,
+                    score: score,
+                    time_lived: timeLived,
+                    kills: kills
+                }
+            ]);
+        
+        if (error) throw error;
+        
         const local = getLocalLeaderboard();
-        local.push({name:playerName,score,time:timeLived,kills,date:new Date().toISOString()});
-        local.sort((a,b)=>b.score-a.score);
-        saveLocalLeaderboard(local.slice(0,50));
+        local.push({player_name: playerName, score: score, time: timeLived, kills: kills, date: new Date().toISOString()});
+        local.sort((a,b) => b.score - a.score);
+        saveLocalLeaderboard(local.slice(0, 50));
+    } catch(e) {
+        console.error('Error saving score:', e);
+        const local = getLocalLeaderboard();
+        local.push({player_name: playerName, score: score, time: timeLived, kills: kills, date: new Date().toISOString()});
+        local.sort((a,b) => b.score - a.score);
+        saveLocalLeaderboard(local.slice(0, 50));
     }
 }
 
 async function isNewGlobalHighScore(score) {
-    try { const leaderboard = await getGlobalLeaderboard(); return leaderboard.length < 50 || score > (leaderboard[leaderboard.length-1]?.score||0); }
-    catch(e) { return true; }
+    try {
+        const { data, error } = await supabase
+            .from('leaderboard')
+            .select('score')
+            .order('score', { ascending: false })
+            .limit(50);
+        
+        if (error) throw error;
+        return data.length < 50 || score > (data[data.length - 1]?.score || 0);
+    } catch(e) {
+        return true;
+    }
 }
 
-function getLocalLeaderboard() { try { return JSON.parse(localStorage.getItem('defence_leaderboard')||'[]'); } catch(e) { return []; } }
-function saveLocalLeaderboard(leaderboard) { localStorage.setItem('defence_leaderboard', JSON.stringify(leaderboard)); }
+function getLocalLeaderboard() { 
+    try { return JSON.parse(localStorage.getItem('defence_leaderboard')||'[]'); } 
+    catch(e) { return []; } 
+}
+
+function saveLocalLeaderboard(leaderboard) { 
+    localStorage.setItem('defence_leaderboard', JSON.stringify(leaderboard)); 
+}
 
 async function updateUsernameDropdown() {
     const container = document.getElementById('username-history-items');
     container.innerHTML = '<div class="dropdown-item" style="color:#854d0e;">Loading...</div>';
     const usernames = await getGlobalUsernames();
     container.innerHTML = '';
-    if(usernames.length===0) container.innerHTML = '<div class="dropdown-item" style="color:#854d0e;">No history yet</div>';
-    else usernames.forEach(name => { const div = document.createElement('div'); div.className='dropdown-item'; div.onclick=function(){selectUser(name);}; div.innerText=name; container.appendChild(div); });
+    if(usernames.length === 0) {
+        container.innerHTML = '<div class="dropdown-item" style="color:#854d0e;">No history yet</div>';
+    } else {
+        usernames.forEach(name => { 
+            const div = document.createElement('div'); 
+            div.className = 'dropdown-item'; 
+            div.onclick = function(){ selectUser(name); }; 
+            div.innerText = name; 
+            container.appendChild(div); 
+        });
+    }
 }
 
 function clearUsernameHistory() {
@@ -641,16 +710,38 @@ function clearUsernameHistory() {
     document.getElementById('username-list').classList.remove('show');
 }
 
-setTimeout(()=>{document.getElementById('splash-screen').style.display='none';document.getElementById('menu-screen').style.display='block';updateUsernameDropdown();},2500);
+// Hide splash screen and show menu
+setTimeout(() => {
+    try {
+        document.getElementById('splash-screen').style.display = 'none';
+        document.getElementById('menu-screen').style.display = 'block';
+        updateUsernameDropdown();
+    } catch(e) {
+        console.error('Error starting:', e);
+        document.getElementById('splash-screen').style.display = 'none';
+        document.getElementById('menu-screen').style.display = 'block';
+    }
+}, 2500);
 
-let selectedUser="";
+let selectedUser = "";
 
-function toggleUsername(){const list=document.getElementById('username-list');list.classList.toggle('show');if(list.classList.contains('show'))updateUsernameDropdown();}
-function selectUser(name){selectedUser=name;document.getElementById('username-btn').innerText=name+" ▼";document.getElementById('dropdown-username-input').value=name;document.getElementById('username-list').classList.remove('show');document.getElementById('menu-error').innerText="";}
-function showModal(id){document.getElementById(id).style.display='flex';}
-function hideModal(id){document.getElementById(id).style.display='none';}
+function toggleUsername() {
+    const list = document.getElementById('username-list');
+    list.classList.toggle('show');
+    if(list.classList.contains('show')) updateUsernameDropdown();
+}
 
-// Check if username is admin
+function selectUser(name) {
+    selectedUser = name;
+    document.getElementById('username-btn').innerText = name + " ▼";
+    document.getElementById('dropdown-username-input').value = name;
+    document.getElementById('username-list').classList.remove('show');
+    document.getElementById('menu-error').innerText = "";
+}
+
+function showModal(id) { document.getElementById(id).style.display = 'flex'; }
+function hideModal(id) { document.getElementById(id).style.display = 'none'; }
+
 function isAdminUser(name) {
     return adminList.includes(name.toLowerCase().trim());
 }
@@ -669,14 +760,11 @@ function verifyAdminCode() {
         document.getElementById('admin-code-error').innerText = '';
         hideModal('admin-code-modal');
         document.getElementById('menu-error').innerText = '';
-        // Show admin badge
         document.getElementById('admin-badge').style.display = 'inline';
-        // Start game with admin powers
-        document.getElementById('menu-screen').style.display='none';
-        document.getElementById('game-screen').style.display='block';
+        document.getElementById('menu-screen').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'block';
         resize();
         restartGame();
-        // Give infinite money
         money = 999999;
         updateHUD();
     } else {
@@ -689,43 +777,60 @@ function skipAdmin() {
     document.getElementById('admin-badge').style.display = 'none';
     hideModal('admin-code-modal');
     document.getElementById('menu-error').innerText = '';
-    // Start game normally
-    document.getElementById('menu-screen').style.display='none';
-    document.getElementById('game-screen').style.display='block';
+    document.getElementById('menu-screen').style.display = 'none';
+    document.getElementById('game-screen').style.display = 'block';
     resize();
     restartGame();
 }
 
-async function showLeaderboard(){
+async function showLeaderboard() {
     showModal('leaderboard-modal');
-    const list=document.getElementById('leaderboard-list');
-    list.innerHTML='<li>Loading top 5 players...</li>';
-    const leaderboard=await getGlobalLeaderboard();
-    const top5=leaderboard.slice(0,5);
-    list.innerHTML='';
-    if(top5.length===0)list.innerHTML='<li>No scores yet! Be the first!</li>';
-    else top5.forEach((entry,i)=>{const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1);list.innerHTML+=`<li><strong>${medal}</strong> ${entry.name} - ${entry.score} pts</li>`;});
+    const list = document.getElementById('leaderboard-list');
+    list.innerHTML = '<li>Loading top 5 players...</li>';
+    
+    try {
+        const leaderboard = await getGlobalLeaderboard();
+        const top5 = leaderboard.slice(0, 5);
+        list.innerHTML = '';
+        
+        if(top5.length === 0) {
+            list.innerHTML = '<li>No scores yet! Be the first!</li>';
+        } else {
+            top5.forEach((entry, i) => {
+                const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '#' + (i + 1);
+                list.innerHTML += `<li><strong>${medal}</strong> ${entry.player_name} - ${entry.score} pts (Kills: ${entry.kills})</li>`;
+            });
+        }
+    } catch(e) {
+        list.innerHTML = '<li style="color:#dc2626;">Failed to load leaderboard</li>';
+    }
 }
 
-function startGame(){
-    const dropdownInput=document.getElementById('dropdown-username-input');
-    const dropdownName=dropdownInput.value.trim();
-    if(dropdownName){selectedUser=dropdownName;addGlobalUsername(dropdownName);document.getElementById('username-btn').innerText=dropdownName+" ▼";}
-    if(!selectedUser){document.getElementById('menu-error').innerText="PLEASE CHOOSE A USERNAME!";return;}
+function startGame() {
+    const dropdownInput = document.getElementById('dropdown-username-input');
+    const dropdownName = dropdownInput.value.trim();
+    if(dropdownName) {
+        selectedUser = dropdownName;
+        addGlobalUsername(dropdownName);
+        document.getElementById('username-btn').innerText = dropdownName + " ▼";
+    }
+    if(!selectedUser) {
+        document.getElementById('menu-error').innerText = "PLEASE CHOOSE A USERNAME!";
+        return;
+    }
     
-    // Check if admin user
     if (isAdminUser(selectedUser)) {
         showAdminCodeModal();
         return;
     }
     
-    // Normal player
     isAdmin = false;
     document.getElementById('admin-badge').style.display = 'none';
-    document.getElementById('menu-error').innerText="";
-    document.getElementById('menu-screen').style.display='none';
-    document.getElementById('game-screen').style.display='block';
-    resize();restartGame();
+    document.getElementById('menu-error').innerText = "";
+    document.getElementById('menu-screen').style.display = 'none';
+    document.getElementById('game-screen').style.display = 'block';
+    resize();
+    restartGame();
 }
 
 // Game State
@@ -764,10 +869,6 @@ function getFireRate(){
     return gunStats[currentGun]?.fireRate || 1200;
 }
 
-function getBulletColor(damage) {
-    return '#000000'; // Black bullets for visibility
-}
-
 function createPixelTexture(color,detailColor,type){
     let tc=document.createElement('canvas');tc.width=32;tc.height=32;
     let tctx=tc.getContext('2d');tctx.fillStyle=color;tctx.fillRect(0,0,32,32);tctx.fillStyle=detailColor;
@@ -789,7 +890,7 @@ function restartGame(){
     money=isAdmin?999999:0;bandages=isAdmin?999:0;kills=0;score=0;timeLived=0;playerHp=maxHp;
     currentGun='Pistol';gunDamage=5;bombPrice=100;enemyTier=1;
     moneyMultiplier=1;moneyBoostTimer=0;potionTimer=0;potionActive=false;
-    gunStats={'Pistol':{owned:true,level:0,baseDamage:5,baseCost:0,fireRate:1200},'D-Eagle':{owned:false,level:0,baseDamage:8,baseCost:100,fireRate:1200},'AK47':{owned:false,level:0,baseDamage:5,aseCost:500,fireRate:400},'Shortgun':{owned:false,level:0,baseDamage:18,baseCost:1000,fireRate:1200},'AWM':{owned:false,level:0,baseDamage:30,baseCost:2000,fireRate:2500}};
+    gunStats={'Pistol':{owned:true,level:0,baseDamage:5,baseCost:0,fireRate:1200},'D-Eagle':{owned:false,level:0,baseDamage:8,baseCost:100,fireRate:1200},'AK47':{owned:false,level:0,baseDamage:12,baseCost:500,fireRate:400},'Shortgun':{owned:false,level:0,baseDamage:18,baseCost:1000,fireRate:1200},'AWM':{owned:false,level:0,baseDamage:30,baseCost:2000,fireRate:2500}};
     updateShopUI();updateHUD();
     player.x=0;player.y=0;camX=0;camY=0;
     enemies=[];bullets=[];drops=[];chests=[];
@@ -925,7 +1026,6 @@ function loop(){
     let nearest=null,minDist=Infinity;
     let currentMaxHp=potionActive?maxHp+10:maxHp;
     
-    // Admin infinite health
     if(isAdmin) playerHp = currentMaxHp;
     
     for(let i=enemies.length-1;i>=0;i--){
@@ -958,7 +1058,6 @@ function loop(){
     }
     separateEnemies();
     
-    // Shooting logic with penetrating bullets
     let fireRate=getFireRate();
     if(nearest&&now-lastShot>=fireRate){
         let bx=nearest.x-player.x,by=nearest.y-player.y,bd=Math.hypot(bx,by);
@@ -966,53 +1065,33 @@ function loop(){
         let baseAngle=Math.atan2(by,bx);
         
         if(currentGun==='Shortgun'){
-            // Fire 5 pellets in a spread pattern
             let pelletCount=5;
-            let spreadAngle=0.3; // Total spread angle in radians (~17 degrees)
+            let spreadAngle=0.3;
             for(let p=0;p<pelletCount;p++){
                 let angleOffset=(p-(pelletCount-1)/2)*(spreadAngle/(pelletCount-1));
                 let angle=baseAngle+angleOffset;
                 let vx=Math.cos(angle)*bulletSpeed;
                 let vy=Math.sin(angle)*bulletSpeed;
-                bullets.push({
-                    x:player.x+12,
-                    y:player.y+12,
-                    vx:vx,
-                    vy:vy,
-                    r:3,
-                    damage:Math.floor(gunDamage*0.6), // Each pellet does 60% damage
-                    hitEnemies:[]
-                });
+                bullets.push({x:player.x+12,y:player.y+12,vx:vx,vy:vy,r:3,damage:Math.floor(gunDamage*0.6),hitEnemies:[]});
             }
         } else {
-            // Single bullet for other guns
-            bullets.push({
-                x:player.x+12,
-                y:player.y+12,
-                vx:(bx/bd)*bulletSpeed,
-                vy:(by/bd)*bulletSpeed,
-                r:4,
-                damage:gunDamage,
-                hitEnemies:[]
-            });
+            bullets.push({x:player.x+12,y:player.y+12,vx:(bx/bd)*bulletSpeed,vy:(by/bd)*bulletSpeed,r:4,damage:gunDamage,hitEnemies:[]});
         }
         lastShot=now;
     }
     
-        // Bullet update and collision with penetrating mechanics
+    // Bullet update and collision with penetrating mechanics
     for(let i=bullets.length-1;i>=0;i--){
         let b=bullets[i];
         b.x+=b.vx;
         b.y+=b.vy;
         
-        // Draw bullet in black with white outline for visibility
         ctx.fillStyle='#000000';
         ctx.fillRect(b.x-camX,b.y-camY,b.r*2,b.r*2);
         ctx.strokeStyle='#ffffff';
         ctx.lineWidth=1;
         ctx.strokeRect(b.x-camX,b.y-camY,b.r*2,b.r*2);
         
-        // Remove if too far from player
         if(Math.hypot(player.x-b.x,player.y-b.y)>1500){
             bullets.splice(i,1);
             continue;
@@ -1024,21 +1103,16 @@ function loop(){
             if(!b.hitEnemies.includes(j)&&b.x>e.x&&b.x<e.x+e.w&&b.y>e.y&&b.y<e.y+e.h){
                 b.hitEnemies.push(j);
                 
-                // Calculate actual damage (minimum of bullet damage and enemy HP)
                 let actualDamage=Math.min(b.damage,e.hp);
                 e.hp-=actualDamage;
-                
-                // Reduce bullet damage by the amount dealt
                 b.damage-=actualDamage;
                 
-                // Slow down bullet proportionally to damage dealt
                 let totalDamage=actualDamage+(b.damage||0.01);
                 let speedReduction=actualDamage/totalDamage;
-                let slowFactor=1-speedReduction*0.3; // Maximum 30% slowdown
+                let slowFactor=1-speedReduction*0.3;
                 b.vx*=slowFactor;
                 b.vy*=slowFactor;
                 
-                // Reduce bullet size slightly
                 b.r=Math.max(2,b.r-0.3);
                 
                 bulletUsed=true;
@@ -1052,14 +1126,12 @@ function loop(){
                     enemies.splice(j,1);
                 }
                 
-                // Only remove bullet if it has no damage left
                 if(b.damage<=0){
                     bullets.splice(i,1);
                     break;
                 }
             }
         }
-        // Remove bullet if damage is depleted
         if(b.damage<=0){
             bullets.splice(i,1);
             continue;
