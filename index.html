@@ -302,13 +302,20 @@
             border-radius: 50%;
             transform: translate(-50%,-50%);
         }
-        #action-buttons {
+        /* Action buttons container – positioned by JS */
+        #action-buttons-container {
+            position: absolute;
             display: flex;
             flex-direction: row;
             align-items: center;
             gap: 10px;
             z-index: 10;
         }
+        #action-buttons-container.top-right { top: 10px; right: 10px; left: auto; bottom: auto; }
+        #action-buttons-container.top-left { top: 10px; left: 10px; right: auto; bottom: auto; }
+        #action-buttons-container.bottom-right { bottom: 10px; right: 10px; top: auto; left: auto; }
+        #action-buttons-container.bottom-left { bottom: 10px; left: 10px; top: auto; right: auto; }
+
         .circle-btn {
             width: 48px;
             height: 48px;
@@ -463,14 +470,18 @@
 
 <div id="game-screen">
     <canvas id="gameCanvas"></canvas>
+    <!-- HUD: money/score and time/gun info -->
     <div class="hud-top">
         <div class="hud-box yellow-ui">$<span id="ui-money">0</span> | Score: <span id="ui-score">0</span><span id="admin-badge" class="admin-badge" style="display:none;"> 👑ADMIN</span></div>
-        <div id="action-buttons">
-            <button class="circle-btn" id="bomb-circle-btn" onclick="useBomb()" title="Bomb">💣<span class="price-badge" id="bomb-price-badge">$100</span></button>
-            <button class="circle-btn" id="heal-circle-btn" onclick="useBandage()" title="Heal">❤️<span class="bandage-count" id="heal-bandage-count">0</span></button>
-            <button class="circle-btn" onclick="goToShop()" title="Shop">🛒</button>
-            <button class="settings-btn" onclick="openSettings()" title="Settings">⚙️</button>
-        </div>
+        <div style="flex:1;"></div> <!-- spacer -->
+    </div>
+    <!-- Action buttons in separate container for free positioning -->
+    <div id="action-buttons-container" class="top-right">
+        <button class="circle-btn" id="bomb-circle-btn" onclick="useBomb()" title="Bomb">💣<span class="price-badge" id="bomb-price-badge">$100</span></button>
+        <button class="circle-btn" id="shield-circle-btn" onclick="useShield()" title="Shield">🛡️<span class="price-badge" id="shield-price-badge">$100</span></button>
+        <button class="circle-btn" id="heal-circle-btn" onclick="useBandage()" title="Heal">❤️<span class="bandage-count" id="heal-bandage-count">0</span></button>
+        <button class="circle-btn" onclick="goToShop()" title="Shop">🛒</button>
+        <button class="settings-btn" onclick="openSettings()" title="Settings">⚙️</button>
     </div>
     <div class="hud-bottom">
         <div class="hud-box yellow-ui">Time: <span id="ui-time">0</span>s | Gun: <span id="ui-gun">Pistol</span> | <span id="ui-powerups"></span></div>
@@ -534,6 +545,23 @@
 <div id="settings-modal" class="modal-overlay">
     <div class="modal-box yellow-ui">
         <h2 class="modal-title">Settings</h2>
+        <div style="font-size:10px; text-align:left;">
+            <label>🗺️ Minimap Position:</label>
+            <select id="minimap-pos" class="btn" style="width:100%; margin:10px 0;">
+                <option value="top-right">Top Right</option>
+                <option value="top-left">Top Left</option>
+                <option value="bottom-right">Bottom Right</option>
+                <option value="bottom-left">Bottom Left</option>
+            </select>
+            <label>🎮 Buttons Position:</label>
+            <select id="buttons-pos" class="btn" style="width:100%; margin:10px 0;">
+                <option value="top-right">Top Right</option>
+                <option value="top-left">Top Left</option>
+                <option value="bottom-right">Bottom Right</option>
+                <option value="bottom-left">Bottom Left</option>
+            </select>
+        </div>
+        <button class="btn" onclick="saveUISettings()">Save UI Settings</button>
         <button class="btn" onclick="resumeGame('settings-modal')">Resume Game</button>
         <button class="btn" onclick="restartGame()">Restart Game</button>
         <button class="btn" onclick="exitToMenu()">Main Menu</button>
@@ -559,7 +587,7 @@ const SUPABASE_URL = 'https://cgnjarwxacpbgbbdendv.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNnbmphcnd4YWNwYmdiYmRlbmR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwMDY1MDYsImV4cCI6MjA5NDU4MjUwNn0.XeRmz5-8p1Fl16SbLkRNNTxAVyoKBpT_8LAhRAd7ikY';
 
 // Initialize Supabase client
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+var supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Admin list (case-insensitive check)
 const adminList = ["ratnesh (dev)","Ratnesh (Dev)", "harshit", "Harshit", "ujjawal", "Ujjawal","yash kumar singh", "Yash Kumar Singh", "Yash kumar singh"];
@@ -569,7 +597,7 @@ let isAdmin = false;
 
 async function getGlobalLeaderboard() {
     try {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from('leaderboard')
             .select('*')
             .order('score', { ascending: false })
@@ -585,7 +613,7 @@ async function getGlobalLeaderboard() {
 
 async function getGlobalUsernames() {
     try {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from('usernames')
             .select('username')
             .order('last_used', { ascending: false })
@@ -601,7 +629,7 @@ async function getGlobalUsernames() {
 
 async function addGlobalUsername(username) {
     try {
-        const { error } = await supabase
+        const { error } = await supabaseClient
             .from('usernames')
             .upsert({ 
                 username: username, 
@@ -636,7 +664,7 @@ function saveLocalUsernames(usernames) {
 
 async function addGlobalHighScore(playerName, score, timeLived, kills) {
     try {
-        const { error } = await supabase
+        const { error } = await supabaseClient
             .from('leaderboard')
             .insert([
                 { 
@@ -664,7 +692,7 @@ async function addGlobalHighScore(playerName, score, timeLived, kills) {
 
 async function isNewGlobalHighScore(score) {
     try {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from('leaderboard')
             .select('score')
             .order('score', { ascending: false })
@@ -830,18 +858,21 @@ function startGame() {
     document.getElementById('menu-screen').style.display = 'none';
     document.getElementById('game-screen').style.display = 'block';
     resize();
+    loadUISettings(); // apply saved UI positions
     restartGame();
 }
 
 // Game State
 let money=0,bandages=0,kills=0,score=0,timeLived=0,playerHp=10,maxHp=10;
 let currentGun='Pistol',gunDamage=5,moneyMultiplier=1,moneyBoostTimer=0,potionTimer=0,potionActive=false,bombPrice=100;
+let shieldActive=false,shieldTimer=0,shieldPrice=100;
 let enemyTier=1;
+let minimapRadius = 400; // Area shown on minimap
 
 let gunStats={
     'Pistol':{owned:true,level:0,baseDamage:5,baseCost:0,fireRate:1200},
     'D-Eagle':{owned:false,level:0,baseDamage:8,baseCost:100,fireRate:1200},
-    'AK47':{owned:false,level:0,baseDamage:12,baseCost:500,fireRate:400},
+    'AK47':{owned:false,level:0,baseDamage:12,baseCost:500,fireRate:300},
     'Shortgun':{owned:false,level:0,baseDamage:18,baseCost:1000,fireRate:1200},
     'AWM':{owned:false,level:0,baseDamage:30,baseCost:2000,fireRate:2500}
 };
@@ -853,8 +884,36 @@ let joyX=0,joyY=0,isDragging=false,lastShot=0,bossSpawnTimer=0;
 const canvas=document.getElementById('gameCanvas'),ctx=canvas.getContext('2d');
 let CW,CH;
 
+// UI settings (default positions)
+let minimapPosition = 'top-right';
+let buttonsPosition = 'top-right';
+
 function resize(){CW=window.innerWidth;CH=window.innerHeight;canvas.width=CW;canvas.height=CH;}
 window.addEventListener('resize',resize);resize();
+
+function loadUISettings() {
+    const savedMinimap = localStorage.getItem('minimapPos');
+    const savedButtons = localStorage.getItem('buttonsPos');
+    if (savedMinimap) minimapPosition = savedMinimap;
+    if (savedButtons) buttonsPosition = savedButtons;
+    // Apply classes
+    const btnContainer = document.getElementById('action-buttons-container');
+    btnContainer.className = buttonsPosition;
+    // Update settings modal dropdowns
+    document.getElementById('minimap-pos').value = minimapPosition;
+    document.getElementById('buttons-pos').value = buttonsPosition;
+}
+
+function saveUISettings() {
+    minimapPosition = document.getElementById('minimap-pos').value;
+    buttonsPosition = document.getElementById('buttons-pos').value;
+    localStorage.setItem('minimapPos', minimapPosition);
+    localStorage.setItem('buttonsPos', buttonsPosition);
+    // Apply immediately
+    document.getElementById('action-buttons-container').className = buttonsPosition;
+    // Update minimap drawing will be handled in next frame
+    document.getElementById('shop-message')?.innerText && (document.getElementById('shop-message').innerText = 'UI settings saved!');
+}
 
 function getEnemyHealthMultiplier(){
     let totalUpgrades=0;
@@ -890,13 +949,29 @@ function restartGame(){
     money=isAdmin?999999:0;bandages=isAdmin?999:0;kills=0;score=0;timeLived=0;playerHp=maxHp;
     currentGun='Pistol';gunDamage=5;bombPrice=100;enemyTier=1;
     moneyMultiplier=1;moneyBoostTimer=0;potionTimer=0;potionActive=false;
-    gunStats={'Pistol':{owned:true,level:0,baseDamage:5,baseCost:0,fireRate:1200},'D-Eagle':{owned:false,level:0,baseDamage:8,baseCost:100,fireRate:1200},'AK47':{owned:false,level:0,baseDamage:12,baseCost:500,fireRate:400},'Shortgun':{owned:false,level:0,baseDamage:18,baseCost:1000,fireRate:1200},'AWM':{owned:false,level:0,baseDamage:30,baseCost:2000,fireRate:2500}};
+    shieldActive=false;shieldTimer=0;shieldPrice=100;
+    gunStats={'Pistol':{owned:true,level:0,baseDamage:5,baseCost:0,fireRate:1200},'D-Eagle':{owned:false,level:0,baseDamage:8,baseCost:100,fireRate:1200},'AK47':{owned:false,level:0,baseDamage:12,baseCost:500,fireRate:300},'Shortgun':{owned:false,level:0,baseDamage:18,baseCost:1000,fireRate:1200},'AWM':{owned:false,level:0,baseDamage:30,baseCost:2000,fireRate:2500}};
     updateShopUI();updateHUD();
     player.x=0;player.y=0;camX=0;camY=0;
     enemies=[];bullets=[];drops=[];chests=[];
     isPaused=false;bossSpawnTimer=0;
     clearInterval(timeInterval);
-    timeInterval=setInterval(()=>{if(!isPaused){timeLived++;if(moneyBoostTimer>0){moneyBoostTimer--;if(moneyBoostTimer<=0)moneyMultiplier=1;}if(potionTimer>0){potionTimer--;if(potionTimer<=0)potionActive=false;}if(isAdmin){playerHp=maxHp;money=999999;bandages=999;}updateHUD();}},1000);
+    timeInterval=setInterval(()=>{
+        if(!isPaused){
+            timeLived++;
+            if(moneyBoostTimer>0){moneyBoostTimer--;if(moneyBoostTimer<=0)moneyMultiplier=1;}
+            if(potionTimer>0){
+                potionTimer--;
+                if(potionTimer<=0){
+                    potionActive=false;
+                    if(playerHp > maxHp) playerHp = maxHp;
+                }
+            }
+            if(shieldTimer>0){shieldTimer--;if(shieldTimer<=0)shieldActive=false;}
+            if(isAdmin){playerHp=maxHp;money=999999;bandages=999;}
+            updateHUD();
+        }
+    },1000);
     lastShot=Date.now();
     if(gameLoopId)cancelAnimationFrame(gameLoopId);
     loop();
@@ -917,6 +992,13 @@ function updateBombButton(){
     btn.disabled=(money<bombPrice);btn.style.opacity=(money<bombPrice)?'0.6':'1';
 }
 
+function updateShieldButton(){
+    document.getElementById('shield-price-badge').innerText='$'+shieldPrice;
+    let btn=document.getElementById('shield-circle-btn');
+    btn.disabled=(money<shieldPrice || shieldActive);
+    btn.style.opacity=(money<shieldPrice || shieldActive)?'0.6':'1';
+}
+
 function updateHUD(){
     document.getElementById('ui-money').innerText=money;
     document.getElementById('ui-score').innerText=score;
@@ -927,23 +1009,56 @@ function updateHUD(){
     let powerupText='';
     if(moneyBoostTimer>0)powerupText+='💰2x '+moneyBoostTimer+'s ';
     if(potionActive)powerupText+='🧪+'+potionTimer+'s ';
+    if(shieldActive)powerupText+='🛡️ '+shieldTimer+'s ';
     document.getElementById('ui-powerups').innerText=powerupText;
     updateBombButton();
+    updateShieldButton();
 }
 
-function openSettings(){isPaused=true;showModal('settings-modal');}
+function openSettings(){
+    isPaused=true;
+    document.getElementById('minimap-pos').value = minimapPosition;
+    document.getElementById('buttons-pos').value = buttonsPosition;
+    showModal('settings-modal');
+}
 function resumeGame(id){hideModal(id);if(id==='shop-modal'||id==='settings-modal')isPaused=false;}
 function goToShop(){isPaused=true;showModal('shop-modal');updateShopUI();document.getElementById('shop-message').innerText="";}
 
 function buyBandages(){if(money>=150||isAdmin){if(!isAdmin)money-=150;bandages+=3;updateHUD();document.getElementById('shop-message').innerText="Purchased 3 Bandages!";document.getElementById('shop-message').style.color="#16a34a";}else{document.getElementById('shop-message').innerText="Not enough money!";document.getElementById('shop-message').style.color="#dc2626";}}
-function buyPotion(){if(money>=500||isAdmin){if(!isAdmin)money-=500;potionActive=true;potionTimer=90;document.getElementById('shop-message').innerText="+10 HP for 90s!";document.getElementById('shop-message').style.color="#16a34a";updateHUD();}else{document.getElementById('shop-message').innerText="Not enough money!";document.getElementById('shop-message').style.color="#dc2626";}}
+
+function buyPotion(){
+    if(money>=500||isAdmin){
+        if(!isAdmin)money-=500;
+        potionActive=true;
+        potionTimer=90;
+        // Full heal + extra 10 max HP
+        playerHp = maxHp + 10;
+        document.getElementById('shop-message').innerText="Fully healed! +10 HP for 90s!";
+        document.getElementById('shop-message').style.color="#16a34a";
+        updateHUD();
+    } else {
+        document.getElementById('shop-message').innerText="Not enough money!";
+        document.getElementById('shop-message').style.color="#dc2626";
+    }
+}
+
 function buyMoneyBoost(){if(money>=1000||isAdmin){if(!isAdmin)money-=1000;moneyMultiplier=2;moneyBoostTimer=90;document.getElementById('shop-message').innerText="2x Money for 90s!";document.getElementById('shop-message').style.color="#16a34a";updateHUD();}else{document.getElementById('shop-message').innerText="Not enough money!";document.getElementById('shop-message').style.color="#dc2626";}}
 function useBandage(){if(bandages>0&&playerHp<maxHp){bandages--;playerHp=Math.min(maxHp,playerHp+2);updateHUD();}}
+
+function useShield(){
+    if((money>=shieldPrice||isAdmin) && !shieldActive){
+        if(!isAdmin)money-=shieldPrice;
+        shieldActive=true;
+        shieldTimer=10;
+        shieldPrice=Math.min(shieldPrice*2,1600);
+        updateHUD();
+    }
+}
 
 function useBomb(){
     if(money>=bombPrice||isAdmin){
         if(!isAdmin)money-=bombPrice;
-        bombPrice*=2;
+        bombPrice=Math.min(bombPrice*2,1600);
         let bombScore=0;
         for(let i=enemies.length-1;i>=0;i--){
             if(Math.hypot(player.x-enemies[i].x,player.y-enemies[i].y)<=200){
@@ -998,20 +1113,99 @@ function handleJoy(t){let r=joyZone.getBoundingClientRect(),cx=r.left+r.width/2,
 function spawnEnemy(){
     let a=Math.random()*Math.PI*2,d=Math.max(CW,CH)*0.6;
     let hmult=getEnemyHealthMultiplier();
-    let baseHp=Math.floor(30*hmult);
+    let baseHp=Math.floor(60*hmult);
     enemies.push({x:player.x+Math.cos(a)*d,y:player.y+Math.sin(a)*d,w:24,h:24,hp:baseHp,maxHp:baseHp,speed:0.8+Math.random()*0.4,lastHitPlayer:0,isBoss:false});
 }
 
 function spawnBoss(){
     let a=Math.random()*Math.PI*2,d=Math.max(CW,CH)*0.6;
     let hmult=getEnemyHealthMultiplier();
-    let baseHp=Math.floor(60*hmult);
+    let baseHp=Math.floor(90*hmult);
     enemies.push({x:player.x+Math.cos(a)*d,y:player.y+Math.sin(a)*d,w:40,h:40,hp:baseHp,maxHp:baseHp,speed:0.6,lastHitPlayer:0,isBoss:true});
 }
 
 function spawnChest(){let a=Math.random()*Math.PI*2,d=Math.random()*500+200;chests.push({x:player.x+Math.cos(a)*d,y:player.y+Math.sin(a)*d,w:32,h:32});}
 
 function separateEnemies(){for(let i=0;i<enemies.length;i++)for(let j=i+1;j<enemies.length;j++){let e1=enemies[i],e2=enemies[j],dx=e2.x-e1.x,dy=e2.y-e1.y,d=Math.hypot(dx,dy),min=(e1.w+e2.w)/2;if(d<min&&d>0){let o=min-d;e1.x-=(dx/d)*o*0.5;e1.y-=(dy/d)*o*0.5;e2.x+=(dx/d)*o*0.5;e2.y+=(dy/d)*o*0.5;}}}
+
+function drawMinimap() {
+    const mapW = 150, mapH = 150;
+    let mapX, mapY;
+    const padding = 10;
+    // Position based on minimapPosition setting
+    switch(minimapPosition) {
+        case 'top-right':
+            mapX = CW - mapW - padding;
+            mapY = padding;
+            break;
+        case 'top-left':
+            mapX = padding;
+            mapY = padding;
+            break;
+        case 'bottom-right':
+            mapX = CW - mapW - padding;
+            mapY = CH - mapH - padding;
+            break;
+        case 'bottom-left':
+            mapX = padding;
+            mapY = CH - mapH - padding;
+            break;
+        default:
+            mapX = CW - mapW - padding;
+            mapY = padding;
+    }
+    const scale = mapW / (minimapRadius * 2);
+    const centerX = mapX + mapW/2, centerY = mapY + mapH/2;
+    
+    // Background
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillRect(mapX, mapY, mapW, mapH);
+    ctx.strokeStyle = '#facc15';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(mapX, mapY, mapW, mapH);
+    
+    function worldToMap(wx, wy) {
+        return {
+            x: centerX + (wx - player.x) * scale,
+            y: centerY + (wy - player.y) * scale
+        };
+    }
+    
+    // Enemies
+    ctx.fillStyle = '#dc2626';
+    enemies.forEach(e => {
+        if (Math.hypot(e.x - player.x, e.y - player.y) <= minimapRadius) {
+            let p = worldToMap(e.x, e.y);
+            ctx.fillRect(p.x - 1.5, p.y - 1.5, 3, 3);
+        }
+    });
+    
+    // Chests
+    ctx.fillStyle = '#facc15';
+    chests.forEach(c => {
+        if (Math.hypot(c.x - player.x, c.y - player.y) <= minimapRadius) {
+            let p = worldToMap(c.x, c.y);
+            ctx.fillRect(p.x - 2, p.y - 2, 4, 4);
+        }
+    });
+    
+    // Drops
+    ctx.fillStyle = '#22c55e';
+    drops.forEach(d => {
+        if (Math.hypot(d.x - player.x, d.y - player.y) <= minimapRadius) {
+            let p = worldToMap(d.x, d.y);
+            ctx.fillRect(p.x - 1, p.y - 1, 2, 2);
+        }
+    });
+    
+    // Player
+    ctx.fillStyle = '#3b82f6';
+    let pp = worldToMap(player.x, player.y);
+    ctx.fillRect(pp.x - 2.5, pp.y - 2.5, 5, 5);
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(pp.x - 2.5, pp.y - 2.5, 5, 5);
+}
 
 function loop(){
     if(isPaused){gameLoopId=requestAnimationFrame(loop);return;}
@@ -1033,7 +1227,7 @@ function loop(){
         if(d<minDist){minDist=d;nearest=e;}
         if(d>0){e.x+=(edx/d)*e.speed;e.y+=(edy/d)*e.speed;}
         if(d<(e.isBoss?30:20)&&now-e.lastHitPlayer>1000){
-            if(!isAdmin) playerHp--;
+            if(!isAdmin && !shieldActive) playerHp--;
             e.lastHitPlayer=now;updateHUD();
             if(playerHp<=0){isPaused=true;
                 document.getElementById('go-player').innerText=selectedUser;
@@ -1139,10 +1333,22 @@ function loop(){
         updateHUD();
     }
     
-    for(let i=drops.length-1;i>=0;i--){let d=drops[i];if(d.type==='money')ctx.drawImage(texMoney,d.x-camX,d.y-camY,24,24);else ctx.drawImage(texBandage,d.x-camX,d.y-camY,24,24);if(Math.hypot(player.x-d.x,player.y-d.y)<30){if(d.type==='money')money+=d.val;else bandages++;updateHUD();drops.splice(i,1);}}
+    // Magnet effect – increased pickup range to 60
+    for(let i=drops.length-1;i>=0;i--){
+        let d=drops[i];
+        if(d.type==='money')ctx.drawImage(texMoney,d.x-camX,d.y-camY,24,24);
+        else ctx.drawImage(texBandage,d.x-camX,d.y-camY,24,24);
+        if(Math.hypot(player.x-d.x,player.y-d.y)<60){
+            if(d.type==='money')money+=d.val;
+            else bandages++;
+            updateHUD();
+            drops.splice(i,1);
+        }
+    }
     for(let i=chests.length-1;i>=0;i--){let c=chests[i];ctx.drawImage(texChest,c.x-camX,c.y-camY,c.w,c.h);if(Math.hypot(player.x-c.x,player.y-c.y)<35){drops.push({x:c.x,y:c.y,type:'money',val:100*moneyMultiplier});chests.splice(i,1);}}
     ctx.save();let psx=player.x+12-camX,psy=player.y+12-camY;ctx.translate(psx,psy);if(nearest)ctx.rotate(Math.atan2(nearest.y-player.y,nearest.x-player.x));ctx.fillStyle='#451a03';ctx.fillRect(10,-4,14,8);ctx.fillStyle='#1d4ed8';ctx.fillRect(-12,-12,24,24);ctx.fillStyle='#3b82f6';ctx.fillRect(-8,-8,16,16);ctx.restore();
     let bw=30,bh=6,bx=psx-bw/2,by=psy-25,hp=playerHp/currentMaxHp;ctx.fillStyle='#422006';ctx.fillRect(bx,by,bw,bh);ctx.fillStyle=hp>0.5?'#22c55e':hp>0.25?'#eab308':'#dc2626';ctx.fillRect(bx,by,bw*hp,bh);ctx.strokeStyle='#000';ctx.lineWidth=1;ctx.strokeRect(bx,by,bw,bh);ctx.fillStyle='#fff';ctx.font='8px "Press Start 2P"';ctx.textAlign='center';ctx.fillText(playerHp+'/'+currentMaxHp,psx,by-2);
+    drawMinimap();
     gameLoopId=requestAnimationFrame(loop);
 }
 
@@ -1153,6 +1359,7 @@ document.addEventListener('click',function(e){
         const name=input.value.trim();
         if(name){selectedUser=name;document.getElementById('username-btn').innerText=name+" ▼";}
         else if(selectedUser)document.getElementById('username-btn').innerText=selectedUser+" ▼";
+        //meow
     }
 });
 </script>
