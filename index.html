@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Defence Evolution - Multiplayer</title>
+    <title>Defence Evolution</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
@@ -382,73 +382,6 @@
             background: rgba(0,0,0,0.1);
             margin-bottom: 4px;
         }
-        
-        /* Chat Styles */
-        #chat-container {
-            position: absolute;
-            bottom: 80px;
-            right: 10px;
-            width: 250px;
-            z-index: 15;
-            display: none;
-        }
-        #chat-messages {
-            background: rgba(0,0,0,0.8);
-            border: 2px solid #facc15;
-            height: 150px;
-            overflow-y: auto;
-            padding: 8px;
-            margin-bottom: 5px;
-        }
-        .chat-msg {
-            font-size: 8px;
-            color: #fff;
-            margin: 3px 0;
-            word-wrap: break-word;
-            line-height: 1.4;
-        }
-        .chat-msg .name {
-            color: #facc15;
-        }
-        .chat-msg .system {
-            color: #22c55e;
-        }
-        #chat-input {
-            width: 100%;
-            background: #1e1e1e;
-            border: 2px solid #facc15;
-            color: #facc15;
-            padding: 6px;
-            font-size: 8px;
-            font-family: 'Press Start 2P', monospace;
-            outline: none;
-        }
-        
-        /* Online Players */
-        #online-players {
-            position: absolute;
-            top: 80px;
-            right: 10px;
-            background: rgba(0,0,0,0.8);
-            border: 2px solid #facc15;
-            padding: 8px;
-            z-index: 15;
-            display: none;
-            max-height: 150px;
-            overflow-y: auto;
-        }
-        #online-players .title {
-            font-size: 8px;
-            color: #facc15;
-            margin-bottom: 5px;
-            text-align: center;
-        }
-        .online-player {
-            font-size: 7px;
-            color: #22c55e;
-            margin: 2px 0;
-        }
-        
         @media (max-width: 768px) {
             .hud-box { font-size: 8px; padding: 6px; }
             .menu-title { font-size: 24px; }
@@ -456,7 +389,6 @@
             .btn { font-size: 10px; padding: 8px 12px; }
             .circle-btn { width: 42px; height: 42px; font-size: 18px; }
             .settings-btn { font-size: 20px; }
-            #chat-container { width: 180px; }
         }
     </style>
 </head>
@@ -471,7 +403,6 @@
     <div class="menu-top">
         <button class="btn" onclick="showModal('credits-modal')">Credits</button>
         <button class="btn" onclick="showLeaderboard()">🌍 Top 5</button>
-        <button class="btn" onclick="toggleChat()">💬 Chat</button>
         <button class="btn" onclick="window.close()">Exit</button>
         <div class="dropdown">
             <button class="btn" id="username-btn" onclick="toggleUsername()">Username ▼</button>
@@ -516,19 +447,7 @@
         <div class="hud-box yellow-ui">$<span id="ui-money">0</span> | Score: <span id="ui-score">0</span></div>
         <div style="flex:1;"></div>
     </div>
-    
-    <!-- Online Players List -->
-    <div id="online-players">
-        <div class="title">🟢 ONLINE PLAYERS</div>
-        <div id="online-list"></div>
-    </div>
-    
-    <!-- Chat Container -->
-    <div id="chat-container">
-        <div id="chat-messages"></div>
-        <input type="text" id="chat-input" placeholder="Chat..." maxlength="100">
-    </div>
-    
+    <!-- Action buttons: Bomb, Heal, Shop, Settings (Shield removed, now in Recovery tab) -->
     <div id="action-buttons-container" class="top-right">
         <button class="circle-btn" id="bomb-circle-btn" onclick="useBomb()" title="Bomb">💣<span class="price-badge" id="bomb-price-badge">$100</span></button>
         <button class="circle-btn" id="heal-circle-btn" onclick="useBandage()" title="Heal">❤️<span class="bandage-count" id="heal-bandage-count">0</span></button>
@@ -541,7 +460,7 @@
     <div id="joystick-zone"><div id="joystick-knob"></div></div>
 </div>
 
-<!-- Shop Modal - Same as before -->
+<!-- Shop with TWO section buttons: GUNS and RECOVERY (now includes Shield) -->
 <div id="shop-modal" class="modal-overlay">
     <div class="modal-box yellow-ui">
         <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -549,21 +468,63 @@
             <button class="btn" onclick="resumeGame('shop-modal')">X</button>
         </div>
         <p class="shop-msg" id="shop-message"></p>
+
+        <!-- Section Toggle Buttons -->
         <div style="display:flex; gap:10px;">
             <button class="btn active-tab" id="tab-guns" onclick="switchShopTab('guns')" style="flex:1;">🔫 GUNS</button>
             <button class="btn" id="tab-recovery" onclick="switchShopTab('recovery')" style="flex:1;">❤️ RECOVERY</button>
         </div>
+
+        <!-- GUNS Section -->
         <div id="section-guns">
-            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>D-Eagle</strong><br>Bullet: 8 dmg | Lvl: <span id="deagle-lvl">0</span>/3<br>Semi-Auto (1200ms)<br>Cost: $<span id="deagle-cost">100</span></div><div class="shop-item-buttons"><button class="btn" id="btn-buy-deagle" onclick="buyGun('D-Eagle')">BUY</button><button class="btn" id="btn-upgrade-deagle" onclick="upgradeGun('D-Eagle')" style="display:none;">UPGRADE</button></div></div>
-            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>🔥 AK47</strong><br>Bullet: 12 dmg | Lvl: <span id="ak47-lvl">0</span>/3<br>⚡ RAPID FIRE (400ms)<br>Cost: $<span id="ak47-cost">500</span></div><div class="shop-item-buttons"><button class="btn" id="btn-buy-ak47" onclick="buyGun('AK47')">BUY</button><button class="btn" id="btn-upgrade-ak47" onclick="upgradeGun('AK47')" style="display:none;">UPGRADE</button></div></div>
-            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>Shortgun</strong><br>5 Pellets (18 dmg each) | Lvl: <span id="shortgun-lvl">0</span>/3<br>Semi-Auto (1200ms)<br>Cost: $<span id="shortgun-cost">1000</span></div><div class="shop-item-buttons"><button class="btn" id="btn-buy-shortgun" onclick="buyGun('Shortgun')">BUY</button><button class="btn" id="btn-upgrade-shortgun" onclick="upgradeGun('Shortgun')" style="display:none;">UPGRADE</button></div></div>
-            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>🎯 AWM Sniper</strong><br>Bullet: 30 dmg | Lvl: <span id="awm-lvl">0</span>/3<br>Bolt-Action (2500ms)<br>Cost: $<span id="awm-cost">2000</span></div><div class="shop-item-buttons"><button class="btn" id="btn-buy-awm" onclick="buyGun('AWM')">BUY</button><button class="btn" id="btn-upgrade-awm" onclick="upgradeGun('AWM')" style="display:none;">UPGRADE</button></div></div>
-            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>💰 2x Money Boost</strong><br>Double money for 1.5 min<br>Cost: $1000</div><div class="shop-item-buttons"><button class="btn" onclick="buyMoneyBoost()">BUY</button></div></div>
+            <div class="shop-item yellow-ui">
+                <div class="shop-item-details"><strong>D-Eagle</strong><br>Bullet: 8 dmg | Lvl: <span id="deagle-lvl">0</span>/3<br>Semi-Auto (1200ms)<br>Cost: $<span id="deagle-cost">100</span></div>
+                <div class="shop-item-buttons">
+                    <button class="btn" id="btn-buy-deagle" onclick="buyGun('D-Eagle')">BUY</button>
+                    <button class="btn" id="btn-upgrade-deagle" onclick="upgradeGun('D-Eagle')" style="display:none;">UPGRADE</button>
+                </div>
+            </div>
+            <div class="shop-item yellow-ui">
+                <div class="shop-item-details"><strong>🔥 AK47</strong><br>Bullet: 12 dmg | Lvl: <span id="ak47-lvl">0</span>/3<br>⚡ RAPID FIRE (400ms)<br>Cost: $<span id="ak47-cost">500</span></div>
+                <div class="shop-item-buttons">
+                    <button class="btn" id="btn-buy-ak47" onclick="buyGun('AK47')">BUY</button>
+                    <button class="btn" id="btn-upgrade-ak47" onclick="upgradeGun('AK47')" style="display:none;">UPGRADE</button>
+                </div>
+            </div>
+            <div class="shop-item yellow-ui">
+                <div class="shop-item-details"><strong>Shortgun</strong><br>5 Pellets (18 dmg each) | Lvl: <span id="shortgun-lvl">0</span>/3<br>Semi-Auto (1200ms)<br>Cost: $<span id="shortgun-cost">1000</span></div>
+                <div class="shop-item-buttons">
+                    <button class="btn" id="btn-buy-shortgun" onclick="buyGun('Shortgun')">BUY</button>
+                    <button class="btn" id="btn-upgrade-shortgun" onclick="upgradeGun('Shortgun')" style="display:none;">UPGRADE</button>
+                </div>
+            </div>
+            <div class="shop-item yellow-ui">
+                <div class="shop-item-details"><strong>🎯 AWM Sniper</strong><br>Bullet: 30 dmg | Lvl: <span id="awm-lvl">0</span>/3<br>Bolt-Action (2500ms)<br>Cost: $<span id="awm-cost">2000</span></div>
+                <div class="shop-item-buttons">
+                    <button class="btn" id="btn-buy-awm" onclick="buyGun('AWM')">BUY</button>
+                    <button class="btn" id="btn-upgrade-awm" onclick="upgradeGun('AWM')" style="display:none;">UPGRADE</button>
+                </div>
+            </div>
+            <div class="shop-item yellow-ui">
+                <div class="shop-item-details"><strong>💰 2x Money Boost</strong><br>Double money for 1.5 min<br>Cost: $1000</div>
+                <div class="shop-item-buttons"><button class="btn" onclick="buyMoneyBoost()">BUY</button></div>
+            </div>
         </div>
+
+        <!-- RECOVERY Section (now includes Shield) -->
         <div id="section-recovery" style="display:none;">
-            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>🩹 Bandage Pack</strong><br>3 Bandages (+2 HP each)<br>Cost: $150</div><div class="shop-item-buttons"><button class="btn" onclick="buyBandages()">BUY</button></div></div>
-            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>🧪 Full Recovery Potion</strong><br>+10 HP for 1.5 min<br>Cost: $500</div><div class="shop-item-buttons"><button class="btn" onclick="buyPotion()">BUY</button></div></div>
-            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>🛡️ Shield</strong><br>Invincible for 10s<br>Cost: $<span id="shield-cost-display">100</span></div><div class="shop-item-buttons"><button class="btn" id="btn-buy-shield" onclick="buyShield()">BUY</button></div></div>
+            <div class="shop-item yellow-ui">
+                <div class="shop-item-details"><strong>🩹 Bandage Pack</strong><br>3 Bandages (+2 HP each)<br>Cost: $150</div>
+                <div class="shop-item-buttons"><button class="btn" onclick="buyBandages()">BUY</button></div>
+            </div>
+            <div class="shop-item yellow-ui">
+                <div class="shop-item-details"><strong>🧪 Full Recovery Potion</strong><br>+10 HP for 1.5 min<br>Cost: $500</div>
+                <div class="shop-item-buttons"><button class="btn" onclick="buyPotion()">BUY</button></div>
+            </div>
+            <div class="shop-item yellow-ui">
+                <div class="shop-item-details"><strong>🛡️ Shield</strong><br>Invincible for 10s<br>Cost: $<span id="shield-cost-display">100</span></div>
+                <div class="shop-item-buttons"><button class="btn" id="btn-buy-shield" onclick="buyShield()">BUY</button></div>
+            </div>
         </div>
     </div>
 </div>
@@ -614,94 +575,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 var supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// ============ MULTIPLAYER CHAT SYSTEM ============
-let chatChannel;
-let presenceChannel;
-let onlinePlayers = [];
-
-async function initializeChat() {
-    // Subscribe to chat messages
-    chatChannel = supabaseClient.channel('global-chat');
-    chatChannel.on('broadcast', { event: 'message' }, (payload) => {
-        displayMessage(payload.payload.name, payload.payload.text);
-    }).subscribe();
-    
-    // Track online players
-    presenceChannel = supabaseClient.channel('online-players');
-    presenceChannel.on('presence', { event: 'sync' }, () => {
-        updateOnlinePlayers();
-    }).subscribe(async (status) => {
-        if (status === 'SUBSCRIBED') {
-            await presenceChannel.track({ name: selectedUser, score: score, time: timeLived });
-        }
-    });
-}
-
-function sendMessage() {
-    const input = document.getElementById('chat-input');
-    const text = input.value.trim();
-    if (text && selectedUser) {
-        chatChannel.send({
-            type: 'broadcast',
-            event: 'message',
-            payload: { name: selectedUser, text: text }
-        });
-        input.value = '';
-    }
-}
-
-function displayMessage(name, text) {
-    const messagesDiv = document.getElementById('chat-messages');
-    messagesDiv.innerHTML += `<div class="chat-msg"><span class="name">${name}:</span> ${text}</div>`;
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-}
-
-function updateOnlinePlayers() {
-    const state = presenceChannel.presenceState();
-    onlinePlayers = [];
-    Object.keys(state).forEach(key => {
-        state[key].forEach(p => {
-            if (!onlinePlayers.find(op => op.name === p.name)) {
-                onlinePlayers.push(p);
-            }
-        });
-    });
-    
-    const onlineList = document.getElementById('online-list');
-    onlineList.innerHTML = '';
-    onlinePlayers.forEach(p => {
-        onlineList.innerHTML += `<div class="online-player">🟢 ${p.name}</div>`;
-    });
-}
-
-function toggleChat() {
-    const chatContainer = document.getElementById('chat-container');
-    const onlinePlayers = document.getElementById('online-players');
-    if (chatContainer.style.display === 'none' || !chatContainer.style.display) {
-        chatContainer.style.display = 'block';
-        onlinePlayers.style.display = 'block';
-        updatePlayerPresence();
-    } else {
-        chatContainer.style.display = 'none';
-        onlinePlayers.style.display = 'none';
-    }
-}
-
-async function updatePlayerPresence() {
-    if (presenceChannel && selectedUser) {
-        await presenceChannel.track({ name: selectedUser, score: score, time: timeLived });
-    }
-}
-
-// Chat input handler
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter' && document.activeElement === document.getElementById('chat-input')) {
-        sendMessage();
-        e.preventDefault();
-    }
-});
-
-// ============ ORIGINAL GAME CODE (unchanged) ============
 async function getGlobalLeaderboard() {
     try {
         const { data, error } = await supabaseClient.from('leaderboard').select('*').order('score', { ascending: false }).limit(50);
@@ -784,7 +657,6 @@ setTimeout(() => {
     document.getElementById('splash-screen').style.display = 'none';
     document.getElementById('menu-screen').style.display = 'block';
     updateUsernameDropdown();
-    initializeChat();
 }, 2500);
 
 let selectedUser = "";
@@ -836,25 +708,29 @@ function startGame() {
     resize();
     loadUISettings();
     restartGame();
-    updatePlayerPresence();
-    displayMessage('SYSTEM', `${selectedUser} joined the game!`);
 }
 
+// Shop Tab Switching
 function switchShopTab(tab) {
     const gunsSection = document.getElementById('section-guns');
     const recoverySection = document.getElementById('section-recovery');
     const gunsTab = document.getElementById('tab-guns');
     const recoveryTab = document.getElementById('tab-recovery');
+    
     if (tab === 'guns') {
-        gunsSection.style.display = 'block'; recoverySection.style.display = 'none';
-        gunsTab.classList.add('active-tab'); recoveryTab.classList.remove('active-tab');
+        gunsSection.style.display = 'block';
+        recoverySection.style.display = 'none';
+        gunsTab.classList.add('active-tab');
+        recoveryTab.classList.remove('active-tab');
     } else {
-        gunsSection.style.display = 'none'; recoverySection.style.display = 'block';
-        gunsTab.classList.remove('active-tab'); recoveryTab.classList.add('active-tab');
+        gunsSection.style.display = 'none';
+        recoverySection.style.display = 'block';
+        gunsTab.classList.remove('active-tab');
+        recoveryTab.classList.add('active-tab');
     }
 }
 
-// Game State (unchanged)
+// Game State
 let money = 0, bandages = 0, kills = 0, score = 0, timeLived = 0, playerHp = 10, maxHp = 10;
 let currentGun = 'Pistol', gunDamage = 5, moneyMultiplier = 1, moneyBoostTimer = 0, potionTimer = 0, potionActive = false, bombPrice = 100;
 let shieldActive = false, shieldTimer = 0, shieldPrice = 100;
@@ -949,11 +825,15 @@ function restartGame() {
         if (!isPaused) {
             timeLived++;
             if (moneyBoostTimer > 0) { moneyBoostTimer--; if (moneyBoostTimer <= 0) moneyMultiplier = 1; }
-            if (potionTimer > 0) { potionTimer--; if (potionTimer <= 0) { potionActive = false; if (playerHp > maxHp) playerHp = maxHp; } }
+            if (potionTimer > 0) {
+                potionTimer--;
+                if (potionTimer <= 0) {
+                    potionActive = false;
+                    if (playerHp > maxHp) playerHp = maxHp;
+                }
+            }
             if (shieldTimer > 0) { shieldTimer--; if (shieldTimer <= 0) shieldActive = false; }
             updateHUD();
-            // Update presence every 5 seconds
-            if (timeLived % 5 === 0) updatePlayerPresence();
         }
     }, 1000);
     lastShot = Date.now();
@@ -968,7 +848,6 @@ function exitToMenu() {
     document.getElementById('menu-screen').style.display = 'block';
     updateUsernameDropdown();
     if (gameLoopId) cancelAnimationFrame(gameLoopId);
-    displayMessage('SYSTEM', `${selectedUser} left the game.`);
 }
 
 function updateBombButton() {
@@ -989,9 +868,13 @@ function updateHUD() {
     if (shieldActive) powerupText += '🛡️ ' + shieldTimer + 's ';
     document.getElementById('ui-powerups').innerText = powerupText;
     updateBombButton();
+    // Update shield price in shop
     document.getElementById('shield-cost-display').innerText = shieldPrice;
     let shieldBtn = document.getElementById('btn-buy-shield');
-    if (shieldBtn) { shieldBtn.disabled = (money < shieldPrice || shieldActive); shieldBtn.style.opacity = (money < shieldPrice || shieldActive) ? '0.6' : '1'; }
+    if (shieldBtn) {
+        shieldBtn.disabled = (money < shieldPrice || shieldActive);
+        shieldBtn.style.opacity = (money < shieldPrice || shieldActive) ? '0.6' : '1';
+    }
 }
 
 function openSettings() { isPaused = true; showModal('settings-modal'); }
@@ -999,26 +882,69 @@ function resumeGame(id) { hideModal(id); if (id === 'shop-modal' || id === 'sett
 function goToShop() { isPaused = true; showModal('shop-modal'); updateShopUI(); document.getElementById('shop-message').innerText = ""; switchShopTab('guns'); }
 
 function buyBandages() {
-    if (money >= 150) { money -= 150; bandages += 3; updateHUD(); document.getElementById('shop-message').innerText = "Purchased 3 Bandages!"; document.getElementById('shop-message').style.color = "#16a34a"; }
-    else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; }
+    if (money >= 150) {
+        money -= 150; bandages += 3;
+        updateHUD();
+        document.getElementById('shop-message').innerText = "Purchased 3 Bandages!";
+        document.getElementById('shop-message').style.color = "#16a34a";
+    } else {
+        document.getElementById('shop-message').innerText = "Not enough money!";
+        document.getElementById('shop-message').style.color = "#dc2626";
+    }
 }
+
 function buyPotion() {
-    if (money >= 500) { money -= 500; potionActive = true; potionTimer = 90; playerHp = maxHp + 10; document.getElementById('shop-message').innerText = "Fully healed! +10 HP for 90s!"; document.getElementById('shop-message').style.color = "#16a34a"; updateHUD(); }
-    else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; }
+    if (money >= 500) {
+        money -= 500;
+        potionActive = true; potionTimer = 90;
+        playerHp = maxHp + 10;
+        document.getElementById('shop-message').innerText = "Fully healed! +10 HP for 90s!";
+        document.getElementById('shop-message').style.color = "#16a34a";
+        updateHUD();
+    } else {
+        document.getElementById('shop-message').innerText = "Not enough money!";
+        document.getElementById('shop-message').style.color = "#dc2626";
+    }
 }
+
 function buyShield() {
-    if (money >= shieldPrice && !shieldActive) { money -= shieldPrice; shieldActive = true; shieldTimer = 10; shieldPrice = Math.min(shieldPrice * 2, 1600); document.getElementById('shop-message').innerText = "Shield activated! 10s invincibility."; document.getElementById('shop-message').style.color = "#16a34a"; updateHUD(); }
-    else if (shieldActive) { document.getElementById('shop-message').innerText = "Shield already active!"; document.getElementById('shop-message').style.color = "#dc2626"; }
-    else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; }
+    if (money >= shieldPrice && !shieldActive) {
+        money -= shieldPrice;
+        shieldActive = true;
+        shieldTimer = 10;
+        shieldPrice = Math.min(shieldPrice * 2, 1600);
+        document.getElementById('shop-message').innerText = "Shield activated! 10s invincibility.";
+        document.getElementById('shop-message').style.color = "#16a34a";
+        updateHUD();
+    } else if (shieldActive) {
+        document.getElementById('shop-message').innerText = "Shield already active!";
+        document.getElementById('shop-message').style.color = "#dc2626";
+    } else {
+        document.getElementById('shop-message').innerText = "Not enough money!";
+        document.getElementById('shop-message').style.color = "#dc2626";
+    }
 }
+
 function buyMoneyBoost() {
-    if (money >= 1000) { money -= 1000; moneyMultiplier = 2; moneyBoostTimer = 90; document.getElementById('shop-message').innerText = "2x Money for 90s!"; document.getElementById('shop-message').style.color = "#16a34a"; updateHUD(); }
-    else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; }
+    if (money >= 1000) {
+        money -= 1000; moneyMultiplier = 2; moneyBoostTimer = 90;
+        document.getElementById('shop-message').innerText = "2x Money for 90s!";
+        document.getElementById('shop-message').style.color = "#16a34a";
+        updateHUD();
+    } else {
+        document.getElementById('shop-message').innerText = "Not enough money!";
+        document.getElementById('shop-message').style.color = "#dc2626";
+    }
 }
-function useBandage() { if (bandages > 0 && playerHp < maxHp) { bandages--; playerHp = Math.min(maxHp, playerHp + 2); updateHUD(); } }
+
+function useBandage() {
+    if (bandages > 0 && playerHp < maxHp) { bandages--; playerHp = Math.min(maxHp, playerHp + 2); updateHUD(); }
+}
+
 function useBomb() {
     if (money >= bombPrice) {
-        money -= bombPrice; bombPrice = Math.min(bombPrice * 2, 1600);
+        money -= bombPrice;
+        bombPrice = Math.min(bombPrice * 2, 1600);
         let bombScore = 0;
         for (let i = enemies.length - 1; i >= 0; i--) {
             if (Math.hypot(player.x - enemies[i].x, player.y - enemies[i].y) <= 200) {
@@ -1029,20 +955,43 @@ function useBomb() {
                 enemies.splice(i, 1);
             }
         }
-        score += bombScore; updateHUD();
+        score += bombScore;
+        updateHUD();
     }
 }
+
 function buyGun(name) {
     let gun = gunStats[name];
-    if (gun.owned) { currentGun = name; gunDamage = gun.baseDamage + (gun.level * 3); document.getElementById('shop-message').innerText = "Equipped " + name; document.getElementById('shop-message').style.color = "#16a34a"; updateShopUI(); }
-    else if (money >= gun.baseCost) { money -= gun.baseCost; gun.owned = true; currentGun = name; gunDamage = gun.baseDamage + (gun.level * 3); updateHUD(); updateShopUI(); document.getElementById('shop-message').innerText = "Purchased " + name; document.getElementById('shop-message').style.color = "#16a34a"; }
-    else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; }
+    if (gun.owned) {
+        currentGun = name; gunDamage = gun.baseDamage + (gun.level * 3);
+        document.getElementById('shop-message').innerText = "Equipped " + name;
+        document.getElementById('shop-message').style.color = "#16a34a";
+        updateShopUI();
+    } else if (money >= gun.baseCost) {
+        money -= gun.baseCost; gun.owned = true;
+        currentGun = name; gunDamage = gun.baseDamage + (gun.level * 3);
+        updateHUD(); updateShopUI();
+        document.getElementById('shop-message').innerText = "Purchased " + name;
+        document.getElementById('shop-message').style.color = "#16a34a";
+    } else {
+        document.getElementById('shop-message').innerText = "Not enough money!";
+        document.getElementById('shop-message').style.color = "#dc2626";
+    }
 }
+
 function upgradeGun(name) {
-    let gun = gunStats[name]; if (!gun.owned || gun.level >= 3) return;
+    let gun = gunStats[name];
+    if (!gun.owned || gun.level >= 3) return;
     let cost = gun.baseCost * (gun.level + 1);
-    if (money >= cost) { money -= cost; gun.level++; gunDamage = gun.baseDamage + (gun.level * 3); updateHUD(); updateShopUI(); document.getElementById('shop-message').innerText = name + " upgraded to Lvl " + gun.level + "!"; document.getElementById('shop-message').style.color = "#16a34a"; }
+    if (money >= cost) {
+        money -= cost; gun.level++;
+        gunDamage = gun.baseDamage + (gun.level * 3);
+        updateHUD(); updateShopUI();
+        document.getElementById('shop-message').innerText = name + " upgraded to Lvl " + gun.level + "!";
+        document.getElementById('shop-message').style.color = "#16a34a";
+    }
 }
+
 function updateShopUI() {
     ['D-Eagle', 'AK47', 'Shortgun', 'AWM'].forEach(name => {
         let gun = gunStats[name], key = name.toLowerCase();
@@ -1050,9 +999,16 @@ function updateShopUI() {
         document.getElementById(key + '-lvl').innerText = gun.level;
         let buyBtn = document.getElementById('btn-buy-' + key), upgBtn = document.getElementById('btn-upgrade-' + key);
         if (!buyBtn) return;
-        if (gun.owned) { buyBtn.innerText = (currentGun === name) ? 'EQUIPPED' : 'EQUIP'; document.getElementById(key + '-cost').innerText = 'Owned'; upgBtn.style.display = 'inline-block';
-            if (gun.level >= 3) { upgBtn.innerText = 'MAX'; upgBtn.disabled = true; } else { upgBtn.innerText = 'UPGRADE ($' + gun.baseCost * (gun.level + 1) + ')'; upgBtn.disabled = false; } }
-        else { buyBtn.innerText = 'BUY'; upgBtn.style.display = 'none'; document.getElementById(key + '-cost').innerText = gun.baseCost; }
+        if (gun.owned) {
+            buyBtn.innerText = (currentGun === name) ? 'EQUIPPED' : 'EQUIP';
+            document.getElementById(key + '-cost').innerText = 'Owned';
+            upgBtn.style.display = 'inline-block';
+            if (gun.level >= 3) { upgBtn.innerText = 'MAX'; upgBtn.disabled = true; }
+            else { upgBtn.innerText = 'UPGRADE ($' + gun.baseCost * (gun.level + 1) + ')'; upgBtn.disabled = false; }
+        } else {
+            buyBtn.innerText = 'BUY'; upgBtn.style.display = 'none';
+            document.getElementById(key + '-cost').innerText = gun.baseCost;
+        }
     });
 }
 
@@ -1068,7 +1024,8 @@ function handleJoy(t) {
     let r = joyZone.getBoundingClientRect(), cx = r.left + r.width/2, cy = r.top + r.height/2;
     let dx = t.clientX - cx, dy = t.clientY - cy, d = Math.hypot(dx, dy), maxR = 40;
     if (d > maxR) { dx = (dx / d) * maxR; dy = (dy / d) * maxR; }
-    joyKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`; joyX = dx / maxR; joyY = dy / maxR;
+    joyKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+    joyX = dx / maxR; joyY = dy / maxR;
 }
 
 function spawnEnemy() {
@@ -1077,13 +1034,16 @@ function spawnEnemy() {
     let baseHp = Math.floor(60 * hmult);
     enemies.push({x: player.x + Math.cos(a) * d, y: player.y + Math.sin(a) * d, w: 24, h: 24, hp: baseHp, maxHp: baseHp, speed: 0.8 + Math.random() * 0.4, lastHitPlayer: 0, isBoss: false});
 }
+
 function spawnBoss() {
     let a = Math.random() * Math.PI * 2, d = Math.max(CW, CH) * 0.6;
     let hmult = getEnemyHealthMultiplier();
     let baseHp = Math.floor(90 * hmult);
     enemies.push({x: player.x + Math.cos(a) * d, y: player.y + Math.sin(a) * d, w: 40, h: 40, hp: baseHp, maxHp: baseHp, speed: 0.6, lastHitPlayer: 0, isBoss: true});
 }
+
 function spawnChest() { let a = Math.random() * Math.PI * 2, d = Math.random() * 500 + 200; chests.push({x: player.x + Math.cos(a) * d, y: player.y + Math.sin(a) * d, w: 32, h: 32}); }
+
 function separateEnemies() {
     for (let i = 0; i < enemies.length; i++)
         for (let j = i + 1; j < enemies.length; j++) {
@@ -1145,7 +1105,6 @@ function loop() {
                     if (isHigh) { addGlobalHighScore(selectedUser, score, timeLived, kills); document.getElementById('go-highscore-msg').innerText = "🏆 NEW GLOBAL HIGH SCORE! 🏆"; }
                     else document.getElementById('go-highscore-msg').innerText = "";
                 });
-                displayMessage('SYSTEM', `${selectedUser} died with score ${score}!`);
                 showModal('gameover-modal'); return;
             }
         }
@@ -1216,7 +1175,10 @@ function loop() {
     }
     for (let i = chests.length - 1; i >= 0; i--) {
         let c = chests[i]; ctx.drawImage(texChest, c.x - camX, c.y - camY, c.w, c.h);
-        if (Math.hypot(player.x - c.x, player.y - c.y) < 35) { drops.push({x: c.x, y: c.y, type: 'money', val: 100 * moneyMultiplier}); chests.splice(i, 1); }
+        if (Math.hypot(player.x - c.x, player.y - c.y) < 35) {
+            drops.push({x: c.x, y: c.y, type: 'money', val: 100 * moneyMultiplier});
+            chests.splice(i, 1);
+        }
     }
     ctx.save();
     let psx = player.x + 12 - camX, psy = player.y + 12 - camY;
