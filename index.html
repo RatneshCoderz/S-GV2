@@ -149,18 +149,6 @@
             font-family: 'Press Start 2P', monospace;
             outline: none;
         }
-        .admin-code-input {
-            background: #1e1e1e;
-            border: 4px solid #facc15;
-            color: #facc15;
-            padding: 12px;
-            font-size: 12px;
-            text-align: center;
-            width: 100%;
-            font-family: 'Press Start 2P', monospace;
-            outline: none;
-            margin-top: 10px;
-        }
         .hud-top {
             position: absolute;
             top: 10px;
@@ -302,7 +290,6 @@
             border-radius: 50%;
             transform: translate(-50%,-50%);
         }
-        /* Action buttons container – positioned by JS */
         #action-buttons-container {
             position: absolute;
             display: flex;
@@ -390,11 +377,6 @@
             background: rgba(0,0,0,0.1);
             margin-bottom: 4px;
         }
-        .admin-badge {
-            color: #facc15;
-            font-size: 10px;
-            margin-left: 5px;
-        }
         @media (max-width: 768px) {
             .hud-box { font-size: 8px; padding: 6px; }
             .menu-title { font-size: 24px; }
@@ -433,28 +415,14 @@
     </div>
 </div>
 
-<!-- Admin Code Modal -->
-<div id="admin-code-modal" class="modal-overlay">
-    <div class="modal-box yellow-ui">
-        <h2 class="modal-title">🔐 Admin Verification</h2>
-        <p style="font-size:10px; color:#422006;">Welcome <span id="admin-name-display"></span>!</p>
-        <p style="font-size:10px; color:#422006;">Enter admin code to unlock powers:</p>
-        <input type="password" class="admin-code-input" id="admin-code-input" placeholder="Enter code..." maxlength="20">
-        <p id="admin-code-error" style="color:#dc2626; font-size:10px; height:12px;"></p>
-        <div style="display:flex; gap:10px; justify-content:center;">
-            <button class="btn" onclick="verifyAdminCode()">Submit</button>
-            <button class="btn" onclick="skipAdmin()">Skip (Play Normal)</button>
-        </div>
-    </div>
-</div>
-
 <div id="credits-modal" class="modal-overlay">
     <div class="modal-box yellow-ui">
         <h2 class="modal-title">Credits</h2>
         <div class="credits-section">
             <div class="role">👨‍💻 DEVELOPER</div><div class="names">Ratnesh Kumar</div>
-            <div class="role">👑 ORGANIZERS (Admins)</div><div class="names">Harshit</div><div class="names">Ujjawal</div><div class="names">Yash Kumar Singh</div>
-            <div class="role">🎮 TEAM</div><div class="names">Yuvan</div><div class="names">Priyanshu</div><div class="names">Harsh</div><div class="names">Dipanshu</div>
+            <div class="role">🤝 ASSIST-DEVELOPER</div><div class="names">Harshit</div>
+            <div class="role">👑 ORGANIZERS (Admins)</div><div class="names">Priyanshu</div><div class="names">Yash Kumar Singh</div>
+            <div class="role">🎮 TEAM</div><div class="names">Yuvan</div><div class="names">Ujjawal</div><div class="names">Harsh</div><div class="names">Dipanshu</div>
         </div>
         <button class="btn" onclick="hideModal('credits-modal')">Close</button>
     </div>
@@ -470,12 +438,10 @@
 
 <div id="game-screen">
     <canvas id="gameCanvas"></canvas>
-    <!-- HUD: money/score and time/gun info -->
     <div class="hud-top">
-        <div class="hud-box yellow-ui">$<span id="ui-money">0</span> | Score: <span id="ui-score">0</span><span id="admin-badge" class="admin-badge" style="display:none;"> 👑ADMIN</span></div>
-        <div style="flex:1;"></div> <!-- spacer -->
+        <div class="hud-box yellow-ui">$<span id="ui-money">0</span> | Score: <span id="ui-score">0</span></div>
+        <div style="flex:1;"></div>
     </div>
-    <!-- Action buttons in separate container for free positioning -->
     <div id="action-buttons-container" class="top-right">
         <button class="circle-btn" id="bomb-circle-btn" onclick="useBomb()" title="Bomb">💣<span class="price-badge" id="bomb-price-badge">$100</span></button>
         <button class="circle-btn" id="shield-circle-btn" onclick="useShield()" title="Shield">🛡️<span class="price-badge" id="shield-price-badge">$100</span></button>
@@ -586,14 +552,7 @@
 const SUPABASE_URL = 'https://cgnjarwxacpbgbbdendv.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNnbmphcnd4YWNwYmdiYmRlbmR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwMDY1MDYsImV4cCI6MjA5NDU4MjUwNn0.XeRmz5-8p1Fl16SbLkRNNTxAVyoKBpT_8LAhRAd7ikY';
 
-// Initialize Supabase client
 var supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-// Admin list (case-insensitive check)
-const adminList = ["ratnesh (dev)","Ratnesh (Dev)", "harshit", "Harshit", "ujjawal", "Ujjawal","yash kumar singh", "Yash Kumar Singh", "Yash kumar singh"];
-const adminCode = "jai hind";
-
-let isAdmin = false;
 
 async function getGlobalLeaderboard() {
     try {
@@ -602,11 +561,9 @@ async function getGlobalLeaderboard() {
             .select('*')
             .order('score', { ascending: false })
             .limit(50);
-        
         if (error) throw error;
         return data || [];
     } catch(e) {
-        console.error('Error fetching leaderboard:', e);
         return getLocalLeaderboard();
     }
 }
@@ -618,118 +575,67 @@ async function getGlobalUsernames() {
             .select('username')
             .order('last_used', { ascending: false })
             .limit(20);
-        
         if (error) throw error;
         return data.map(row => row.username) || [];
     } catch(e) {
-        console.error('Error fetching usernames:', e);
         return getLocalUsernames();
     }
 }
 
 async function addGlobalUsername(username) {
     try {
-        const { error } = await supabaseClient
-            .from('usernames')
-            .upsert({ 
-                username: username, 
-                last_used: new Date().toISOString() 
-            }, { 
-                onConflict: 'username' 
-            });
-        
-        if (error) throw error;
-        
-        const local = getLocalUsernames();
-        const filtered = local.filter(name => name !== username);
-        filtered.unshift(username);
-        saveLocalUsernames(filtered.slice(0, 20));
+        await supabaseClient.from('usernames').upsert({ username: username, last_used: new Date().toISOString() }, { onConflict: 'username' });
+        const local = getLocalUsernames().filter(n => n !== username);
+        local.unshift(username);
+        saveLocalUsernames(local.slice(0,20));
     } catch(e) {
-        console.error('Error saving username:', e);
-        const local = getLocalUsernames();
-        const filtered = local.filter(name => name !== username);
-        filtered.unshift(username);
-        saveLocalUsernames(filtered.slice(0, 20));
+        const local = getLocalUsernames().filter(n => n !== username);
+        local.unshift(username);
+        saveLocalUsernames(local.slice(0,20));
     }
 }
 
-function getLocalUsernames() { 
-    try { return JSON.parse(localStorage.getItem('global_username_history')||'[]'); } 
-    catch(e) { return []; } 
-}
-
-function saveLocalUsernames(usernames) { 
-    localStorage.setItem('global_username_history', JSON.stringify(usernames)); 
-}
+function getLocalUsernames() { try { return JSON.parse(localStorage.getItem('global_username_history')||'[]'); } catch(e) { return []; } }
+function saveLocalUsernames(usernames) { localStorage.setItem('global_username_history', JSON.stringify(usernames)); }
 
 async function addGlobalHighScore(playerName, score, timeLived, kills) {
     try {
-        const { error } = await supabaseClient
-            .from('leaderboard')
-            .insert([
-                { 
-                    player_name: playerName,
-                    score: score,
-                    time_lived: timeLived,
-                    kills: kills
-                }
-            ]);
-        
-        if (error) throw error;
-        
+        await supabaseClient.from('leaderboard').insert([{ player_name: playerName, score: score, time_lived: timeLived, kills: kills }]);
         const local = getLocalLeaderboard();
         local.push({player_name: playerName, score: score, time: timeLived, kills: kills, date: new Date().toISOString()});
         local.sort((a,b) => b.score - a.score);
-        saveLocalLeaderboard(local.slice(0, 50));
+        saveLocalLeaderboard(local.slice(0,50));
     } catch(e) {
-        console.error('Error saving score:', e);
         const local = getLocalLeaderboard();
         local.push({player_name: playerName, score: score, time: timeLived, kills: kills, date: new Date().toISOString()});
         local.sort((a,b) => b.score - a.score);
-        saveLocalLeaderboard(local.slice(0, 50));
+        saveLocalLeaderboard(local.slice(0,50));
     }
 }
 
 async function isNewGlobalHighScore(score) {
     try {
-        const { data, error } = await supabaseClient
-            .from('leaderboard')
-            .select('score')
-            .order('score', { ascending: false })
-            .limit(50);
-        
-        if (error) throw error;
-        return data.length < 50 || score > (data[data.length - 1]?.score || 0);
-    } catch(e) {
-        return true;
-    }
+        const { data } = await supabaseClient.from('leaderboard').select('score').order('score', { ascending: false }).limit(50);
+        return data.length < 50 || score > (data[data.length-1]?.score || 0);
+    } catch(e) { return true; }
 }
 
-function getLocalLeaderboard() { 
-    try { return JSON.parse(localStorage.getItem('defence_leaderboard')||'[]'); } 
-    catch(e) { return []; } 
-}
-
-function saveLocalLeaderboard(leaderboard) { 
-    localStorage.setItem('defence_leaderboard', JSON.stringify(leaderboard)); 
-}
+function getLocalLeaderboard() { try { return JSON.parse(localStorage.getItem('defence_leaderboard')||'[]'); } catch(e) { return []; } }
+function saveLocalLeaderboard(leaderboard) { localStorage.setItem('defence_leaderboard', JSON.stringify(leaderboard)); }
 
 async function updateUsernameDropdown() {
     const container = document.getElementById('username-history-items');
     container.innerHTML = '<div class="dropdown-item" style="color:#854d0e;">Loading...</div>';
     const usernames = await getGlobalUsernames();
     container.innerHTML = '';
-    if(usernames.length === 0) {
-        container.innerHTML = '<div class="dropdown-item" style="color:#854d0e;">No history yet</div>';
-    } else {
-        usernames.forEach(name => { 
-            const div = document.createElement('div'); 
-            div.className = 'dropdown-item'; 
-            div.onclick = function(){ selectUser(name); }; 
-            div.innerText = name; 
-            container.appendChild(div); 
-        });
-    }
+    if(usernames.length === 0) container.innerHTML = '<div class="dropdown-item" style="color:#854d0e;">No history yet</div>';
+    else usernames.forEach(name => {
+        const div = document.createElement('div');
+        div.className = 'dropdown-item';
+        div.onclick = () => selectUser(name);
+        div.innerText = name;
+        container.appendChild(div);
+    });
 }
 
 function clearUsernameHistory() {
@@ -738,17 +644,10 @@ function clearUsernameHistory() {
     document.getElementById('username-list').classList.remove('show');
 }
 
-// Hide splash screen and show menu
 setTimeout(() => {
-    try {
-        document.getElementById('splash-screen').style.display = 'none';
-        document.getElementById('menu-screen').style.display = 'block';
-        updateUsernameDropdown();
-    } catch(e) {
-        console.error('Error starting:', e);
-        document.getElementById('splash-screen').style.display = 'none';
-        document.getElementById('menu-screen').style.display = 'block';
-    }
+    document.getElementById('splash-screen').style.display = 'none';
+    document.getElementById('menu-screen').style.display = 'block';
+    updateUsernameDropdown();
 }, 2500);
 
 let selectedUser = "";
@@ -758,7 +657,6 @@ function toggleUsername() {
     list.classList.toggle('show');
     if(list.classList.contains('show')) updateUsernameDropdown();
 }
-
 function selectUser(name) {
     selectedUser = name;
     document.getElementById('username-btn').innerText = name + " ▼";
@@ -766,72 +664,21 @@ function selectUser(name) {
     document.getElementById('username-list').classList.remove('show');
     document.getElementById('menu-error').innerText = "";
 }
-
 function showModal(id) { document.getElementById(id).style.display = 'flex'; }
 function hideModal(id) { document.getElementById(id).style.display = 'none'; }
-
-function isAdminUser(name) {
-    return adminList.includes(name.toLowerCase().trim());
-}
-
-function showAdminCodeModal() {
-    document.getElementById('admin-name-display').innerText = selectedUser;
-    document.getElementById('admin-code-input').value = '';
-    document.getElementById('admin-code-error').innerText = '';
-    showModal('admin-code-modal');
-}
-
-function verifyAdminCode() {
-    const code = document.getElementById('admin-code-input').value.trim().toLowerCase();
-    if (code === adminCode) {
-        isAdmin = true;
-        document.getElementById('admin-code-error').innerText = '';
-        hideModal('admin-code-modal');
-        document.getElementById('menu-error').innerText = '';
-        document.getElementById('admin-badge').style.display = 'inline';
-        document.getElementById('menu-screen').style.display = 'none';
-        document.getElementById('game-screen').style.display = 'block';
-        resize();
-        restartGame();
-        money = 999999;
-        updateHUD();
-    } else {
-        document.getElementById('admin-code-error').innerText = 'Wrong code! Try again.';
-    }
-}
-
-function skipAdmin() {
-    isAdmin = false;
-    document.getElementById('admin-badge').style.display = 'none';
-    hideModal('admin-code-modal');
-    document.getElementById('menu-error').innerText = '';
-    document.getElementById('menu-screen').style.display = 'none';
-    document.getElementById('game-screen').style.display = 'block';
-    resize();
-    restartGame();
-}
 
 async function showLeaderboard() {
     showModal('leaderboard-modal');
     const list = document.getElementById('leaderboard-list');
     list.innerHTML = '<li>Loading top 5 players...</li>';
-    
-    try {
-        const leaderboard = await getGlobalLeaderboard();
-        const top5 = leaderboard.slice(0, 5);
-        list.innerHTML = '';
-        
-        if(top5.length === 0) {
-            list.innerHTML = '<li>No scores yet! Be the first!</li>';
-        } else {
-            top5.forEach((entry, i) => {
-                const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '#' + (i + 1);
-                list.innerHTML += `<li><strong>${medal}</strong> ${entry.player_name} - ${entry.score} pts (Kills: ${entry.kills})</li>`;
-            });
-        }
-    } catch(e) {
-        list.innerHTML = '<li style="color:#dc2626;">Failed to load leaderboard</li>';
-    }
+    const leaderboard = await getGlobalLeaderboard();
+    const top5 = leaderboard.slice(0,5);
+    list.innerHTML = '';
+    if(!top5.length) list.innerHTML = '<li>No scores yet! Be the first!</li>';
+    else top5.forEach((entry,i) => {
+        const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1);
+        list.innerHTML += `<li><strong>${medal}</strong> ${entry.player_name} - ${entry.score} pts (Kills: ${entry.kills})</li>`;
+    });
 }
 
 function startGame() {
@@ -846,60 +693,48 @@ function startGame() {
         document.getElementById('menu-error').innerText = "PLEASE CHOOSE A USERNAME!";
         return;
     }
-    
-    if (isAdminUser(selectedUser)) {
-        showAdminCodeModal();
-        return;
-    }
-    
-    isAdmin = false;
-    document.getElementById('admin-badge').style.display = 'none';
     document.getElementById('menu-error').innerText = "";
     document.getElementById('menu-screen').style.display = 'none';
     document.getElementById('game-screen').style.display = 'block';
     resize();
-    loadUISettings(); // apply saved UI positions
+    loadUISettings();
     restartGame();
 }
 
 // Game State
-let money=0,bandages=0,kills=0,score=0,timeLived=0,playerHp=10,maxHp=10;
-let currentGun='Pistol',gunDamage=5,moneyMultiplier=1,moneyBoostTimer=0,potionTimer=0,potionActive=false,bombPrice=100;
-let shieldActive=false,shieldTimer=0,shieldPrice=100;
-let enemyTier=1;
-let minimapRadius = 400; // Area shown on minimap
+let money = 0, bandages = 0, kills = 0, score = 0, timeLived = 0, playerHp = 10, maxHp = 10;
+let currentGun = 'Pistol', gunDamage = 5, moneyMultiplier = 1, moneyBoostTimer = 0, potionTimer = 0, potionActive = false, bombPrice = 100;
+let shieldActive = false, shieldTimer = 0, shieldPrice = 100;
+let enemyTier = 1;
+let minimapRadius = 400;
 
-let gunStats={
-    'Pistol':{owned:true,level:0,baseDamage:5,baseCost:0,fireRate:1200},
-    'D-Eagle':{owned:false,level:0,baseDamage:8,baseCost:100,fireRate:1200},
-    'AK47':{owned:false,level:0,baseDamage:12,baseCost:500,fireRate:300},
-    'Shortgun':{owned:false,level:0,baseDamage:18,baseCost:1000,fireRate:1200},
-    'AWM':{owned:false,level:0,baseDamage:30,baseCost:2000,fireRate:2500}
+let gunStats = {
+    'Pistol': {owned: true, level: 0, baseDamage: 5, baseCost: 0, fireRate: 1200},
+    'D-Eagle': {owned: false, level: 0, baseDamage: 8, baseCost: 100, fireRate: 1200},
+    'AK47': {owned: false, level: 0, baseDamage: 12, baseCost: 500, fireRate: 300},
+    'Shortgun': {owned: false, level: 0, baseDamage: 18, baseCost: 1000, fireRate: 1200},
+    'AWM': {owned: false, level: 0, baseDamage: 30, baseCost: 2000, fireRate: 2500}
 };
-let isPaused=false,gameLoopId,timeInterval;
-let player={x:0,y:0,w:24,h:24,speed:2.5},camX=0,camY=0;
-let enemies=[],bullets=[],drops=[],chests=[],keys={};
-let joyX=0,joyY=0,isDragging=false,lastShot=0,bossSpawnTimer=0;
+let isPaused = false, gameLoopId, timeInterval;
+let player = {x: 0, y: 0, w: 24, h: 24, speed: 2.5}, camX = 0, camY = 0;
+let enemies = [], bullets = [], drops = [], chests = [], keys = {};
+let joyX = 0, joyY = 0, isDragging = false, lastShot = 0, bossSpawnTimer = 0;
 
-const canvas=document.getElementById('gameCanvas'),ctx=canvas.getContext('2d');
-let CW,CH;
+const canvas = document.getElementById('gameCanvas'), ctx = canvas.getContext('2d');
+let CW, CH;
 
-// UI settings (default positions)
 let minimapPosition = 'top-right';
 let buttonsPosition = 'top-right';
 
-function resize(){CW=window.innerWidth;CH=window.innerHeight;canvas.width=CW;canvas.height=CH;}
-window.addEventListener('resize',resize);resize();
+function resize() { CW = window.innerWidth; CH = window.innerHeight; canvas.width = CW; canvas.height = CH; }
+window.addEventListener('resize', resize); resize();
 
 function loadUISettings() {
     const savedMinimap = localStorage.getItem('minimapPos');
     const savedButtons = localStorage.getItem('buttonsPos');
     if (savedMinimap) minimapPosition = savedMinimap;
     if (savedButtons) buttonsPosition = savedButtons;
-    // Apply classes
-    const btnContainer = document.getElementById('action-buttons-container');
-    btnContainer.className = buttonsPosition;
-    // Update settings modal dropdowns
+    document.getElementById('action-buttons-container').className = buttonsPosition;
     document.getElementById('minimap-pos').value = minimapPosition;
     document.getElementById('buttons-pos').value = buttonsPosition;
 }
@@ -909,457 +744,430 @@ function saveUISettings() {
     buttonsPosition = document.getElementById('buttons-pos').value;
     localStorage.setItem('minimapPos', minimapPosition);
     localStorage.setItem('buttonsPos', buttonsPosition);
-    // Apply immediately
     document.getElementById('action-buttons-container').className = buttonsPosition;
-    // Update minimap drawing will be handled in next frame
-    document.getElementById('shop-message')?.innerText && (document.getElementById('shop-message').innerText = 'UI settings saved!');
+    alert('UI settings saved!');
 }
 
-function getEnemyHealthMultiplier(){
-    let totalUpgrades=0;
-    for(let gun in gunStats){
-        if(gunStats[gun].owned) totalUpgrades+=gunStats[gun].level;
-    }
-    enemyTier=1+Math.floor(totalUpgrades/2);
-    return 1+(enemyTier-1)*0.5;
+function getEnemyHealthMultiplier() {
+    let totalUpgrades = 0;
+    for (let gun in gunStats) if (gunStats[gun].owned) totalUpgrades += gunStats[gun].level;
+    enemyTier = 1 + Math.floor(totalUpgrades / 2);
+    return 1 + (enemyTier - 1) * 0.5;
 }
 
-function getFireRate(){
-    return gunStats[currentGun]?.fireRate || 1200;
-}
+function getFireRate() { return gunStats[currentGun]?.fireRate || 1200; }
 
-function createPixelTexture(color,detailColor,type){
-    let tc=document.createElement('canvas');tc.width=32;tc.height=32;
-    let tctx=tc.getContext('2d');tctx.fillStyle=color;tctx.fillRect(0,0,32,32);tctx.fillStyle=detailColor;
-    if(type==='sand')for(let i=0;i<40;i++)tctx.fillRect(Math.random()*32,Math.random()*32,2,2);
-    else if(type==='chest'){tctx.fillStyle='#451a03';tctx.fillRect(2,2,28,28);tctx.fillStyle='#854d0e';tctx.fillRect(4,4,24,24);tctx.fillStyle='#eab308';tctx.fillRect(12,14,8,8);}
-    else if(type==='money'){tctx.fillStyle='#166534';tctx.fillRect(4,8,24,16);tctx.fillStyle='#4ade80';tctx.fillRect(6,10,20,12);tctx.fillStyle='#064e3b';tctx.font="10px monospace";tctx.fillText("$",12,19);}
-    else if(type==='bandage'){tctx.fillStyle='#f8fafc';tctx.fillRect(6,6,20,20);tctx.fillStyle='#dc2626';tctx.fillRect(14,8,4,16);tctx.fillRect(8,14,16,4);}
-    else if(type==='enemy'){tctx.fillStyle='#166534';tctx.fillRect(0,0,32,32);tctx.fillStyle='#22c55e';tctx.fillRect(4,4,24,24);tctx.fillStyle='#000';tctx.fillRect(6,8,6,6);tctx.fillRect(20,8,6,6);}
-    else if(type==='boss'){tctx.fillStyle='#7c2d12';tctx.fillRect(0,0,32,32);tctx.fillStyle='#dc2626';tctx.fillRect(2,2,28,28);tctx.fillStyle='#991b1b';tctx.fillRect(4,4,24,24);tctx.fillStyle='#000';tctx.fillRect(4,6,10,10);tctx.fillRect(18,6,10,10);tctx.fillStyle='#fbbf24';tctx.fillRect(6,0,4,6);tctx.fillRect(14,0,4,6);tctx.fillRect(22,0,4,6);}
+function createPixelTexture(color, detailColor, type) {
+    let tc = document.createElement('canvas'); tc.width = 32; tc.height = 32;
+    let tctx = tc.getContext('2d'); tctx.fillStyle = color; tctx.fillRect(0, 0, 32, 32); tctx.fillStyle = detailColor;
+    if (type === 'sand') for (let i = 0; i < 40; i++) tctx.fillRect(Math.random() * 32, Math.random() * 32, 2, 2);
+    else if (type === 'chest') { tctx.fillStyle = '#451a03'; tctx.fillRect(2, 2, 28, 28); tctx.fillStyle = '#854d0e'; tctx.fillRect(4, 4, 24, 24); tctx.fillStyle = '#eab308'; tctx.fillRect(12, 14, 8, 8); }
+    else if (type === 'money') { tctx.fillStyle = '#166534'; tctx.fillRect(4, 8, 24, 16); tctx.fillStyle = '#4ade80'; tctx.fillRect(6, 10, 20, 12); tctx.fillStyle = '#064e3b'; tctx.font = "10px monospace"; tctx.fillText("$", 12, 19); }
+    else if (type === 'bandage') { tctx.fillStyle = '#f8fafc'; tctx.fillRect(6, 6, 20, 20); tctx.fillStyle = '#dc2626'; tctx.fillRect(14, 8, 4, 16); tctx.fillRect(8, 14, 16, 4); }
+    else if (type === 'enemy') { tctx.fillStyle = '#166534'; tctx.fillRect(0, 0, 32, 32); tctx.fillStyle = '#22c55e'; tctx.fillRect(4, 4, 24, 24); tctx.fillStyle = '#000'; tctx.fillRect(6, 8, 6, 6); tctx.fillRect(20, 8, 6, 6); }
+    else if (type === 'boss') { tctx.fillStyle = '#7c2d12'; tctx.fillRect(0, 0, 32, 32); tctx.fillStyle = '#dc2626'; tctx.fillRect(2, 2, 28, 28); tctx.fillStyle = '#991b1b'; tctx.fillRect(4, 4, 24, 24); tctx.fillStyle = '#000'; tctx.fillRect(4, 6, 10, 10); tctx.fillRect(18, 6, 10, 10); tctx.fillStyle = '#fbbf24'; tctx.fillRect(6, 0, 4, 6); tctx.fillRect(14, 0, 4, 6); tctx.fillRect(22, 0, 4, 6); }
     return tc;
 }
 
-const texSand=createPixelTexture('#d4b85c','#b89838','sand'),texChest=createPixelTexture('','','chest');
-const texMoney=createPixelTexture('','','money'),texBandage=createPixelTexture('','','bandage');
-const texEnemy=createPixelTexture('','','enemy'),texBoss=createPixelTexture('','','boss');
+const texSand = createPixelTexture('#d4b85c', '#b89838', 'sand'), texChest = createPixelTexture('', '', 'chest');
+const texMoney = createPixelTexture('', '', 'money'), texBandage = createPixelTexture('', '', 'bandage');
+const texEnemy = createPixelTexture('', '', 'enemy'), texBoss = createPixelTexture('', '', 'boss');
 
-function restartGame(){
-    hideModal('settings-modal');hideModal('gameover-modal');hideModal('shop-modal');
-    money=isAdmin?999999:0;bandages=isAdmin?999:0;kills=0;score=0;timeLived=0;playerHp=maxHp;
-    currentGun='Pistol';gunDamage=5;bombPrice=100;enemyTier=1;
-    moneyMultiplier=1;moneyBoostTimer=0;potionTimer=0;potionActive=false;
-    shieldActive=false;shieldTimer=0;shieldPrice=100;
-    gunStats={'Pistol':{owned:true,level:0,baseDamage:5,baseCost:0,fireRate:1200},'D-Eagle':{owned:false,level:0,baseDamage:8,baseCost:100,fireRate:1200},'AK47':{owned:false,level:0,baseDamage:12,baseCost:500,fireRate:300},'Shortgun':{owned:false,level:0,baseDamage:18,baseCost:1000,fireRate:1200},'AWM':{owned:false,level:0,baseDamage:30,baseCost:2000,fireRate:2500}};
-    updateShopUI();updateHUD();
-    player.x=0;player.y=0;camX=0;camY=0;
-    enemies=[];bullets=[];drops=[];chests=[];
-    isPaused=false;bossSpawnTimer=0;
+function restartGame() {
+    hideModal('settings-modal'); hideModal('gameover-modal'); hideModal('shop-modal');
+    money = 0; bandages = 0; kills = 0; score = 0; timeLived = 0; playerHp = maxHp;
+    currentGun = 'Pistol'; gunDamage = 5; bombPrice = 100; enemyTier = 1;
+    moneyMultiplier = 1; moneyBoostTimer = 0; potionTimer = 0; potionActive = false;
+    shieldActive = false; shieldTimer = 0; shieldPrice = 100;
+    gunStats = {
+        'Pistol': {owned: true, level: 0, baseDamage: 5, baseCost: 0, fireRate: 1200},
+        'D-Eagle': {owned: false, level: 0, baseDamage: 8, baseCost: 100, fireRate: 1200},
+        'AK47': {owned: false, level: 0, baseDamage: 12, baseCost: 500, fireRate: 300},
+        'Shortgun': {owned: false, level: 0, baseDamage: 18, baseCost: 1000, fireRate: 1200},
+        'AWM': {owned: false, level: 0, baseDamage: 30, baseCost: 2000, fireRate: 2500}
+    };
+    updateShopUI(); updateHUD();
+    player.x = 0; player.y = 0; camX = 0; camY = 0;
+    enemies = []; bullets = []; drops = []; chests = [];
+    isPaused = false; bossSpawnTimer = 0;
     clearInterval(timeInterval);
-    timeInterval=setInterval(()=>{
-        if(!isPaused){
+    timeInterval = setInterval(() => {
+        if (!isPaused) {
             timeLived++;
-            if(moneyBoostTimer>0){moneyBoostTimer--;if(moneyBoostTimer<=0)moneyMultiplier=1;}
-            if(potionTimer>0){
+            if (moneyBoostTimer > 0) { moneyBoostTimer--; if (moneyBoostTimer <= 0) moneyMultiplier = 1; }
+            if (potionTimer > 0) {
                 potionTimer--;
-                if(potionTimer<=0){
-                    potionActive=false;
-                    if(playerHp > maxHp) playerHp = maxHp;
+                if (potionTimer <= 0) {
+                    potionActive = false;
+                    if (playerHp > maxHp) playerHp = maxHp;
                 }
             }
-            if(shieldTimer>0){shieldTimer--;if(shieldTimer<=0)shieldActive=false;}
-            if(isAdmin){playerHp=maxHp;money=999999;bandages=999;}
+            if (shieldTimer > 0) { shieldTimer--; if (shieldTimer <= 0) shieldActive = false; }
             updateHUD();
         }
-    },1000);
-    lastShot=Date.now();
-    if(gameLoopId)cancelAnimationFrame(gameLoopId);
+    }, 1000);
+    lastShot = Date.now();
+    if (gameLoopId) cancelAnimationFrame(gameLoopId);
     loop();
 }
 
-function exitToMenu(){
-    isPaused=true;clearInterval(timeInterval);
-    hideModal('settings-modal');hideModal('gameover-modal');hideModal('shop-modal');
-    document.getElementById('game-screen').style.display='none';
-    document.getElementById('menu-screen').style.display='block';
+function exitToMenu() {
+    isPaused = true; clearInterval(timeInterval);
+    hideModal('settings-modal'); hideModal('gameover-modal'); hideModal('shop-modal');
+    document.getElementById('game-screen').style.display = 'none';
+    document.getElementById('menu-screen').style.display = 'block';
     updateUsernameDropdown();
-    if(gameLoopId)cancelAnimationFrame(gameLoopId);
+    if (gameLoopId) cancelAnimationFrame(gameLoopId);
 }
 
-function updateBombButton(){
-    document.getElementById('bomb-price-badge').innerText='$'+bombPrice;
-    let btn=document.getElementById('bomb-circle-btn');
-    btn.disabled=(money<bombPrice);btn.style.opacity=(money<bombPrice)?'0.6':'1';
+function updateBombButton() {
+    document.getElementById('bomb-price-badge').innerText = '$' + bombPrice;
+    let btn = document.getElementById('bomb-circle-btn');
+    btn.disabled = (money < bombPrice); btn.style.opacity = (money < bombPrice) ? '0.6' : '1';
 }
 
-function updateShieldButton(){
-    document.getElementById('shield-price-badge').innerText='$'+shieldPrice;
-    let btn=document.getElementById('shield-circle-btn');
-    btn.disabled=(money<shieldPrice || shieldActive);
-    btn.style.opacity=(money<shieldPrice || shieldActive)?'0.6':'1';
+function updateShieldButton() {
+    document.getElementById('shield-price-badge').innerText = '$' + shieldPrice;
+    let btn = document.getElementById('shield-circle-btn');
+    btn.disabled = (money < shieldPrice || shieldActive);
+    btn.style.opacity = (money < shieldPrice || shieldActive) ? '0.6' : '1';
 }
 
-function updateHUD(){
-    document.getElementById('ui-money').innerText=money;
-    document.getElementById('ui-score').innerText=score;
-    document.getElementById('ui-time').innerText=timeLived;
-    document.getElementById('heal-bandage-count').innerText=bandages;
-    document.getElementById('ui-gun').innerText=currentGun;
-    if(isAdmin) document.getElementById('admin-badge').style.display='inline';
-    let powerupText='';
-    if(moneyBoostTimer>0)powerupText+='💰2x '+moneyBoostTimer+'s ';
-    if(potionActive)powerupText+='🧪+'+potionTimer+'s ';
-    if(shieldActive)powerupText+='🛡️ '+shieldTimer+'s ';
-    document.getElementById('ui-powerups').innerText=powerupText;
+function updateHUD() {
+    document.getElementById('ui-money').innerText = money;
+    document.getElementById('ui-score').innerText = score;
+    document.getElementById('ui-time').innerText = timeLived;
+    document.getElementById('heal-bandage-count').innerText = bandages;
+    document.getElementById('ui-gun').innerText = currentGun;
+    let powerupText = '';
+    if (moneyBoostTimer > 0) powerupText += '💰2x ' + moneyBoostTimer + 's ';
+    if (potionActive) powerupText += '🧪+ ' + potionTimer + 's ';
+    if (shieldActive) powerupText += '🛡️ ' + shieldTimer + 's ';
+    document.getElementById('ui-powerups').innerText = powerupText;
     updateBombButton();
     updateShieldButton();
 }
 
-function openSettings(){
-    isPaused=true;
-    document.getElementById('minimap-pos').value = minimapPosition;
-    document.getElementById('buttons-pos').value = buttonsPosition;
-    showModal('settings-modal');
+function openSettings() { isPaused = true; showModal('settings-modal'); }
+function resumeGame(id) { hideModal(id); if (id === 'shop-modal' || id === 'settings-modal') isPaused = false; }
+function goToShop() { isPaused = true; showModal('shop-modal'); updateShopUI(); document.getElementById('shop-message').innerText = ""; }
+
+function buyBandages() {
+    if (money >= 150) {
+        money -= 150; bandages += 3;
+        updateHUD();
+        document.getElementById('shop-message').innerText = "Purchased 3 Bandages!";
+        document.getElementById('shop-message').style.color = "#16a34a";
+    } else {
+        document.getElementById('shop-message').innerText = "Not enough money!";
+        document.getElementById('shop-message').style.color = "#dc2626";
+    }
 }
-function resumeGame(id){hideModal(id);if(id==='shop-modal'||id==='settings-modal')isPaused=false;}
-function goToShop(){isPaused=true;showModal('shop-modal');updateShopUI();document.getElementById('shop-message').innerText="";}
 
-function buyBandages(){if(money>=150||isAdmin){if(!isAdmin)money-=150;bandages+=3;updateHUD();document.getElementById('shop-message').innerText="Purchased 3 Bandages!";document.getElementById('shop-message').style.color="#16a34a";}else{document.getElementById('shop-message').innerText="Not enough money!";document.getElementById('shop-message').style.color="#dc2626";}}
-
-function buyPotion(){
-    if(money>=500||isAdmin){
-        if(!isAdmin)money-=500;
-        potionActive=true;
-        potionTimer=90;
-        // Full heal + extra 10 max HP
+function buyPotion() {
+    if (money >= 500) {
+        money -= 500;
+        potionActive = true; potionTimer = 90;
         playerHp = maxHp + 10;
-        document.getElementById('shop-message').innerText="Fully healed! +10 HP for 90s!";
-        document.getElementById('shop-message').style.color="#16a34a";
+        document.getElementById('shop-message').innerText = "Fully healed! +10 HP for 90s!";
+        document.getElementById('shop-message').style.color = "#16a34a";
         updateHUD();
     } else {
-        document.getElementById('shop-message').innerText="Not enough money!";
-        document.getElementById('shop-message').style.color="#dc2626";
+        document.getElementById('shop-message').innerText = "Not enough money!";
+        document.getElementById('shop-message').style.color = "#dc2626";
     }
 }
 
-function buyMoneyBoost(){if(money>=1000||isAdmin){if(!isAdmin)money-=1000;moneyMultiplier=2;moneyBoostTimer=90;document.getElementById('shop-message').innerText="2x Money for 90s!";document.getElementById('shop-message').style.color="#16a34a";updateHUD();}else{document.getElementById('shop-message').innerText="Not enough money!";document.getElementById('shop-message').style.color="#dc2626";}}
-function useBandage(){if(bandages>0&&playerHp<maxHp){bandages--;playerHp=Math.min(maxHp,playerHp+2);updateHUD();}}
+function buyMoneyBoost() {
+    if (money >= 1000) {
+        money -= 1000; moneyMultiplier = 2; moneyBoostTimer = 90;
+        document.getElementById('shop-message').innerText = "2x Money for 90s!";
+        document.getElementById('shop-message').style.color = "#16a34a";
+        updateHUD();
+    } else {
+        document.getElementById('shop-message').innerText = "Not enough money!";
+        document.getElementById('shop-message').style.color = "#dc2626";
+    }
+}
 
-function useShield(){
-    if((money>=shieldPrice||isAdmin) && !shieldActive){
-        if(!isAdmin)money-=shieldPrice;
-        shieldActive=true;
-        shieldTimer=10;
-        shieldPrice=Math.min(shieldPrice*2,1600);
+function useBandage() {
+    if (bandages > 0 && playerHp < maxHp) { bandages--; playerHp = Math.min(maxHp, playerHp + 2); updateHUD(); }
+}
+
+function useShield() {
+    if (money >= shieldPrice && !shieldActive) {
+        money -= shieldPrice;
+        shieldActive = true; shieldTimer = 10;
+        shieldPrice = Math.min(shieldPrice * 2, 1600);
         updateHUD();
     }
 }
 
-function useBomb(){
-    if(money>=bombPrice||isAdmin){
-        if(!isAdmin)money-=bombPrice;
-        bombPrice=Math.min(bombPrice*2,1600);
-        let bombScore=0;
-        for(let i=enemies.length-1;i>=0;i--){
-            if(Math.hypot(player.x-enemies[i].x,player.y-enemies[i].y)<=200){
-                bombScore+=enemies[i].isBoss?200:50;
-                enemies[i].hp=0;kills++;
-                drops.push({x:enemies[i].x,y:enemies[i].y,type:'money',val:(enemies[i].isBoss?200:25)*moneyMultiplier});
-                if(enemies[i].isBoss||Math.random()>0.8)drops.push({x:enemies[i].x+10,y:enemies[i].y,type:'bandage'});
-                enemies.splice(i,1);
+function useBomb() {
+    if (money >= bombPrice) {
+        money -= bombPrice;
+        bombPrice = Math.min(bombPrice * 2, 1600);
+        let bombScore = 0;
+        for (let i = enemies.length - 1; i >= 0; i--) {
+            if (Math.hypot(player.x - enemies[i].x, player.y - enemies[i].y) <= 200) {
+                bombScore += enemies[i].isBoss ? 200 : 50;
+                enemies[i].hp = 0; kills++;
+                drops.push({x: enemies[i].x, y: enemies[i].y, type: 'money', val: (enemies[i].isBoss ? 200 : 25) * moneyMultiplier});
+                if (enemies[i].isBoss || Math.random() > 0.8) drops.push({x: enemies[i].x + 10, y: enemies[i].y, type: 'bandage'});
+                enemies.splice(i, 1);
             }
         }
-        score+=bombScore;
+        score += bombScore;
         updateHUD();
     }
 }
 
-function buyGun(name){
-    let gun=gunStats[name];
-    if(gun.owned){currentGun=name;gunDamage=gun.baseDamage+(gun.level*3);document.getElementById('shop-message').innerText="Equipped "+name;document.getElementById('shop-message').style.color="#16a34a";updateShopUI();}
-    else if(money>=gun.baseCost||isAdmin){if(!isAdmin)money-=gun.baseCost;gun.owned=true;currentGun=name;gunDamage=gun.baseDamage+(gun.level*3);updateHUD();updateShopUI();document.getElementById('shop-message').innerText="Purchased "+name;document.getElementById('shop-message').style.color="#16a34a";}
-    else{document.getElementById('shop-message').innerText="Not enough money!";document.getElementById('shop-message').style.color="#dc2626";}
+function buyGun(name) {
+    let gun = gunStats[name];
+    if (gun.owned) {
+        currentGun = name; gunDamage = gun.baseDamage + (gun.level * 3);
+        document.getElementById('shop-message').innerText = "Equipped " + name;
+        document.getElementById('shop-message').style.color = "#16a34a";
+        updateShopUI();
+    } else if (money >= gun.baseCost) {
+        money -= gun.baseCost; gun.owned = true;
+        currentGun = name; gunDamage = gun.baseDamage + (gun.level * 3);
+        updateHUD(); updateShopUI();
+        document.getElementById('shop-message').innerText = "Purchased " + name;
+        document.getElementById('shop-message').style.color = "#16a34a";
+    } else {
+        document.getElementById('shop-message').innerText = "Not enough money!";
+        document.getElementById('shop-message').style.color = "#dc2626";
+    }
 }
 
-function upgradeGun(name){
-    let gun=gunStats[name];if(!gun.owned||gun.level>=3)return;
-    let cost=gun.baseCost*(gun.level+1);
-    if(money>=cost||isAdmin){if(!isAdmin)money-=cost;gun.level++;gunDamage=gun.baseDamage+(gun.level*3);updateHUD();updateShopUI();document.getElementById('shop-message').innerText=name+" upgraded to Lvl "+gun.level+"!";document.getElementById('shop-message').style.color="#16a34a";}
+function upgradeGun(name) {
+    let gun = gunStats[name];
+    if (!gun.owned || gun.level >= 3) return;
+    let cost = gun.baseCost * (gun.level + 1);
+    if (money >= cost) {
+        money -= cost; gun.level++;
+        gunDamage = gun.baseDamage + (gun.level * 3);
+        updateHUD(); updateShopUI();
+        document.getElementById('shop-message').innerText = name + " upgraded to Lvl " + gun.level + "!";
+        document.getElementById('shop-message').style.color = "#16a34a";
+    }
 }
 
-function updateShopUI(){
-    ['D-Eagle','AK47','Shortgun','AWM'].forEach(name=>{
-        let gun=gunStats[name],key=name.toLowerCase();
-        if(key==='d-eagle')key='deagle';if(key==='shortgun')key='shortgun';
-        document.getElementById(key+'-lvl').innerText=gun.level;
-        let buyBtn=document.getElementById('btn-buy-'+key),upgBtn=document.getElementById('btn-upgrade-'+key);
-        if(!buyBtn)return;
-        if(gun.owned){buyBtn.innerText=(currentGun===name)?'EQUIPPED':'EQUIP';document.getElementById(key+'-cost').innerText='Owned';upgBtn.style.display='inline-block';
-            if(gun.level>=3){upgBtn.innerText='MAX';upgBtn.disabled=true;}else{upgBtn.innerText='UPGRADE ($'+gun.baseCost*(gun.level+1)+')';upgBtn.disabled=false;}}
-        else{buyBtn.innerText='BUY';upgBtn.style.display='none';document.getElementById(key+'-cost').innerText=gun.baseCost;}
+function updateShopUI() {
+    ['D-Eagle', 'AK47', 'Shortgun', 'AWM'].forEach(name => {
+        let gun = gunStats[name], key = name.toLowerCase();
+        if (key === 'd-eagle') key = 'deagle'; if (key === 'shortgun') key = 'shortgun';
+        document.getElementById(key + '-lvl').innerText = gun.level;
+        let buyBtn = document.getElementById('btn-buy-' + key), upgBtn = document.getElementById('btn-upgrade-' + key);
+        if (!buyBtn) return;
+        if (gun.owned) {
+            buyBtn.innerText = (currentGun === name) ? 'EQUIPPED' : 'EQUIP';
+            document.getElementById(key + '-cost').innerText = 'Owned';
+            upgBtn.style.display = 'inline-block';
+            if (gun.level >= 3) { upgBtn.innerText = 'MAX'; upgBtn.disabled = true; }
+            else { upgBtn.innerText = 'UPGRADE ($' + gun.baseCost * (gun.level + 1) + ')'; upgBtn.disabled = false; }
+        } else {
+            buyBtn.innerText = 'BUY'; upgBtn.style.display = 'none';
+            document.getElementById(key + '-cost').innerText = gun.baseCost;
+        }
     });
 }
 
-window.addEventListener('keydown',e=>keys[e.key.toLowerCase()]=true);
-window.addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 
-const joyZone=document.getElementById('joystick-zone'),joyKnob=document.getElementById('joystick-knob');
-joyZone.addEventListener('touchstart',e=>{isDragging=true;handleJoy(e.touches[0]);},{passive:false});
-joyZone.addEventListener('touchmove',e=>{if(isDragging){e.preventDefault();handleJoy(e.touches[0]);}},{passive:false});
-joyZone.addEventListener('touchend',()=>{isDragging=false;joyX=0;joyY=0;joyKnob.style.transform='translate(-50%,-50%)';});
+const joyZone = document.getElementById('joystick-zone'), joyKnob = document.getElementById('joystick-knob');
+joyZone.addEventListener('touchstart', e => { isDragging = true; handleJoy(e.touches[0]); }, { passive: false });
+joyZone.addEventListener('touchmove', e => { if (isDragging) { e.preventDefault(); handleJoy(e.touches[0]); } }, { passive: false });
+joyZone.addEventListener('touchend', () => { isDragging = false; joyX = 0; joyY = 0; joyKnob.style.transform = 'translate(-50%,-50%)'; });
 
-function handleJoy(t){let r=joyZone.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dx=t.clientX-cx,dy=t.clientY-cy,d=Math.hypot(dx,dy),maxR=40;if(d>maxR){dx=(dx/d)*maxR;dy=(dy/d)*maxR;}joyKnob.style.transform=`translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;joyX=dx/maxR;joyY=dy/maxR;}
-
-function spawnEnemy(){
-    let a=Math.random()*Math.PI*2,d=Math.max(CW,CH)*0.6;
-    let hmult=getEnemyHealthMultiplier();
-    let baseHp=Math.floor(60*hmult);
-    enemies.push({x:player.x+Math.cos(a)*d,y:player.y+Math.sin(a)*d,w:24,h:24,hp:baseHp,maxHp:baseHp,speed:0.8+Math.random()*0.4,lastHitPlayer:0,isBoss:false});
+function handleJoy(t) {
+    let r = joyZone.getBoundingClientRect(), cx = r.left + r.width/2, cy = r.top + r.height/2;
+    let dx = t.clientX - cx, dy = t.clientY - cy, d = Math.hypot(dx, dy), maxR = 40;
+    if (d > maxR) { dx = (dx / d) * maxR; dy = (dy / d) * maxR; }
+    joyKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+    joyX = dx / maxR; joyY = dy / maxR;
 }
 
-function spawnBoss(){
-    let a=Math.random()*Math.PI*2,d=Math.max(CW,CH)*0.6;
-    let hmult=getEnemyHealthMultiplier();
-    let baseHp=Math.floor(90*hmult);
-    enemies.push({x:player.x+Math.cos(a)*d,y:player.y+Math.sin(a)*d,w:40,h:40,hp:baseHp,maxHp:baseHp,speed:0.6,lastHitPlayer:0,isBoss:true});
+function spawnEnemy() {
+    let a = Math.random() * Math.PI * 2, d = Math.max(CW, CH) * 0.6;
+    let hmult = getEnemyHealthMultiplier();
+    let baseHp = Math.floor(60 * hmult);
+    enemies.push({x: player.x + Math.cos(a) * d, y: player.y + Math.sin(a) * d, w: 24, h: 24, hp: baseHp, maxHp: baseHp, speed: 0.8 + Math.random() * 0.4, lastHitPlayer: 0, isBoss: false});
 }
 
-function spawnChest(){let a=Math.random()*Math.PI*2,d=Math.random()*500+200;chests.push({x:player.x+Math.cos(a)*d,y:player.y+Math.sin(a)*d,w:32,h:32});}
+function spawnBoss() {
+    let a = Math.random() * Math.PI * 2, d = Math.max(CW, CH) * 0.6;
+    let hmult = getEnemyHealthMultiplier();
+    let baseHp = Math.floor(90 * hmult);
+    enemies.push({x: player.x + Math.cos(a) * d, y: player.y + Math.sin(a) * d, w: 40, h: 40, hp: baseHp, maxHp: baseHp, speed: 0.6, lastHitPlayer: 0, isBoss: true});
+}
 
-function separateEnemies(){for(let i=0;i<enemies.length;i++)for(let j=i+1;j<enemies.length;j++){let e1=enemies[i],e2=enemies[j],dx=e2.x-e1.x,dy=e2.y-e1.y,d=Math.hypot(dx,dy),min=(e1.w+e2.w)/2;if(d<min&&d>0){let o=min-d;e1.x-=(dx/d)*o*0.5;e1.y-=(dy/d)*o*0.5;e2.x+=(dx/d)*o*0.5;e2.y+=(dy/d)*o*0.5;}}}
+function spawnChest() { let a = Math.random() * Math.PI * 2, d = Math.random() * 500 + 200; chests.push({x: player.x + Math.cos(a) * d, y: player.y + Math.sin(a) * d, w: 32, h: 32}); }
+
+function separateEnemies() {
+    for (let i = 0; i < enemies.length; i++)
+        for (let j = i + 1; j < enemies.length; j++) {
+            let e1 = enemies[i], e2 = enemies[j], dx = e2.x - e1.x, dy = e2.y - e1.y, d = Math.hypot(dx, dy), min = (e1.w + e2.w) / 2;
+            if (d < min && d > 0) { let o = min - d; e1.x -= (dx / d) * o * 0.5; e1.y -= (dy / d) * o * 0.5; e2.x += (dx / d) * o * 0.5; e2.y += (dy / d) * o * 0.5; }
+        }
+}
 
 function drawMinimap() {
-    const mapW = 150, mapH = 150;
+    const mapW = 150, mapH = 150, padding = 10;
     let mapX, mapY;
-    const padding = 10;
-    // Position based on minimapPosition setting
-    switch(minimapPosition) {
-        case 'top-right':
-            mapX = CW - mapW - padding;
-            mapY = padding;
-            break;
-        case 'top-left':
-            mapX = padding;
-            mapY = padding;
-            break;
-        case 'bottom-right':
-            mapX = CW - mapW - padding;
-            mapY = CH - mapH - padding;
-            break;
-        case 'bottom-left':
-            mapX = padding;
-            mapY = CH - mapH - padding;
-            break;
-        default:
-            mapX = CW - mapW - padding;
-            mapY = padding;
+    switch (minimapPosition) {
+        case 'top-right': mapX = CW - mapW - padding; mapY = padding; break;
+        case 'top-left': mapX = padding; mapY = padding; break;
+        case 'bottom-right': mapX = CW - mapW - padding; mapY = CH - mapH - padding; break;
+        case 'bottom-left': mapX = padding; mapY = CH - mapH - padding; break;
+        default: mapX = CW - mapW - padding; mapY = padding;
     }
     const scale = mapW / (minimapRadius * 2);
     const centerX = mapX + mapW/2, centerY = mapY + mapH/2;
-    
-    // Background
-    ctx.fillStyle = 'rgba(0,0,0,0.5)';
-    ctx.fillRect(mapX, mapY, mapW, mapH);
-    ctx.strokeStyle = '#facc15';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(mapX, mapY, mapW, mapH);
-    
-    function worldToMap(wx, wy) {
-        return {
-            x: centerX + (wx - player.x) * scale,
-            y: centerY + (wy - player.y) * scale
-        };
-    }
-    
-    // Enemies
-    ctx.fillStyle = '#dc2626';
-    enemies.forEach(e => {
-        if (Math.hypot(e.x - player.x, e.y - player.y) <= minimapRadius) {
-            let p = worldToMap(e.x, e.y);
-            ctx.fillRect(p.x - 1.5, p.y - 1.5, 3, 3);
-        }
-    });
-    
-    // Chests
-    ctx.fillStyle = '#facc15';
-    chests.forEach(c => {
-        if (Math.hypot(c.x - player.x, c.y - player.y) <= minimapRadius) {
-            let p = worldToMap(c.x, c.y);
-            ctx.fillRect(p.x - 2, p.y - 2, 4, 4);
-        }
-    });
-    
-    // Drops
-    ctx.fillStyle = '#22c55e';
-    drops.forEach(d => {
-        if (Math.hypot(d.x - player.x, d.y - player.y) <= minimapRadius) {
-            let p = worldToMap(d.x, d.y);
-            ctx.fillRect(p.x - 1, p.y - 1, 2, 2);
-        }
-    });
-    
-    // Player
-    ctx.fillStyle = '#3b82f6';
-    let pp = worldToMap(player.x, player.y);
-    ctx.fillRect(pp.x - 2.5, pp.y - 2.5, 5, 5);
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(pp.x - 2.5, pp.y - 2.5, 5, 5);
+    ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(mapX, mapY, mapW, mapH);
+    ctx.strokeStyle = '#facc15'; ctx.lineWidth = 2; ctx.strokeRect(mapX, mapY, mapW, mapH);
+    function worldToMap(wx, wy) { return { x: centerX + (wx - player.x) * scale, y: centerY + (wy - player.y) * scale }; }
+    ctx.fillStyle = '#dc2626'; enemies.forEach(e => { if (Math.hypot(e.x - player.x, e.y - player.y) <= minimapRadius) { let p = worldToMap(e.x, e.y); ctx.fillRect(p.x-1.5, p.y-1.5, 3, 3); } });
+    ctx.fillStyle = '#facc15'; chests.forEach(c => { if (Math.hypot(c.x - player.x, c.y - player.y) <= minimapRadius) { let p = worldToMap(c.x, c.y); ctx.fillRect(p.x-2, p.y-2, 4, 4); } });
+    ctx.fillStyle = '#22c55e'; drops.forEach(d => { if (Math.hypot(d.x - player.x, d.y - player.y) <= minimapRadius) { let p = worldToMap(d.x, d.y); ctx.fillRect(p.x-1, p.y-1, 2, 2); } });
+    ctx.fillStyle = '#3b82f6'; let pp = worldToMap(player.x, player.y); ctx.fillRect(pp.x-2.5, pp.y-2.5, 5, 5);
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.strokeRect(pp.x-2.5, pp.y-2.5, 5, 5);
 }
 
-function loop(){
-    if(isPaused){gameLoopId=requestAnimationFrame(loop);return;}
-    let now=Date.now();camX=player.x-CW/2;camY=player.y-CH/2;
-    ctx.clearRect(0,0,CW,CH);
-    let ts=32,ox=-camX%ts,oy=-camY%ts;
-    for(let x=ox-ts;x<CW+ts;x+=ts)for(let y=oy-ts;y<CH+ts;y+=ts)ctx.drawImage(texSand,x,y,ts,ts);
-    let dx=0,dy=0;if(keys['w'])dy=-1;if(keys['s'])dy=1;if(keys['a'])dx=-1;if(keys['d'])dx=1;if(isDragging){dx=joyX;dy=joyY;}
-    let md=Math.hypot(dx,dy);if(md>0){player.x+=(dx/md)*player.speed;player.y+=(dy/md)*player.speed;}
-    if(Math.random()<0.012)spawnEnemy();if(Math.random()<0.001&&chests.length<5)spawnChest();
-    bossSpawnTimer++;if(bossSpawnTimer>=1800){spawnBoss();bossSpawnTimer=0;}
-    let nearest=null,minDist=Infinity;
-    let currentMaxHp=potionActive?maxHp+10:maxHp;
-    
-    if(isAdmin) playerHp = currentMaxHp;
-    
-    for(let i=enemies.length-1;i>=0;i--){
-        let e=enemies[i],edx=player.x-e.x,edy=player.y-e.y,d=Math.hypot(edx,edy);
-        if(d<minDist){minDist=d;nearest=e;}
-        if(d>0){e.x+=(edx/d)*e.speed;e.y+=(edy/d)*e.speed;}
-        if(d<(e.isBoss?30:20)&&now-e.lastHitPlayer>1000){
-            if(!isAdmin && !shieldActive) playerHp--;
-            e.lastHitPlayer=now;updateHUD();
-            if(playerHp<=0){isPaused=true;
-                document.getElementById('go-player').innerText=selectedUser;
-                document.getElementById('go-score').innerText=score;
-                document.getElementById('go-time').innerText=timeLived;
-                document.getElementById('go-kills').innerText=kills;
-                isNewGlobalHighScore(score).then(isHigh=>{
-                    if(isHigh){addGlobalHighScore(selectedUser,score,timeLived,kills);document.getElementById('go-highscore-msg').innerText="🏆 NEW GLOBAL HIGH SCORE! 🏆";}
-                    else document.getElementById('go-highscore-msg').innerText="";
+function loop() {
+    if (isPaused) { gameLoopId = requestAnimationFrame(loop); return; }
+    let now = Date.now(); camX = player.x - CW/2; camY = player.y - CH/2;
+    ctx.clearRect(0, 0, CW, CH);
+    let ts = 32, ox = -camX % ts, oy = -camY % ts;
+    for (let x = ox - ts; x < CW + ts; x += ts) for (let y = oy - ts; y < CH + ts; y += ts) ctx.drawImage(texSand, x, y, ts, ts);
+    let dx = 0, dy = 0;
+    if (keys['w']) dy = -1; if (keys['s']) dy = 1; if (keys['a']) dx = -1; if (keys['d']) dx = 1;
+    if (isDragging) { dx = joyX; dy = joyY; }
+    let md = Math.hypot(dx, dy); if (md > 0) { player.x += (dx / md) * player.speed; player.y += (dy / md) * player.speed; }
+    if (Math.random() < 0.012) spawnEnemy(); if (Math.random() < 0.001 && chests.length < 5) spawnChest();
+    bossSpawnTimer++; if (bossSpawnTimer >= 1800) { spawnBoss(); bossSpawnTimer = 0; }
+    let nearest = null, minDist = Infinity;
+    let currentMaxHp = potionActive ? maxHp + 10 : maxHp;
+    for (let i = enemies.length - 1; i >= 0; i--) {
+        let e = enemies[i], edx = player.x - e.x, edy = player.y - e.y, d = Math.hypot(edx, edy);
+        if (d < minDist) { minDist = d; nearest = e; }
+        if (d > 0) { e.x += (edx / d) * e.speed; e.y += (edy / d) * e.speed; }
+        if (d < (e.isBoss ? 30 : 20) && now - e.lastHitPlayer > 1000) {
+            if (!shieldActive) playerHp--;
+            e.lastHitPlayer = now; updateHUD();
+            if (playerHp <= 0) {
+                isPaused = true;
+                document.getElementById('go-player').innerText = selectedUser;
+                document.getElementById('go-score').innerText = score;
+                document.getElementById('go-time').innerText = timeLived;
+                document.getElementById('go-kills').innerText = kills;
+                isNewGlobalHighScore(score).then(isHigh => {
+                    if (isHigh) { addGlobalHighScore(selectedUser, score, timeLived, kills); document.getElementById('go-highscore-msg').innerText = "🏆 NEW GLOBAL HIGH SCORE! 🏆"; }
+                    else document.getElementById('go-highscore-msg').innerText = "";
                 });
-                showModal('gameover-modal');return;
+                showModal('gameover-modal'); return;
             }
         }
-        let ex=e.x-camX,ey=e.y-camY;
-        if(e.isBoss)ctx.drawImage(texBoss,ex-8,ey-8,e.w,e.h);else ctx.drawImage(texEnemy,ex,ey,e.w,e.h);
-        let bw=e.isBoss?50:30,bx=ex+e.w/2-bw/2,by=ey-12;
-        ctx.fillStyle='rgba(0,0,0,0.5)';ctx.fillRect(bx,by,bw,6);
-        ctx.fillStyle=e.hp>e.maxHp*0.5?'#22c55e':e.hp>e.maxHp*0.25?'#eab308':'#dc2626';
-        ctx.fillRect(bx,by,bw*(e.hp/e.maxHp),6);
-        ctx.fillStyle='#fff';ctx.font='8px "Press Start 2P"';ctx.textAlign='center';
-        ctx.fillText(Math.ceil(e.hp)+'/'+e.maxHp,bx+bw/2,by+5);
+        let ex = e.x - camX, ey = e.y - camY;
+        if (e.isBoss) ctx.drawImage(texBoss, ex-8, ey-8, e.w, e.h); else ctx.drawImage(texEnemy, ex, ey, e.w, e.h);
+        let bw = e.isBoss ? 50 : 30, bx = ex + e.w/2 - bw/2, by = ey - 12;
+        ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(bx, by, bw, 6);
+        ctx.fillStyle = e.hp > e.maxHp * 0.5 ? '#22c55e' : e.hp > e.maxHp * 0.25 ? '#eab308' : '#dc2626';
+        ctx.fillRect(bx, by, bw * (e.hp / e.maxHp), 6);
+        ctx.fillStyle = '#fff'; ctx.font = '8px "Press Start 2P"'; ctx.textAlign = 'center';
+        ctx.fillText(Math.ceil(e.hp) + '/' + e.maxHp, bx + bw/2, by + 5);
     }
     separateEnemies();
-    
-    let fireRate=getFireRate();
-    if(nearest&&now-lastShot>=fireRate){
-        let bx=nearest.x-player.x,by=nearest.y-player.y,bd=Math.hypot(bx,by);
-        let bulletSpeed=8;
-        let baseAngle=Math.atan2(by,bx);
-        
-        if(currentGun==='Shortgun'){
-            let pelletCount=5;
-            let spreadAngle=0.3;
-            for(let p=0;p<pelletCount;p++){
-                let angleOffset=(p-(pelletCount-1)/2)*(spreadAngle/(pelletCount-1));
-                let angle=baseAngle+angleOffset;
-                let vx=Math.cos(angle)*bulletSpeed;
-                let vy=Math.sin(angle)*bulletSpeed;
-                bullets.push({x:player.x+12,y:player.y+12,vx:vx,vy:vy,r:3,damage:Math.floor(gunDamage*0.6),hitEnemies:[]});
+    let fireRate = getFireRate();
+    if (nearest && now - lastShot >= fireRate) {
+        let bx = nearest.x - player.x, by = nearest.y - player.y, bd = Math.hypot(bx, by);
+        let bulletSpeed = 8, baseAngle = Math.atan2(by, bx);
+        if (currentGun === 'Shortgun') {
+            let pelletCount = 5, spreadAngle = 0.3;
+            for (let p = 0; p < pelletCount; p++) {
+                let angleOffset = (p - (pelletCount - 1) / 2) * (spreadAngle / (pelletCount - 1));
+                let angle = baseAngle + angleOffset;
+                bullets.push({x: player.x + 12, y: player.y + 12, vx: Math.cos(angle) * bulletSpeed, vy: Math.sin(angle) * bulletSpeed, r: 3, damage: Math.floor(gunDamage * 0.6), hitEnemies: []});
             }
         } else {
-            bullets.push({x:player.x+12,y:player.y+12,vx:(bx/bd)*bulletSpeed,vy:(by/bd)*bulletSpeed,r:4,damage:gunDamage,hitEnemies:[]});
+            bullets.push({x: player.x + 12, y: player.y + 12, vx: (bx / bd) * bulletSpeed, vy: (by / bd) * bulletSpeed, r: 4, damage: gunDamage, hitEnemies: []});
         }
-        lastShot=now;
+        lastShot = now;
     }
-    
-    // Bullet update and collision with penetrating mechanics
-    for(let i=bullets.length-1;i>=0;i--){
-        let b=bullets[i];
-        b.x+=b.vx;
-        b.y+=b.vy;
-        
-        ctx.fillStyle='#000000';
-        ctx.fillRect(b.x-camX,b.y-camY,b.r*2,b.r*2);
-        ctx.strokeStyle='#ffffff';
-        ctx.lineWidth=1;
-        ctx.strokeRect(b.x-camX,b.y-camY,b.r*2,b.r*2);
-        
-        if(Math.hypot(player.x-b.x,player.y-b.y)>1500){
-            bullets.splice(i,1);
-            continue;
-        }
-        
-        let bulletUsed=false;
-        for(let j=enemies.length-1;j>=0;j--){
-            let e=enemies[j];
-            if(!b.hitEnemies.includes(j)&&b.x>e.x&&b.x<e.x+e.w&&b.y>e.y&&b.y<e.y+e.h){
+    for (let i = bullets.length - 1; i >= 0; i--) {
+        let b = bullets[i]; b.x += b.vx; b.y += b.vy;
+        ctx.fillStyle = '#000'; ctx.fillRect(b.x - camX, b.y - camY, b.r*2, b.r*2);
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.strokeRect(b.x - camX, b.y - camY, b.r*2, b.r*2);
+        if (Math.hypot(player.x - b.x, player.y - b.y) > 1500) { bullets.splice(i, 1); continue; }
+        let bulletUsed = false;
+        for (let j = enemies.length - 1; j >= 0; j--) {
+            let e = enemies[j];
+            if (!b.hitEnemies.includes(j) && b.x > e.x && b.x < e.x + e.w && b.y > e.y && b.y < e.y + e.h) {
                 b.hitEnemies.push(j);
-                
-                let actualDamage=Math.min(b.damage,e.hp);
-                e.hp-=actualDamage;
-                b.damage-=actualDamage;
-                
-                let totalDamage=actualDamage+(b.damage||0.01);
-                let speedReduction=actualDamage/totalDamage;
-                let slowFactor=1-speedReduction*0.3;
-                b.vx*=slowFactor;
-                b.vy*=slowFactor;
-                
-                b.r=Math.max(2,b.r-0.3);
-                
-                bulletUsed=true;
-                
-                if(e.hp<=0){
-                    score+=50;
-                    kills++;
-                    let val=(e.isBoss?200:25)*moneyMultiplier;
-                    drops.push({x:e.x,y:e.y,type:'money',val:val});
-                    if(e.isBoss||Math.random()>0.8)drops.push({x:e.x+10,y:e.y,type:'bandage'});
-                    enemies.splice(j,1);
+                let actualDamage = Math.min(b.damage, e.hp);
+                e.hp -= actualDamage; b.damage -= actualDamage;
+                let totalDamage = actualDamage + (b.damage || 0.01);
+                let slowFactor = 1 - (actualDamage / totalDamage) * 0.3;
+                b.vx *= slowFactor; b.vy *= slowFactor;
+                b.r = Math.max(2, b.r - 0.3);
+                bulletUsed = true;
+                if (e.hp <= 0) {
+                    score += 50; kills++;
+                    let val = (e.isBoss ? 200 : 25) * moneyMultiplier;
+                    drops.push({x: e.x, y: e.y, type: 'money', val: val});
+                    if (e.isBoss || Math.random() > 0.8) drops.push({x: e.x + 10, y: e.y, type: 'bandage'});
+                    enemies.splice(j, 1);
                 }
-                
-                if(b.damage<=0){
-                    bullets.splice(i,1);
-                    break;
-                }
+                if (b.damage <= 0) { bullets.splice(i, 1); break; }
             }
         }
-        if(b.damage<=0){
-            bullets.splice(i,1);
-            continue;
-        }
+        if (b.damage <= 0) { bullets.splice(i, 1); continue; }
         updateHUD();
     }
-    
-    // Magnet effect – increased pickup range to 60
-    for(let i=drops.length-1;i>=0;i--){
-        let d=drops[i];
-        if(d.type==='money')ctx.drawImage(texMoney,d.x-camX,d.y-camY,24,24);
-        else ctx.drawImage(texBandage,d.x-camX,d.y-camY,24,24);
-        if(Math.hypot(player.x-d.x,player.y-d.y)<60){
-            if(d.type==='money')money+=d.val;
-            else bandages++;
-            updateHUD();
-            drops.splice(i,1);
+    for (let i = drops.length - 1; i >= 0; i--) {
+        let d = drops[i];
+        if (d.type === 'money') ctx.drawImage(texMoney, d.x - camX, d.y - camY, 24, 24);
+        else ctx.drawImage(texBandage, d.x - camX, d.y - camY, 24, 24);
+        if (Math.hypot(player.x - d.x, player.y - d.y) < 60) {
+            if (d.type === 'money') money += d.val; else bandages++;
+            updateHUD(); drops.splice(i, 1);
         }
     }
-    for(let i=chests.length-1;i>=0;i--){let c=chests[i];ctx.drawImage(texChest,c.x-camX,c.y-camY,c.w,c.h);if(Math.hypot(player.x-c.x,player.y-c.y)<35){drops.push({x:c.x,y:c.y,type:'money',val:100*moneyMultiplier});chests.splice(i,1);}}
-    ctx.save();let psx=player.x+12-camX,psy=player.y+12-camY;ctx.translate(psx,psy);if(nearest)ctx.rotate(Math.atan2(nearest.y-player.y,nearest.x-player.x));ctx.fillStyle='#451a03';ctx.fillRect(10,-4,14,8);ctx.fillStyle='#1d4ed8';ctx.fillRect(-12,-12,24,24);ctx.fillStyle='#3b82f6';ctx.fillRect(-8,-8,16,16);ctx.restore();
-    let bw=30,bh=6,bx=psx-bw/2,by=psy-25,hp=playerHp/currentMaxHp;ctx.fillStyle='#422006';ctx.fillRect(bx,by,bw,bh);ctx.fillStyle=hp>0.5?'#22c55e':hp>0.25?'#eab308':'#dc2626';ctx.fillRect(bx,by,bw*hp,bh);ctx.strokeStyle='#000';ctx.lineWidth=1;ctx.strokeRect(bx,by,bw,bh);ctx.fillStyle='#fff';ctx.font='8px "Press Start 2P"';ctx.textAlign='center';ctx.fillText(playerHp+'/'+currentMaxHp,psx,by-2);
+    for (let i = chests.length - 1; i >= 0; i--) {
+        let c = chests[i]; ctx.drawImage(texChest, c.x - camX, c.y - camY, c.w, c.h);
+        if (Math.hypot(player.x - c.x, player.y - c.y) < 35) {
+            drops.push({x: c.x, y: c.y, type: 'money', val: 100 * moneyMultiplier});
+            chests.splice(i, 1);
+        }
+    }
+    ctx.save();
+    let psx = player.x + 12 - camX, psy = player.y + 12 - camY;
+    ctx.translate(psx, psy);
+    if (nearest) ctx.rotate(Math.atan2(nearest.y - player.y, nearest.x - player.x));
+    ctx.fillStyle = '#451a03'; ctx.fillRect(10, -4, 14, 8);
+    ctx.fillStyle = '#1d4ed8'; ctx.fillRect(-12, -12, 24, 24);
+    ctx.fillStyle = '#3b82f6'; ctx.fillRect(-8, -8, 16, 16);
+    ctx.restore();
+    let bw = 30, bh = 6, bx = psx - bw/2, by = psy - 25, hp = playerHp / currentMaxHp;
+    ctx.fillStyle = '#422006'; ctx.fillRect(bx, by, bw, bh);
+    ctx.fillStyle = hp > 0.5 ? '#22c55e' : hp > 0.25 ? '#eab308' : '#dc2626';
+    ctx.fillRect(bx, by, bw * hp, bh);
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 1; ctx.strokeRect(bx, by, bw, bh);
+    ctx.fillStyle = '#fff'; ctx.font = '8px "Press Start 2P"'; ctx.textAlign = 'center';
+    ctx.fillText(playerHp + '/' + currentMaxHp, psx, by - 2);
     drawMinimap();
-    gameLoopId=requestAnimationFrame(loop);
+    gameLoopId = requestAnimationFrame(loop);
 }
 
-document.addEventListener('click',function(e){
-    if(!e.target.closest('.dropdown')){
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.dropdown')) {
         document.getElementById('username-list').classList.remove('show');
-        const input=document.getElementById('dropdown-username-input');
-        const name=input.value.trim();
-        if(name){selectedUser=name;document.getElementById('username-btn').innerText=name+" ▼";}
-        else if(selectedUser)document.getElementById('username-btn').innerText=selectedUser+" ▼";
-        //meow
+        const input = document.getElementById('dropdown-username-input');
+        const name = input.value.trim();
+        if (name) { selectedUser = name; document.getElementById('username-btn').innerText = name + " ▼"; }
+        else if (selectedUser) document.getElementById('username-btn').innerText = selectedUser + " ▼";
     }
 });
 </script>
