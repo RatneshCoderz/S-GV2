@@ -317,7 +317,9 @@ function startGame() {
             otherPlayers[payload.payload.user] = { ...payload.payload, lastSeen: Date.now() };
         })
         .on('broadcast', { event: 'enemy_spawn' }, p => {
-            if (!enemies.find(en => en.id === p.payload.id)) enemies.push(p.payload);
+            if (!enemies.find(en => en.id === p.payload.id)) {
+                enemies.push(p.payload);
+            }
         })
         .on('broadcast', { event: 'enemy_hit' }, p => {
             let e = enemies.find(en => en.id === p.payload.id);
@@ -343,6 +345,29 @@ function startGame() {
         })
         .on('broadcast', { event: 'chat_msg' }, p => {
             addChatMessage(p.payload.user, p.payload.msg);
+        })
+        // NEW: Sync all enemies periodically
+        .on('broadcast', { event: 'all_enemies_sync' }, p => {
+            const syncedEnemies = p.payload.enemies;
+            // Update or add each synced enemy
+            syncedEnemies.forEach(syncedEnemy => {
+                const existingEnemy = enemies.find(en => en.id === syncedEnemy.id);
+                if (existingEnemy) {
+                    // Update existing enemy position and HP
+                    existingEnemy.x = syncedEnemy.x;
+                    existingEnemy.y = syncedEnemy.y;
+                    existingEnemy.hp = syncedEnemy.hp;
+                    existingEnemy.maxHp = syncedEnemy.maxHp;
+                } else {
+                    // Add new enemy
+                    enemies.push({
+                        ...syncedEnemy,
+                        w: syncedEnemy.isBoss ? 40 : 24,
+                        h: syncedEnemy.isBoss ? 40 : 24,
+                        lastHitPlayer: 0
+                    });
+                }
+            });
         })
         .subscribe();
     }
@@ -399,6 +424,7 @@ let isPaused = false, gameLoopId, timeInterval;
 let player = {x: 0, y: 0, w: 24, h: 24, speed: 2.5}, camX = 0, camY = 0;
 let enemies = [], bullets = [], drops = [], chests = [], keys = {};
 let joyX = 0, joyY = 0, isDragging = false, lastShot = 0, bossSpawnTimer = 0;
+let lastEnemySync = 0; // Track when we last synced enemies
 
 const canvas = document.getElementById('gameCanvas'), ctx = canvas.getContext('2d');
 let CW, CH;
@@ -439,6 +465,7 @@ function restartGame() {
     clearInterval(timeInterval);
     timeInterval = setInterval(() => { if (!isPaused) { timeLived++; if (moneyBoostTimer > 0) { moneyBoostTimer--; if (moneyBoostTimer <= 0) moneyMultiplier = 1; } if (potionTimer > 0) { potionTimer--; if (potionTimer <= 0) { potionActive = false; if (playerHp > maxHp) playerHp = maxHp; } } if (shieldTimer > 0) { shieldTimer--; if (shieldTimer <= 0) shieldActive = false; } updateHUD(); } }, 1000);
     lastShot = Date.now();
+    lastEnemySync = Date.now();
     if (gameLoopId) cancelAnimationFrame(gameLoopId);
     loop();
 }
@@ -535,24 +562,60 @@ joyZone.addEventListener('touchcancel', endJoystickTouch, { passive: false });
 
 function handleJoy(t) { let r = joyZone.getBoundingClientRect(), cx = r.left + r.width/2, cy = r.top + r.height/2; let dx = t.clientX - cx, dy = t.clientY - cy, d = Math.hypot(dx, dy), maxR = 40; if (d > maxR) { dx = (dx / d) * maxR; dy = (dy / d) * maxR; } joyKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`; joyX = dx / maxR; joyY = dy / maxR; }
 
-function spawnEnemy() { 
-    let a = Math.random() * Math.PI * 2, d = Math.max(CW, CH) * 0.6; let hmult = getEnemyHealthMultiplier(); let baseHp = Math.floor(60 * hmult); 
-    let newEnemy = {id: genId(), x: player.x + Math.cos(a) * d, y: player.y + Math.sin(a) * d, w: 24, h: 24, hp: baseHp, maxHp: baseHp, speed: 0.8 + Math.random() * 0.4, lastHitPlayer: 0, isBoss: false};
-    enemies.push(newEnemy);
-    if (gameChannel) gameChannel.send({ type: 'broadcast', event: 'enemy_spawn', payload: newEnemy });
+function spawnEnemy(syncData = null) { 
+    let newEnemy;
+    if (syncData) {
+        // Use synced enemy data
+        newEnemy = {
+            ...syncData,
+            w: syncData.isBoss ? 40 : 24,
+            h: syncData.isBoss ? 40 : 24,
+            lastHitPlayer: 0
+        };
+    } else {
+        let a = Math.random() * Math.PI * 2, d = Math.max(CW, CH) * 0.6; let hmult = getEnemyHealthMultiplier(); let baseHp = Math.floor(60 * hmult); 
+        newEnemy = {id: genId(), x: player.x + Math.cos(a) * d, y: player.y + Math.sin(a) * d, w: 24, h: 24, hp: baseHp, maxHp: baseHp, speed: 0.8 + Math.random() * 0.4, lastHitPlayer: 0, isBoss: false};
+    }
+    
+    if (!enemies.find(en => en.id === newEnemy.id)) {
+        enemies.push(newEnemy);
+        if (gameChannel && !syncData) {
+            gameChannel.send({ type: 'broadcast', event: 'enemy_spawn', payload: newEnemy });
+        }
+    }
+    return newEnemy;
 }
-function spawnBoss() { 
-    let a = Math.random() * Math.PI * 2, d = Math.max(CW, CH) * 0.6; let hmult = getEnemyHealthMultiplier(); let baseHp = Math.floor(90 * hmult); 
-    let newBoss = {id: genId(), x: player.x + Math.cos(a) * d, y: player.y + Math.sin(a) * d, w: 40, h: 40, hp: baseHp, maxHp: baseHp, speed: 0.6, lastHitPlayer: 0, isBoss: true};
-    enemies.push(newBoss);
-    if (gameChannel) gameChannel.send({ type: 'broadcast', event: 'enemy_spawn', payload: newBoss });
+
+function spawnBoss(syncData = null) { 
+    let newBoss;
+    if (syncData) {
+        newBoss = {
+            ...syncData,
+            w: 40,
+            h: 40,
+            lastHitPlayer: 0
+        };
+    } else {
+        let a = Math.random() * Math.PI * 2, d = Math.max(CW, CH) * 0.6; let hmult = getEnemyHealthMultiplier(); let baseHp = Math.floor(90 * hmult); 
+        newBoss = {id: genId(), x: player.x + Math.cos(a) * d, y: player.y + Math.sin(a) * d, w: 40, h: 40, hp: baseHp, maxHp: baseHp, speed: 0.6, lastHitPlayer: 0, isBoss: true};
+    }
+    
+    if (!enemies.find(en => en.id === newBoss.id)) {
+        enemies.push(newBoss);
+        if (gameChannel && !syncData) {
+            gameChannel.send({ type: 'broadcast', event: 'enemy_spawn', payload: newBoss });
+        }
+    }
+    return newBoss;
 }
+
 function spawnChest() { 
     let a = Math.random() * Math.PI * 2, d = Math.random() * 500 + 200; 
     let chest = {id: genId(), x: player.x + Math.cos(a) * d, y: player.y + Math.sin(a) * d, w: 32, h: 32};
     chests.push(chest);
     if (gameChannel) gameChannel.send({ type: 'broadcast', event: 'chest_spawn', payload: chest });
 }
+
 function separateEnemies() { for (let i = 0; i < enemies.length; i++) for (let j = i + 1; j < enemies.length; j++) { let e1 = enemies[i], e2 = enemies[j], dx = e2.x - e1.x, dy = e2.y - e1.y, d = Math.hypot(dx, dy), min = (e1.w + e2.w) / 2; if (d < min && d > 0) { let o = min - d; e1.x -= (dx / d) * o * 0.5; e1.y -= (dy / d) * o * 0.5; e2.x += (dx / d) * o * 0.5; e2.y += (dy / d) * o * 0.5; } } }
 
 function drawMinimap() {
@@ -588,8 +651,24 @@ function loop() {
         lastBroadcastTime = now;
     }
 
-    if (Math.random() < 0.012) spawnEnemy(); if (Math.random() < 0.001 && chests.length < 5) spawnChest();
+    // Spawn enemies locally
+    if (Math.random() < 0.012) spawnEnemy(); 
+    if (Math.random() < 0.001 && chests.length < 5) spawnChest();
     bossSpawnTimer++; if (bossSpawnTimer >= 1800) { spawnBoss(); bossSpawnTimer = 0; }
+    
+    // Sync all enemies periodically (every 200ms)
+    if (gameChannel && now - lastEnemySync > 200) {
+        const enemyData = enemies.map(e => ({
+            id: e.id, x: e.x, y: e.y, hp: e.hp, maxHp: e.maxHp,
+            speed: e.speed, isBoss: e.isBoss
+        }));
+        gameChannel.send({
+            type: 'broadcast',
+            event: 'all_enemies_sync',
+            payload: { enemies: enemyData }
+        });
+        lastEnemySync = now;
+    }
     
     let nearestLocal = null, minLocalDist = Infinity;
     
