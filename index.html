@@ -687,7 +687,7 @@ function loop() {
     let md = Math.hypot(dx, dy); if (md > 0) { player.x += (dx / md) * player.speed; player.y += (dy / md) * player.speed; }
 
     let currentMaxHp = potionActive ? maxHp + 10 : maxHp;
-    if (selectedUser && now - lastBroadcastTime > 100 && (dx !== 0 || dy !== 0)) {
+    if (selectedUser && now - lastBroadcastTime > 50 && (dx !== 0 || dy !== 0)) {
         sendBroadcast('player_sync', { user: selectedUser, x: player.x, y: player.y, hp: playerHp, maxHp: currentMaxHp, gun: currentGun });
         lastBroadcastTime = now;
     }
@@ -696,7 +696,7 @@ function loop() {
     if (Math.random() < 0.001 && chests.length < 5) spawnChest();
     bossSpawnTimer++; if (bossSpawnTimer >= 1800) { spawnBoss(); bossSpawnTimer = 0; }
     
-    if (now - lastEnemySync > 200) {
+    if (now - lastEnemySync > 50) {
         const myEnemies = enemies.filter(e => e.owner === selectedUser);
         if (myEnemies.length > 0) {
             const enemyData = myEnemies.map(e => ({
