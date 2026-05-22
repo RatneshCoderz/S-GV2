@@ -255,10 +255,18 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 var supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let gameChannel = null;
+let isChannelReady = false; // Tracks if websocket connection is established to avoid REST fallback
 let otherPlayers = {};
 let lastBroadcastTime = 0;
 
 const genId = () => Math.random().toString(36).substr(2, 9);
+
+// Safely broadcast to avoid REST fallback warnings
+function sendBroadcast(eventName, payloadData) {
+    if (gameChannel && isChannelReady) {
+        gameChannel.send({ type: 'broadcast', event: eventName, payload: payloadData });
+    }
+}
 
 async function getGlobalLeaderboard() {
     try { const { data, error } = await supabaseClient.from('leaderboard').select('*').order('score', { ascending: false }).limit(50); if (error) throw error; return data || []; } catch(e) { return getLocalLeaderboard(); }
@@ -314,7 +322,17 @@ function startGame() {
             config: { broadcast: { self: false, ack: false } }
         });
         gameChannel.on('broadcast', { event: 'player_sync' }, payload => {
-            otherPlayers[payload.payload.user] = { ...payload.payload, lastSeen: Date.now() };
+            let p = payload.payload;
+            if (!otherPlayers[p.user]) {
+                otherPlayers[p.user] = { ...p, targetX: p.x, targetY: p.y, lastSeen: Date.now() };
+            } else {
+                otherPlayers[p.user].targetX = p.x;
+                otherPlayers[p.user].targetY = p.y;
+                otherPlayers[p.user].hp = p.hp;
+                otherPlayers[p.user].maxHp = p.maxHp;
+                otherPlayers[p.user].gun = p.gun;
+                otherPlayers[p.user].lastSeen = Date.now();
+            }
         })
         .on('broadcast', { event: 'enemy_spawn' }, p => {
             if (!enemies.find(en => en.id === p.payload.id)) {
@@ -346,20 +364,16 @@ function startGame() {
         .on('broadcast', { event: 'chat_msg' }, p => {
             addChatMessage(p.payload.user, p.payload.msg);
         })
-        // NEW: Sync all enemies periodically
         .on('broadcast', { event: 'all_enemies_sync' }, p => {
             const syncedEnemies = p.payload.enemies;
-            // Update or add each synced enemy
             syncedEnemies.forEach(syncedEnemy => {
                 const existingEnemy = enemies.find(en => en.id === syncedEnemy.id);
                 if (existingEnemy) {
-                    // Update existing enemy position and HP
                     existingEnemy.x = syncedEnemy.x;
                     existingEnemy.y = syncedEnemy.y;
                     existingEnemy.hp = syncedEnemy.hp;
                     existingEnemy.maxHp = syncedEnemy.maxHp;
                 } else {
-                    // Add new enemy
                     enemies.push({
                         ...syncedEnemy,
                         w: syncedEnemy.isBoss ? 40 : 24,
@@ -369,7 +383,14 @@ function startGame() {
                 }
             });
         })
-        .subscribe();
+        .subscribe((status) => {
+            // Track if websocket is truly ready to prevent HTTP fallback
+            if (status === 'SUBSCRIBED') {
+                isChannelReady = true;
+            } else {
+                isChannelReady = false;
+            }
+        });
     }
 
     resize(); loadUISettings(); restartGame();
@@ -391,7 +412,7 @@ document.getElementById('chat-input').addEventListener('keydown', function(e) {
         const msg = this.value.trim();
         if (msg && selectedUser) {
             addChatMessage(selectedUser, msg);
-            if (gameChannel) gameChannel.send({ type: 'broadcast', event: 'chat_msg', payload: { user: selectedUser, msg: msg }});
+            sendBroadcast('chat_msg', { user: selectedUser, msg: msg });
             this.value = '';
         }
         this.blur();
@@ -424,7 +445,7 @@ let isPaused = false, gameLoopId, timeInterval;
 let player = {x: 0, y: 0, w: 24, h: 24, speed: 2.5}, camX = 0, camY = 0;
 let enemies = [], bullets = [], drops = [], chests = [], keys = {};
 let joyX = 0, joyY = 0, isDragging = false, lastShot = 0, bossSpawnTimer = 0;
-let lastEnemySync = 0; // Track when we last synced enemies
+let lastEnemySync = 0; 
 
 const canvas = document.getElementById('gameCanvas'), ctx = canvas.getContext('2d');
 let CW, CH;
@@ -492,14 +513,14 @@ function useBomb() {
                 let val = (e.isBoss ? 200 : 25) * moneyMultiplier;
                 let d1 = {id: genId(), x: e.x, y: e.y, type: 'money', val: val};
                 drops.push(d1);
-                if (gameChannel) {
-                    gameChannel.send({ type: 'broadcast', event: 'enemy_died', payload: { id: e.id }});
-                    gameChannel.send({ type: 'broadcast', event: 'item_dropped', payload: d1 });
-                }
+                
+                sendBroadcast('enemy_died', { id: e.id });
+                sendBroadcast('item_dropped', d1);
+                
                 if (e.isBoss || Math.random() > 0.8) {
                     let d2 = {id: genId(), x: e.x + 10, y: e.y, type: 'bandage'};
                     drops.push(d2);
-                    if (gameChannel) gameChannel.send({ type: 'broadcast', event: 'item_dropped', payload: d2 });
+                    sendBroadcast('item_dropped', d2);
                 }
                 enemies.splice(i, 1); 
             } 
@@ -565,7 +586,6 @@ function handleJoy(t) { let r = joyZone.getBoundingClientRect(), cx = r.left + r
 function spawnEnemy(syncData = null) { 
     let newEnemy;
     if (syncData) {
-        // Use synced enemy data
         newEnemy = {
             ...syncData,
             w: syncData.isBoss ? 40 : 24,
@@ -579,9 +599,7 @@ function spawnEnemy(syncData = null) {
     
     if (!enemies.find(en => en.id === newEnemy.id)) {
         enemies.push(newEnemy);
-        if (gameChannel && !syncData) {
-            gameChannel.send({ type: 'broadcast', event: 'enemy_spawn', payload: newEnemy });
-        }
+        if (!syncData) sendBroadcast('enemy_spawn', newEnemy);
     }
     return newEnemy;
 }
@@ -602,9 +620,7 @@ function spawnBoss(syncData = null) {
     
     if (!enemies.find(en => en.id === newBoss.id)) {
         enemies.push(newBoss);
-        if (gameChannel && !syncData) {
-            gameChannel.send({ type: 'broadcast', event: 'enemy_spawn', payload: newBoss });
-        }
+        if (!syncData) sendBroadcast('enemy_spawn', newBoss);
     }
     return newBoss;
 }
@@ -613,7 +629,7 @@ function spawnChest() {
     let a = Math.random() * Math.PI * 2, d = Math.random() * 500 + 200; 
     let chest = {id: genId(), x: player.x + Math.cos(a) * d, y: player.y + Math.sin(a) * d, w: 32, h: 32};
     chests.push(chest);
-    if (gameChannel) gameChannel.send({ type: 'broadcast', event: 'chest_spawn', payload: chest });
+    sendBroadcast('chest_spawn', chest);
 }
 
 function separateEnemies() { 
@@ -621,8 +637,6 @@ function separateEnemies() {
         for (let j = i + 1; j < enemies.length; j++) { 
             let e1 = enemies[i], e2 = enemies[j];
             let dx = e2.x - e1.x, dy = e2.y - e1.y;
-            
-            // Fast bounding box check (skips expensive math if they are far apart)
             if (Math.abs(dx) > 40 || Math.abs(dy) > 40) continue; 
             
             let d = Math.hypot(dx, dy); 
@@ -641,7 +655,7 @@ function drawMinimap() {
     const scale = mapW / (minimapRadius * 2); const centerX = mapX + mapW/2, centerY = mapY + mapH/2;
     ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(mapX, mapY, mapW, mapH); ctx.strokeStyle = '#facc15'; ctx.lineWidth = 2; ctx.strokeRect(mapX, mapY, mapW, mapH);
     function worldToMap(wx, wy) { return { x: centerX + (wx - player.x) * scale, y: centerY + (wy - player.y) * scale }; }
-    let radSq = minimapRadius * minimapRadius; // Use squared distance
+    let radSq = minimapRadius * minimapRadius; 
     ctx.fillStyle = '#dc2626'; enemies.forEach(e => { 
         let dx = e.x - player.x, dy = e.y - player.y;
         if (dx*dx + dy*dy <= radSq) { let p = worldToMap(e.x, e.y); ctx.fillRect(p.x-1.5, p.y-1.5, 3, 3); } 
@@ -661,7 +675,6 @@ function loop() {
     if (isPaused) { gameLoopId = requestAnimationFrame(loop); return; }
     let now = Date.now(); camX = player.x - CW/2; camY = player.y - CH/2;
     ctx.clearRect(0, 0, CW, CH);
-    // Draw background efficiently using a repeating pattern
     if (!window.sandPattern) window.sandPattern = ctx.createPattern(texSand, 'repeat');
     ctx.save();
     ctx.translate(-camX % 32, -camY % 32);
@@ -674,31 +687,21 @@ function loop() {
     let md = Math.hypot(dx, dy); if (md > 0) { player.x += (dx / md) * player.speed; player.y += (dy / md) * player.speed; }
 
     let currentMaxHp = potionActive ? maxHp + 10 : maxHp;
-    if (gameChannel && selectedUser && now - lastBroadcastTime > 100 && (dx !== 0 || dy !== 0)) {
-        gameChannel.send({
-            type: 'broadcast',
-            event: 'player_sync',
-            payload: { user: selectedUser, x: player.x, y: player.y, hp: playerHp, maxHp: currentMaxHp, gun: currentGun }
-        });
+    if (selectedUser && now - lastBroadcastTime > 100 && (dx !== 0 || dy !== 0)) {
+        sendBroadcast('player_sync', { user: selectedUser, x: player.x, y: player.y, hp: playerHp, maxHp: currentMaxHp, gun: currentGun });
         lastBroadcastTime = now;
     }
 
-    // Spawn enemies locally
     if (Math.random() < 0.012) spawnEnemy(); 
     if (Math.random() < 0.001 && chests.length < 5) spawnChest();
     bossSpawnTimer++; if (bossSpawnTimer >= 1800) { spawnBoss(); bossSpawnTimer = 0; }
     
-    // Sync all enemies periodically (every 200ms)
-    if (gameChannel && now - lastEnemySync > 200) {
+    if (now - lastEnemySync > 200) {
         const enemyData = enemies.map(e => ({
             id: e.id, x: e.x, y: e.y, hp: e.hp, maxHp: e.maxHp,
             speed: e.speed, isBoss: e.isBoss
         }));
-        gameChannel.send({
-            type: 'broadcast',
-            event: 'all_enemies_sync',
-            payload: { enemies: enemyData }
-        });
+        sendBroadcast('all_enemies_sync', { enemies: enemyData });
         lastEnemySync = now;
     }
     
@@ -781,18 +784,17 @@ function loop() {
                     let d1 = {id: genId(), x: e.x, y: e.y, type: 'money', val: val};
                     drops.push(d1); 
                     
-                    if (gameChannel) {
-                        gameChannel.send({ type: 'broadcast', event: 'enemy_died', payload: { id: e.id }});
-                        gameChannel.send({ type: 'broadcast', event: 'item_dropped', payload: d1 });
-                    }
+                    sendBroadcast('enemy_died', { id: e.id });
+                    sendBroadcast('item_dropped', d1);
+
                     if (e.isBoss || Math.random() > 0.8) {
                         let d2 = {id: genId(), x: e.x + 10, y: e.y, type: 'bandage'};
                         drops.push(d2);
-                        if (gameChannel) gameChannel.send({ type: 'broadcast', event: 'item_dropped', payload: d2 });
+                        sendBroadcast('item_dropped', d2);
                     }
                     enemies.splice(j, 1); 
                 } else {
-                    if (gameChannel) gameChannel.send({ type: 'broadcast', event: 'enemy_hit', payload: { id: e.id, hp: e.hp }});
+                    sendBroadcast('enemy_hit', { id: e.id, hp: e.hp });
                 }
                 if (b.damage <= 0) { bullets.splice(i, 1); break; }
             }
@@ -806,7 +808,7 @@ function loop() {
         if (Math.hypot(player.x - d.x, player.y - d.y) < 60) { 
             if (d.type === 'money') money += d.val; else bandages++; 
             updateHUD(); 
-            if (gameChannel) gameChannel.send({ type: 'broadcast', event: 'item_collected', payload: { id: d.id }});
+            sendBroadcast('item_collected', { id: d.id });
             drops.splice(i, 1); 
         }
     }
@@ -816,10 +818,10 @@ function loop() {
         if (Math.hypot(player.x - c.x, player.y - c.y) < 35) { 
             let d1 = {id: genId(), x: c.x, y: c.y, type: 'money', val: 100 * moneyMultiplier};
             drops.push(d1); 
-            if (gameChannel) {
-                gameChannel.send({ type: 'broadcast', event: 'chest_opened', payload: { id: c.id }});
-                gameChannel.send({ type: 'broadcast', event: 'item_dropped', payload: d1 });
-            }
+            
+            sendBroadcast('chest_opened', { id: c.id });
+            sendBroadcast('item_dropped', d1);
+
             chests.splice(i, 1); 
         } 
     }
@@ -827,6 +829,10 @@ function loop() {
     for (let user in otherPlayers) {
         let op = otherPlayers[user];
         if (now - op.lastSeen > 3000) { delete otherPlayers[user]; continue; }
+        
+        op.x += (op.targetX - op.x) * 0.2;
+        op.y += (op.targetY - op.y) * 0.2;
+
         let px = op.x - camX, py = op.y - camY;
         
         ctx.save();
