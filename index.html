@@ -616,17 +616,44 @@ function spawnChest() {
     if (gameChannel) gameChannel.send({ type: 'broadcast', event: 'chest_spawn', payload: chest });
 }
 
-function separateEnemies() { for (let i = 0; i < enemies.length; i++) for (let j = i + 1; j < enemies.length; j++) { let e1 = enemies[i], e2 = enemies[j], dx = e2.x - e1.x, dy = e2.y - e1.y, d = Math.hypot(dx, dy), min = (e1.w + e2.w) / 2; if (d < min && d > 0) { let o = min - d; e1.x -= (dx / d) * o * 0.5; e1.y -= (dy / d) * o * 0.5; e2.x += (dx / d) * o * 0.5; e2.y += (dy / d) * o * 0.5; } } }
-
+function separateEnemies() { 
+    for (let i = 0; i < enemies.length; i++) {
+        for (let j = i + 1; j < enemies.length; j++) { 
+            let e1 = enemies[i], e2 = enemies[j];
+            let dx = e2.x - e1.x, dy = e2.y - e1.y;
+            
+            // Fast bounding box check (skips expensive math if they are far apart)
+            if (Math.abs(dx) > 40 || Math.abs(dy) > 40) continue; 
+            
+            let d = Math.hypot(dx, dy); 
+            let min = (e1.w + e2.w) / 2; 
+            if (d < min && d > 0) { 
+                let o = min - d; 
+                e1.x -= (dx / d) * o * 0.5; e1.y -= (dy / d) * o * 0.5; 
+                e2.x += (dx / d) * o * 0.5; e2.y += (dy / d) * o * 0.5; 
+            } 
+        } 
+    }
+}
 function drawMinimap() {
     const mapW = 150, mapH = 150, padding = 10; let mapX, mapY;
     switch (minimapPosition) { case 'top-right': mapX = CW - mapW - padding; mapY = padding; break; case 'top-left': mapX = padding; mapY = padding; break; case 'bottom-right': mapX = CW - mapW - padding; mapY = CH - mapH - padding; break; case 'bottom-left': mapX = padding; mapY = CH - mapH - padding; break; default: mapX = CW - mapW - padding; mapY = padding; }
     const scale = mapW / (minimapRadius * 2); const centerX = mapX + mapW/2, centerY = mapY + mapH/2;
     ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(mapX, mapY, mapW, mapH); ctx.strokeStyle = '#facc15'; ctx.lineWidth = 2; ctx.strokeRect(mapX, mapY, mapW, mapH);
     function worldToMap(wx, wy) { return { x: centerX + (wx - player.x) * scale, y: centerY + (wy - player.y) * scale }; }
-    ctx.fillStyle = '#dc2626'; enemies.forEach(e => { if (Math.hypot(e.x - player.x, e.y - player.y) <= minimapRadius) { let p = worldToMap(e.x, e.y); ctx.fillRect(p.x-1.5, p.y-1.5, 3, 3); } });
-    ctx.fillStyle = '#facc15'; chests.forEach(c => { if (Math.hypot(c.x - player.x, c.y - player.y) <= minimapRadius) { let p = worldToMap(c.x, c.y); ctx.fillRect(p.x-2, p.y-2, 4, 4); } });
-    ctx.fillStyle = '#22c55e'; drops.forEach(d => { if (Math.hypot(d.x - player.x, d.y - player.y) <= minimapRadius) { let p = worldToMap(d.x, d.y); ctx.fillRect(p.x-1, p.y-1, 2, 2); } });
+    let radSq = minimapRadius * minimapRadius; // Use squared distance
+    ctx.fillStyle = '#dc2626'; enemies.forEach(e => { 
+        let dx = e.x - player.x, dy = e.y - player.y;
+        if (dx*dx + dy*dy <= radSq) { let p = worldToMap(e.x, e.y); ctx.fillRect(p.x-1.5, p.y-1.5, 3, 3); } 
+    });
+    ctx.fillStyle = '#facc15'; chests.forEach(c => { 
+        let dx = c.x - player.x, dy = c.y - player.y;
+        if (dx*dx + dy*dy <= radSq) { let p = worldToMap(c.x, c.y); ctx.fillRect(p.x-2, p.y-2, 4, 4); } 
+    });
+    ctx.fillStyle = '#22c55e'; drops.forEach(d => { 
+        let dx = d.x - player.x, dy = d.y - player.y;
+        if (dx*dx + dy*dy <= radSq) { let p = worldToMap(d.x, d.y); ctx.fillRect(p.x-1, p.y-1, 2, 2); } 
+    });
     ctx.fillStyle = '#3b82f6'; let pp = worldToMap(player.x, player.y); ctx.fillRect(pp.x-2.5, pp.y-2.5, 5, 5); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.strokeRect(pp.x-2.5, pp.y-2.5, 5, 5);
 }
 
@@ -634,8 +661,13 @@ function loop() {
     if (isPaused) { gameLoopId = requestAnimationFrame(loop); return; }
     let now = Date.now(); camX = player.x - CW/2; camY = player.y - CH/2;
     ctx.clearRect(0, 0, CW, CH);
-    let ts = 32, ox = -camX % ts, oy = -camY % ts;
-    for (let x = ox - ts; x < CW + ts; x += ts) for (let y = oy - ts; y < CH + ts; y += ts) ctx.drawImage(texSand, x, y, ts, ts);
+    // Draw background efficiently using a repeating pattern
+    if (!window.sandPattern) window.sandPattern = ctx.createPattern(texSand, 'repeat');
+    ctx.save();
+    ctx.translate(-camX % 32, -camY % 32);
+    ctx.fillStyle = window.sandPattern;
+    ctx.fillRect(-32, -32, CW + 64, CH + 64);
+    ctx.restore();
     let dx = 0, dy = 0;
     if (keys['w']) dy = -1; if (keys['s']) dy = 1; if (keys['a']) dx = -1; if (keys['d']) dx = 1;
     if (isDragging) { dx = joyX; dy = joyY; }
