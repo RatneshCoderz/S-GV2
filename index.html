@@ -255,13 +255,12 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 var supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let gameChannel = null;
-let isChannelReady = false; // Tracks if websocket connection is established to avoid REST fallback
+let isChannelReady = false; 
 let otherPlayers = {};
 let lastBroadcastTime = 0;
 
 const genId = () => Math.random().toString(36).substr(2, 9);
 
-// Safely broadcast to avoid REST fallback warnings
 function sendBroadcast(eventName, payloadData) {
     if (gameChannel && isChannelReady) {
         gameChannel.send({ type: 'broadcast', event: eventName, payload: payloadData });
@@ -369,22 +368,23 @@ function startGame() {
             syncedEnemies.forEach(syncedEnemy => {
                 const existingEnemy = enemies.find(en => en.id === syncedEnemy.id);
                 if (existingEnemy) {
-                    existingEnemy.x = syncedEnemy.x;
-                    existingEnemy.y = syncedEnemy.y;
+                    existingEnemy.netTargetX = syncedEnemy.x;
+                    existingEnemy.netTargetY = syncedEnemy.y;
                     existingEnemy.hp = syncedEnemy.hp;
-                    existingEnemy.maxHp = syncedEnemy.maxHp;
+                    existingEnemy.owner = syncedEnemy.owner;
                 } else {
                     enemies.push({
                         ...syncedEnemy,
                         w: syncedEnemy.isBoss ? 40 : 24,
                         h: syncedEnemy.isBoss ? 40 : 24,
-                        lastHitPlayer: 0
+                        lastHitPlayer: 0,
+                        netTargetX: syncedEnemy.x,
+                        netTargetY: syncedEnemy.y
                     });
                 }
             });
         })
         .subscribe((status) => {
-            // Track if websocket is truly ready to prevent HTTP fallback
             if (status === 'SUBSCRIBED') {
                 isChannelReady = true;
             } else {
@@ -594,7 +594,7 @@ function spawnEnemy(syncData = null) {
         };
     } else {
         let a = Math.random() * Math.PI * 2, d = Math.max(CW, CH) * 0.6; let hmult = getEnemyHealthMultiplier(); let baseHp = Math.floor(60 * hmult); 
-        newEnemy = {id: genId(), x: player.x + Math.cos(a) * d, y: player.y + Math.sin(a) * d, w: 24, h: 24, hp: baseHp, maxHp: baseHp, speed: 0.8 + Math.random() * 0.4, lastHitPlayer: 0, isBoss: false};
+        newEnemy = {id: genId(), owner: selectedUser, x: player.x + Math.cos(a) * d, y: player.y + Math.sin(a) * d, w: 24, h: 24, hp: baseHp, maxHp: baseHp, speed: 0.8 + Math.random() * 0.4, lastHitPlayer: 0, isBoss: false};
     }
     
     if (!enemies.find(en => en.id === newEnemy.id)) {
@@ -615,7 +615,7 @@ function spawnBoss(syncData = null) {
         };
     } else {
         let a = Math.random() * Math.PI * 2, d = Math.max(CW, CH) * 0.6; let hmult = getEnemyHealthMultiplier(); let baseHp = Math.floor(90 * hmult); 
-        newBoss = {id: genId(), x: player.x + Math.cos(a) * d, y: player.y + Math.sin(a) * d, w: 40, h: 40, hp: baseHp, maxHp: baseHp, speed: 0.6, lastHitPlayer: 0, isBoss: true};
+        newBoss = {id: genId(), owner: selectedUser, x: player.x + Math.cos(a) * d, y: player.y + Math.sin(a) * d, w: 40, h: 40, hp: baseHp, maxHp: baseHp, speed: 0.6, lastHitPlayer: 0, isBoss: true};
     }
     
     if (!enemies.find(en => en.id === newBoss.id)) {
@@ -697,11 +697,14 @@ function loop() {
     bossSpawnTimer++; if (bossSpawnTimer >= 1800) { spawnBoss(); bossSpawnTimer = 0; }
     
     if (now - lastEnemySync > 200) {
-        const enemyData = enemies.map(e => ({
-            id: e.id, x: e.x, y: e.y, hp: e.hp, maxHp: e.maxHp,
-            speed: e.speed, isBoss: e.isBoss
-        }));
-        sendBroadcast('all_enemies_sync', { enemies: enemyData });
+        const myEnemies = enemies.filter(e => e.owner === selectedUser);
+        if (myEnemies.length > 0) {
+            const enemyData = myEnemies.map(e => ({
+                id: e.id, x: e.x, y: e.y, hp: e.hp, maxHp: e.maxHp,
+                speed: e.speed, isBoss: e.isBoss, owner: e.owner
+            }));
+            sendBroadcast('all_enemies_sync', { enemies: enemyData });
+        }
         lastEnemySync = now;
     }
     
@@ -713,15 +716,22 @@ function loop() {
         let distToLocal = Math.hypot(player.x - e.x, player.y - e.y);
         if (distToLocal < minLocalDist) { minLocalDist = distToLocal; nearestLocal = e; }
         
-        let targetX = player.x, targetY = player.y, minDist = distToLocal;
+        let playerTargetX = player.x, playerTargetY = player.y, minDist = distToLocal;
         for (let user in otherPlayers) {
             let op = otherPlayers[user];
             let od = Math.hypot(op.x - e.x, op.y - e.y);
-            if (od < minDist) { minDist = od; targetX = op.x; targetY = op.y; }
+            if (od < minDist) { minDist = od; playerTargetX = op.x; playerTargetY = op.y; }
         }
 
-        let edx = targetX - e.x, edy = targetY - e.y;
-        if (minDist > 0) { e.x += (edx / minDist) * e.speed; e.y += (edy / minDist) * e.speed; }
+        let edx = playerTargetX - e.x, edy = playerTargetY - e.y;
+        
+        if (e.netTargetX !== undefined && e.owner !== selectedUser) {
+            e.x += (e.netTargetX - e.x) * 0.2;
+            e.y += (e.netTargetY - e.y) * 0.2;
+        } else if (minDist > 0) { 
+            e.x += (edx / minDist) * e.speed; 
+            e.y += (edy / minDist) * e.speed; 
+        }
 
         if (distToLocal < (e.isBoss ? 30 : 20) && now - e.lastHitPlayer > 1000) {
             if (!shieldActive) playerHp--;
