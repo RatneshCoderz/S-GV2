@@ -63,6 +63,8 @@
         #chat-messages { flex: 1; overflow-y: auto; color: white; font-size: 10px; text-shadow: 1px 1px 0 #000; display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 5px; user-select: text; }
         #chat-input { pointer-events: auto; background: rgba(0,0,0,0.6); border: 2px solid #854d0e; color: white; padding: 6px; font-family: 'Press Start 2P', monospace; font-size: 8px; outline: none; }
         
+        input[type="color"] { border: 2px solid #854d0e; border-radius: 4px; background: #000; cursor: pointer; height: 26px; width: 36px; padding: 0; vertical-align: middle; }
+
         @media (max-width: 768px) {
             .hud-box { font-size: 8px; padding: 6px; }
             .menu-title { font-size: 24px; }
@@ -83,6 +85,7 @@
 
 <div id="menu-screen">
     <div class="menu-top">
+        <button class="btn" onclick="showModal('skins-modal')">👕 Skins</button>
         <button class="btn" onclick="showModal('credits-modal')">Credits</button>
         <button class="btn" onclick="showLeaderboard()">🌍 Top 5</button>
         <button class="btn" onclick="window.close()">Exit</button>
@@ -99,6 +102,44 @@
         <h1 class="menu-title">Defence Evolution</h1>
         <button class="btn" style="font-size:clamp(20px, 4vw, 30px); padding:20px 40px;" onclick="startGame()">▶</button>
         <p id="menu-error" style="color:#dc2626; font-size:10px; margin-top:20px; height:12px; text-shadow: 1px 1px 0 #000;"></p>
+    </div>
+</div>
+
+<div id="skins-modal" class="modal-overlay">
+    <div class="modal-box yellow-ui">
+        <h2 class="modal-title">Select Skin</h2>
+        <p class="shop-msg" id="skin-menu-message"></p>
+        <div style="display:flex; flex-direction:column; gap:10px; max-height: 50vh; overflow-y: auto; padding-right: 5px;">
+            
+            <div class="shop-item yellow-ui" style="background: rgba(255,255,255,0.2); border: 2px dashed #854d0e; justify-content: center;">
+                <div class="shop-item-details" style="text-align: center; width:100%;">
+                    <strong style="color:#1d4ed8; font-size:12px;">🎨 Custom Skin</strong><br><br>
+                    <div style="display:flex; justify-content:center; gap:15px; align-items:center; flex-wrap:wrap;">
+                        <label>Outer <input type="color" id="custom-outer" value="#ffffff"></label>
+                        <label>Inner <input type="color" id="custom-inner" value="#aaaaaa"></label>
+                        <button class="btn" onclick="equipCustomSkin()">EQUIP CUSTOM</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="shop-item yellow-ui">
+                <div class="shop-item-details"><strong style="color:#3b82f6">🔵 Blue Ranger (Default)</strong><br>Classic operational style</div>
+                <div class="shop-item-buttons"><button class="btn" onclick="equipSkin('blue')">EQUIP</button></div>
+            </div>
+            <div class="shop-item yellow-ui">
+                <div class="shop-item-details"><strong style="color:#ef4444">🔴 Crimson Berserker</strong><br>Intimidate the enemy</div>
+                <div class="shop-item-buttons"><button class="btn" onclick="equipSkin('red')">EQUIP</button></div>
+            </div>
+            <div class="shop-item yellow-ui">
+                <div class="shop-item-details"><strong style="color:#8b5cf6">🟣 Purple Phantom</strong><br>Sleek and mysterious</div>
+                <div class="shop-item-buttons"><button class="btn" onclick="equipSkin('purple')">EQUIP</button></div>
+            </div>
+            <div class="shop-item yellow-ui">
+                <div class="shop-item-details"><strong style="color:#f97316">🟠 Orange Striker</strong><br>Bright and fiery speed</div>
+                <div class="shop-item-buttons"><button class="btn" onclick="equipSkin('orange')">EQUIP</button></div>
+            </div>
+        </div>
+        <button class="btn" style="margin-top:10px;" onclick="hideModal('skins-modal')">Close</button>
     </div>
 </div>
 
@@ -323,7 +364,7 @@ function startGame() {
         gameChannel.on('broadcast', { event: 'player_sync' }, payload => {
             let p = payload.payload;
             if (!otherPlayers[p.user]) {
-                otherPlayers[p.user] = { ...p, targetX: p.x, targetY: p.y, lastSeen: Date.now() };
+                otherPlayers[p.user] = { ...p, targetX: p.x, targetY: p.y, lastSeen: Date.now(), skinOuter: p.skinOuter || '#059669', skinInner: p.skinInner || '#10b981' };
             } else {
                 otherPlayers[p.user].targetX = p.x;
                 otherPlayers[p.user].targetY = p.y;
@@ -331,6 +372,8 @@ function startGame() {
                 otherPlayers[p.user].maxHp = p.maxHp;
                 otherPlayers[p.user].gun = p.gun;
                 otherPlayers[p.user].lastSeen = Date.now();
+                otherPlayers[p.user].skinOuter = p.skinOuter || '#059669';
+                otherPlayers[p.user].skinInner = p.skinInner || '#10b981';
             }
         })
         .on('broadcast', { event: 'enemy_spawn' }, p => {
@@ -426,13 +469,56 @@ document.addEventListener('keydown', function(e) {
 });
 
 function switchShopTab(tab) {
-    const gunsSection = document.getElementById('section-guns'), recoverySection = document.getElementById('section-recovery');
-    const gunsTab = document.getElementById('tab-guns'), recoveryTab = document.getElementById('tab-recovery');
-    if (tab === 'guns') { gunsSection.style.display = 'block'; recoverySection.style.display = 'none'; gunsTab.classList.add('active-tab'); recoveryTab.classList.remove('active-tab'); }
-    else { gunsSection.style.display = 'none'; recoverySection.style.display = 'block'; gunsTab.classList.remove('active-tab'); recoveryTab.classList.add('active-tab'); }
+    const gunsSec = document.getElementById('section-guns'), recSec = document.getElementById('section-recovery');
+    const gunsTab = document.getElementById('tab-guns'), recTab = document.getElementById('tab-recovery');
+    
+    if (tab === 'guns') { gunsSec.style.display = 'block'; recSec.style.display = 'none'; gunsTab.classList.add('active-tab'); recTab.classList.remove('active-tab'); }
+    else { gunsSec.style.display = 'none'; recSec.style.display = 'block'; gunsTab.classList.remove('active-tab'); recTab.classList.add('active-tab'); }
+}
+
+let currentSkin = localStorage.getItem('savedSkin') || 'blue';
+let customOuter = localStorage.getItem('customOuter') || '#1d4ed8';
+let customInner = localStorage.getItem('customInner') || '#3b82f6';
+
+document.getElementById('custom-outer').value = customOuter;
+document.getElementById('custom-inner').value = customInner;
+
+function equipSkin(colorKey) {
+    currentSkin = colorKey;
+    localStorage.setItem('savedSkin', currentSkin); 
+    const msgEl = document.getElementById('skin-menu-message');
+    if(msgEl) {
+        msgEl.innerText = "Equipped " + colorKey.charAt(0).toUpperCase() + colorKey.slice(1) + " Skin!";
+        msgEl.style.color = "#16a34a";
+        setTimeout(() => { msgEl.innerText = ""; }, 2000);
+    }
+}
+
+function equipCustomSkin() {
+    customOuter = document.getElementById('custom-outer').value;
+    customInner = document.getElementById('custom-inner').value;
+    localStorage.setItem('customOuter', customOuter);
+    localStorage.setItem('customInner', customInner);
+    
+    currentSkin = 'custom';
+    localStorage.setItem('savedSkin', currentSkin);
+    
+    const msgEl = document.getElementById('skin-menu-message');
+    if(msgEl) {
+        msgEl.innerText = "Equipped Custom Skin!";
+        msgEl.style.color = "#16a34a";
+        setTimeout(() => { msgEl.innerText = ""; }, 2000);
+    }
 }
 
 let money = 0, bandages = 0, kills = 0, score = 0, timeLived = 0, playerHp = 10, maxHp = 10;
+const SKIN_COLORS = {
+    'blue': { outer: '#1d4ed8', inner: '#3b82f6' },
+    'red': { outer: '#b91c1c', inner: '#ef4444' },
+    'purple': { outer: '#6d28d9', inner: '#8b5cf6' },
+    'orange': { outer: '#c2410c', inner: '#f97316' },
+    'green': { outer: '#059669', inner: '#10b981' } 
+};
 let currentGun = 'Pistol', gunDamage = 5, moneyMultiplier = 1, moneyBoostTimer = 0, potionTimer = 0, potionActive = false, bombPrice = 100, shieldActive = false, shieldTimer = 0, shieldPrice = 100, enemyTier = 1, minimapRadius = 400;
 let gunStats = {
     'Pistol': {owned: true, level: 0, baseDamage: 5, baseCost: 0, fireRate: 1200},
@@ -475,7 +561,7 @@ const texMoney = createPixelTexture('', '', 'money'), texBandage = createPixelTe
 const texEnemy = createPixelTexture('', '', 'enemy'), texBoss = createPixelTexture('', '', 'boss');
 
 function restartGame() {
-    hideModal('settings-modal'); hideModal('gameover-modal'); hideModal('shop-modal');
+    hideModal('settings-modal'); hideModal('gameover-modal'); hideModal('shop-modal'); hideModal('skins-modal');
     money = 0; bandages = 0; kills = 0; score = 0; timeLived = 0; playerHp = maxHp;
     currentGun = 'Pistol'; gunDamage = 5; bombPrice = 100; enemyTier = 1;
     moneyMultiplier = 1; moneyBoostTimer = 0; potionTimer = 0; potionActive = false;
@@ -687,8 +773,13 @@ function loop() {
     let md = Math.hypot(dx, dy); if (md > 0) { player.x += (dx / md) * player.speed; player.y += (dy / md) * player.speed; }
 
     let currentMaxHp = potionActive ? maxHp + 10 : maxHp;
+    
+    let mySkin = (currentSkin === 'custom') 
+        ? { outer: customOuter, inner: customInner } 
+        : (SKIN_COLORS[currentSkin] || SKIN_COLORS['blue']);
+
     if (selectedUser && now - lastBroadcastTime > 50 && (dx !== 0 || dy !== 0)) {
-        sendBroadcast('player_sync', { user: selectedUser, x: player.x, y: player.y, hp: playerHp, maxHp: currentMaxHp, gun: currentGun });
+        sendBroadcast('player_sync', { user: selectedUser, x: player.x, y: player.y, hp: playerHp, maxHp: currentMaxHp, gun: currentGun, skinOuter: mySkin.outer, skinInner: mySkin.inner });
         lastBroadcastTime = now;
     }
 
@@ -848,8 +939,8 @@ function loop() {
         ctx.save();
         ctx.translate(px + 12, py + 12);
         ctx.fillStyle = '#451a03'; ctx.fillRect(10, -4, 14, 8);
-        ctx.fillStyle = '#059669'; ctx.fillRect(-12, -12, 24, 24);
-        ctx.fillStyle = '#10b981'; ctx.fillRect(-8, -8, 16, 16);
+        ctx.fillStyle = op.skinOuter || '#059669'; ctx.fillRect(-12, -12, 24, 24);
+        ctx.fillStyle = op.skinInner || '#10b981'; ctx.fillRect(-8, -8, 16, 16);
         ctx.restore();
 
         ctx.fillStyle = '#fff'; ctx.font = '8px "Press Start 2P"'; ctx.textAlign = 'center';
@@ -866,10 +957,12 @@ function loop() {
     let psx = player.x + 12 - camX, psy = player.y + 12 - camY;
     ctx.translate(psx, psy);
     if (nearestLocal) ctx.rotate(Math.atan2(nearestLocal.y - player.y, nearestLocal.x - player.x));
+    
     ctx.fillStyle = '#451a03'; ctx.fillRect(10, -4, 14, 8);
-    ctx.fillStyle = '#1d4ed8'; ctx.fillRect(-12, -12, 24, 24);
-    ctx.fillStyle = '#3b82f6'; ctx.fillRect(-8, -8, 16, 16);
+    ctx.fillStyle = mySkin.outer; ctx.fillRect(-12, -12, 24, 24);
+    ctx.fillStyle = mySkin.inner; ctx.fillRect(-8, -8, 16, 16);
     ctx.restore();
+    
     let bw = 30, bh = 6, bx = psx - bw/2, by = psy - 25, hp = playerHp / currentMaxHp;
     ctx.fillStyle = '#422006'; ctx.fillRect(bx, by, bw, bh);
     ctx.fillStyle = hp > 0.5 ? '#22c55e' : hp > 0.25 ? '#eab308' : '#dc2626'; ctx.fillRect(bx, by, bw * hp, bh);
