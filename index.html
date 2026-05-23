@@ -29,7 +29,7 @@
         .username-input-in-dropdown { background: #fef08a; border: none; border-bottom: 4px solid #854d0e; color: #422006; padding: 12px; font-size: 10px; text-align: center; width: 100%; font-family: 'Press Start 2P', monospace; outline: none; }
         .hud-top { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px; z-index: 10; }
         .hud-box { padding: 10px; font-size: clamp(8px, 2vw, 10px); text-align: center; flex: 1; }
-        .hud-bottom { position: absolute; bottom: 10px; left: 10px; right: 10px; display: flex; justify-content: center; gap: 10px; z-index: 10; }
+        .hud-bottom { position: absolute; bottom: 30px; left: 10px; right: 10px; display: flex; justify-content: center; gap: 10px; z-index: 10; }
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 50; justify-content: center; align-items: center; flex-direction: column; border: 8px solid #854d0e; box-shadow: inset 0 0 0 4px #facc15, 0 0 40px rgba(0,0,0,0.8); }
         .modal-box { padding: 30px; max-width: 90vw; width: 600px; text-align: center; display: flex; flex-direction: column; gap: 20px; max-height: 80vh; overflow-y: auto; border: 6px double #78350f; }
         .modal-title { font-size: clamp(18px, 4vw, 24px); margin-bottom: 10px; border-bottom: 4px solid #854d0e; padding-bottom: 10px; }
@@ -42,29 +42,26 @@
         .shop-item-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
         .shop-msg { color: #dc2626; font-size: 12px; height: 12px; text-shadow: 1px 1px 0 #000; }
         #gameCanvas { image-rendering: pixelated; width: 100%; height: 100%; display: block; position: absolute; top: 0; left: 0; }
-        #joystick-zone { position: absolute; bottom: 60px; left: 20px; width: 120px; height: 120px; border: 4px solid rgba(255,255,255,0.3); border-radius: 50%; display: none; z-index: 5; background: rgba(0,0,0,0.2); }
+        #joystick-zone { position: absolute; bottom: 80px; left: 20px; width: 120px; height: 120px; border: 4px solid rgba(255,255,255,0.3); border-radius: 50%; display: none; z-index: 5; background: rgba(0,0,0,0.2); }
         #joystick-knob { position: absolute; top: 50%; left: 50%; width: 50px; height: 50px; background: #fcd34d; border: 4px solid #b45309; border-radius: 50%; transform: translate(-50%,-50%); pointer-events: none; }
         #action-buttons-container { position: absolute; display: flex; flex-direction: row; align-items: center; gap: 10px; z-index: 10; }
         #action-buttons-container.top-right { top: 10px; right: 10px; left: auto; bottom: auto; }
         #action-buttons-container.top-left { top: 10px; left: 10px; right: auto; bottom: auto; }
-        #action-buttons-container.bottom-right { bottom: 60px; right: 10px; top: auto; left: auto; }
-        #action-buttons-container.bottom-left { bottom: 60px; left: 10px; top: auto; right: auto; }
-
+        #action-buttons-container.bottom-right { bottom: 80px; right: 10px; top: auto; left: auto; }
+        #action-buttons-container.bottom-left { bottom: 80px; left: 10px; top: auto; right: auto; }
         .circle-btn { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(180deg, #fcd34d 0%, #d97706 100%); border: 3px solid #78350f; color: #fff; font-size: 20px; display: flex; align-items: center; justify-content: center; box-shadow: inset -2px -2px 0px rgba(0,0,0,0.3), inset 2px 2px 0px rgba(255,255,255,0.4); text-shadow: 1px 1px 0px #451a03; cursor: pointer; position: relative; transition: all 0.1s; padding: 0; line-height: 1; }
         .circle-btn:active { box-shadow: inset 3px 3px 0px rgba(0,0,0,0.5); transform: translateY(2px); }
         .circle-btn:disabled { filter: grayscale(100%); opacity: 0.6; cursor: not-allowed; }
         .circle-btn .price-badge { position: absolute; bottom: -4px; right: -4px; background: #451a03; color: #fcd34d; border: 2px solid #854d0e; border-radius: 10px; font-size: 8px; padding: 1px 4px; text-shadow: none; line-height: 1.2; }
         .circle-btn .bandage-count { position: absolute; top: -4px; right: -4px; background: #dc2626; color: white; border: 2px solid #451a03; border-radius: 10px; font-size: 8px; padding: 1px 4px; text-shadow: none; line-height: 1.2; }
+        .circle-btn .mag-count { position: absolute; top: -4px; right: -4px; background: #000; color: #facc15; border: 2px solid #451a03; border-radius: 10px; font-size: 8px; padding: 1px 4px; text-shadow: none; line-height: 1.2; }
         .settings-btn { background: none; border: none; font-size: 24px; cursor: pointer; padding: 5px; filter: drop-shadow(2px 2px 0px #451a03); }
         .leaderboard-list { list-style: none; padding: 0; font-size: 10px; line-height: 2; }
         .leaderboard-list li { padding: 8px; border-bottom: 2px solid #854d0e; background: rgba(0,0,0,0.1); margin-bottom: 4px; }
-        
-        #chat-container { position: absolute; bottom: 60px; left: 160px; width: 300px; height: 150px; display: flex; flex-direction: column; z-index: 20; pointer-events: none; }
+        #chat-container { position: absolute; bottom: 80px; left: 160px; width: 300px; height: 150px; display: flex; flex-direction: column; z-index: 20; pointer-events: none; }
         #chat-messages { flex: 1; overflow-y: auto; color: white; font-size: 10px; text-shadow: 1px 1px 0 #000; display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 5px; user-select: text; }
         #chat-input { pointer-events: auto; background: rgba(0,0,0,0.6); border: 2px solid #854d0e; color: white; padding: 6px; font-family: 'Press Start 2P', monospace; font-size: 8px; outline: none; }
-        
         input[type="color"] { border: 2px solid #854d0e; border-radius: 4px; background: #000; cursor: pointer; height: 26px; width: 36px; padding: 0; vertical-align: middle; }
-
         @media (max-width: 768px) {
             .hud-box { font-size: 8px; padding: 6px; }
             .menu-title { font-size: 24px; }
@@ -100,7 +97,7 @@
     </div>
     <div class="menu-center">
         <h1 class="menu-title">Defence Evolution</h1>
-        <button class="btn" style="font-size:clamp(20px, 4vw, 30px); padding:20px 40px;" onclick="startGame()">▶</button>
+        <button class="btn" style="font-size:clamp(20px, 4vw, 30px); padding:20px 40px;" onclick="checkRankThenPlay()">▶</button>
         <p id="menu-error" style="color:#dc2626; font-size:10px; margin-top:20px; height:12px; text-shadow: 1px 1px 0 #000;"></p>
     </div>
 </div>
@@ -110,7 +107,6 @@
         <h2 class="modal-title">Select Skin</h2>
         <p class="shop-msg" id="skin-menu-message"></p>
         <div style="display:flex; flex-direction:column; gap:10px; max-height: 50vh; overflow-y: auto; padding-right: 5px;">
-            
             <div class="shop-item yellow-ui" style="background: rgba(255,255,255,0.2); border: 2px dashed #854d0e; justify-content: center;">
                 <div class="shop-item-details" style="text-align: center; width:100%;">
                     <strong style="color:#1d4ed8; font-size:12px;">🎨 Custom Skin</strong><br><br>
@@ -121,7 +117,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="shop-item yellow-ui">
                 <div class="shop-item-details"><strong style="color:#3b82f6">🔵 Blue Ranger (Default)</strong><br>Classic operational style</div>
                 <div class="shop-item-buttons"><button class="btn" onclick="equipSkin('blue')">EQUIP</button></div>
@@ -150,7 +145,6 @@
             <div class="role">👨‍💻 DEVELOPER</div><div class="names">Ratnesh Kumar</div>
             <div class="role">🤝 ASSIST-DEVELOPER</div><div class="names">Harshit</div>
             <div class="role">👑 ORGANIZERS (Admins)</div><div class="names">Priyanshu</div><div class="names">Yash Kumar Singh</div><div class="names">Ujjawal</div>
-            <div class="role">🎮 TEAM</div><div class="names">Yuvan</div><div class="names">Harsh</div><div class="names">Dipanshu</div>
         </div>
         <button class="btn" onclick="hideModal('credits-modal')">Close</button>
     </div>
@@ -171,6 +165,7 @@
         <div style="flex:1;"></div>
     </div>
     <div id="action-buttons-container" class="top-right">
+        <button class="circle-btn" id="reload-circle-btn" ontouchstart="event.preventDefault(); reloadGun()" onmousedown="reloadGun()" title="Reload">🔄<span class="mag-count" id="ui-mags">3</span></button>
         <button class="circle-btn" id="bomb-circle-btn" ontouchstart="event.preventDefault(); useBomb()" onmousedown="useBomb()" title="Bomb">💣<span class="price-badge" id="bomb-price-badge">$100</span></button>
         <button class="circle-btn" id="heal-circle-btn" ontouchstart="event.preventDefault(); useBandage()" onmousedown="useBandage()" title="Heal">❤️<span class="bandage-count" id="heal-bandage-count">0</span></button>
         <button class="circle-btn" ontouchstart="event.preventDefault(); goToShop()" onmousedown="goToShop()" title="Shop">🛒</button>
@@ -183,7 +178,7 @@
     </div>
 
     <div class="hud-bottom">
-        <div class="hud-box yellow-ui">Time: <span id="ui-time">0</span>s | Gun: <span id="ui-gun">Pistol</span> | <span id="ui-powerups"></span></div>
+        <div class="hud-box yellow-ui">Time: <span id="ui-time">0</span>s | Gun: <span id="ui-gun">Pistol (12/12)</span> | <span id="ui-powerups"></span></div>
     </div>
     <div id="joystick-zone"><div id="joystick-knob"></div></div>
 </div>
@@ -229,11 +224,22 @@
                 </div>
             </div>
             <div class="shop-item yellow-ui">
+                <div class="shop-item-details"><strong>🔫 Machine Gun</strong><br>Bullet: 8 dmg | Lvl: <span id="machinegun-lvl">0</span>/3<br>⚡ FULL AUTO (150ms)<br>100-round mag | Cost: $<span id="machinegun-cost">5000</span></div>
+                <div class="shop-item-buttons">
+                    <button class="btn" id="btn-buy-machinegun" onclick="buyGun('Machine Gun')">BUY</button>
+                    <button class="btn" id="btn-upgrade-machinegun" onclick="upgradeGun('Machine Gun')" style="display:none;">UPGRADE</button>
+                </div>
+            </div>
+            <div class="shop-item yellow-ui">
                 <div class="shop-item-details"><strong>💰 2x Money Boost</strong><br>Double money for 1.5 min<br>Cost: $1000</div>
                 <div class="shop-item-buttons"><button class="btn" onclick="buyMoneyBoost()">BUY</button></div>
             </div>
         </div>
         <div id="section-recovery" style="display:none;">
+            <div class="shop-item yellow-ui">
+                <div class="shop-item-details"><strong>📦 Spare Magazine</strong><br>Refills current gun's ammo<br>Cost: $70</div>
+                <div class="shop-item-buttons"><button class="btn" onclick="buyMagazine()">BUY</button></div>
+            </div>
             <div class="shop-item yellow-ui">
                 <div class="shop-item-details"><strong>🩹 Bandage Pack</strong><br>3 Bandages (+2 HP each)<br>Cost: $150</div>
                 <div class="shop-item-buttons"><button class="btn" onclick="buyBandages()">BUY</button></div>
@@ -289,11 +295,61 @@
     </div>
 </div>
 
+<div id="verify-modal" class="modal-overlay">
+    <div class="modal-box yellow-ui">
+        <h2 class="modal-title">Access Restricted</h2>
+        <p style="font-size: 10px; line-height: 1.5; margin-bottom: 15px;">Please enter the verification code to play.</p>
+        <input type="password" id="verify-input" class="username-input-in-dropdown" placeholder="Enter code..." style="margin-bottom: 10px;">
+        <p id="verify-error" style="color: #dc2626; font-size: 10px; height: 12px; margin-bottom: 15px; text-shadow: 1px 1px 0 #000;"></p>
+        <div style="display: flex; gap: 10px; justify-content: center;">
+            <button class="btn" onclick="checkVerification()">Verify & Play</button>
+            <button class="btn" onclick="hideModal('verify-modal')">Cancel</button>
+        </div>
+    </div>
+</div>
+
 <script>
 const SUPABASE_URL = 'https://cgnjarwxacpbgbbdendv.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNnbmphcnd4YWNwYmdiYmRlbmR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwMDY1MDYsImV4cCI6MjA5NDU4MjUwNn0.XeRmz5-8p1Fl16SbLkRNNTxAVyoKBpT_8LAhRAd7ikY';
-
+    
 var supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+function checkRankThenPlay() {
+    const name = document.getElementById('dropdown-username-input').value.trim() || selectedUser;
+    if (!name) {
+        document.getElementById('menu-error').innerText = "PLEASE CHOOSE A USERNAME FIRST!";
+        return;
+    }
+    const rankInfo = getPlayerRankInfo(name);
+    if (rankInfo.text === 'MEMBER') {
+        startGame();
+    } else {
+        showModal('verify-modal');
+    }
+}
+
+function checkVerification() {
+    const codeInput = document.getElementById('verify-input').value;
+    const errorMsg = document.getElementById('verify-error');
+    const dropdownInput = document.getElementById('dropdown-username-input').value.trim();
+    if(!selectedUser && !dropdownInput) {
+        hideModal('verify-modal');
+        document.getElementById('menu-error').innerText = "PLEASE CHOOSE A USERNAME FIRST!";
+        return;
+    }
+    if (codeInput === "ratcat") {
+        errorMsg.innerText = "";
+        document.getElementById('verify-input').value = "";
+        hideModal('verify-modal');
+        let docEl = document.documentElement;
+        if (docEl.requestFullscreen) { docEl.requestFullscreen(); } 
+        else if (docEl.webkitRequestFullscreen) { docEl.webkitRequestFullscreen(); } 
+        else if (docEl.msRequestFullscreen) { docEl.msRequestFullscreen(); }
+        startGame(); 
+    } else {
+        errorMsg.innerText = "INVALID VERIFICATION CODE!";
+    }
+}
 
 let gameChannel = null;
 let isChannelReady = false; 
@@ -301,6 +357,22 @@ let otherPlayers = {};
 let lastBroadcastTime = 0;
 
 const genId = () => Math.random().toString(36).substr(2, 9);
+
+const RATCAT_RANKS = {
+    'ratnesh': { text: '👑 OWNER', color: '#00ffff' },
+    'ratnesh kumar': { text: '👑 OWNER', color: '#00ffff' },
+    'harshit': { text: '🤝 ASSIST-DEV', color: '#00ffff' },
+    'priyanshu': { text: '🛡️ ADMIN', color: '#ff0000' },
+    'yash kumar singh': { text: '🛡️ ADMIN', color: '#ff0000' },
+    'ujjwal': { text: '🛡️ ADMIN', color: '#ff0000' },
+    'ujjawal': { text: '🛡️ ADMIN', color: '#ff0000' }
+};
+
+function getPlayerRankInfo(username) {
+    if (!username) return { text: 'MEMBER', color: '#9ca3af' };
+    let rank = RATCAT_RANKS[username.toLowerCase()];
+    return rank ? rank : { text: 'MEMBER', color: '#9ca3af' };
+}
 
 function sendBroadcast(eventName, payloadData) {
     if (gameChannel && isChannelReady) {
@@ -352,7 +424,7 @@ function startGame() {
     const dropdownInput = document.getElementById('dropdown-username-input');
     const dropdownName = dropdownInput.value.trim();
     if(dropdownName) { selectedUser = dropdownName; addGlobalUsername(dropdownName); document.getElementById('username-btn').innerText = dropdownName + " ▼"; }
-    if(!selectedUser) { document.getElementById('menu-error').innerText = "PLEASE CHOOSE A USERNAME!"; return; }
+    
     document.getElementById('menu-error').innerText = "";
     document.getElementById('menu-screen').style.display = 'none';
     document.getElementById('game-screen').style.display = 'block';
@@ -471,7 +543,6 @@ document.addEventListener('keydown', function(e) {
 function switchShopTab(tab) {
     const gunsSec = document.getElementById('section-guns'), recSec = document.getElementById('section-recovery');
     const gunsTab = document.getElementById('tab-guns'), recTab = document.getElementById('tab-recovery');
-    
     if (tab === 'guns') { gunsSec.style.display = 'block'; recSec.style.display = 'none'; gunsTab.classList.add('active-tab'); recTab.classList.remove('active-tab'); }
     else { gunsSec.style.display = 'none'; recSec.style.display = 'block'; gunsTab.classList.remove('active-tab'); recTab.classList.add('active-tab'); }
 }
@@ -499,10 +570,8 @@ function equipCustomSkin() {
     customInner = document.getElementById('custom-inner').value;
     localStorage.setItem('customOuter', customOuter);
     localStorage.setItem('customInner', customInner);
-    
     currentSkin = 'custom';
     localStorage.setItem('savedSkin', currentSkin);
-    
     const msgEl = document.getElementById('skin-menu-message');
     if(msgEl) {
         msgEl.innerText = "Equipped Custom Skin!";
@@ -512,6 +581,8 @@ function equipCustomSkin() {
 }
 
 let money = 0, bandages = 0, kills = 0, score = 0, timeLived = 0, playerHp = 10, maxHp = 10;
+let currentAmmo = 12, spareMags = 3, isReloading = false, reloadEndTime = 0;
+
 const SKIN_COLORS = {
     'blue': { outer: '#1d4ed8', inner: '#3b82f6' },
     'red': { outer: '#b91c1c', inner: '#ef4444' },
@@ -520,13 +591,16 @@ const SKIN_COLORS = {
     'green': { outer: '#059669', inner: '#10b981' } 
 };
 let currentGun = 'Pistol', gunDamage = 5, moneyMultiplier = 1, moneyBoostTimer = 0, potionTimer = 0, potionActive = false, bombPrice = 100, shieldActive = false, shieldTimer = 0, shieldPrice = 100, enemyTier = 1, minimapRadius = 400;
+
 let gunStats = {
-    'Pistol': {owned: true, level: 0, baseDamage: 5, baseCost: 0, fireRate: 1200},
-    'D-Eagle': {owned: false, level: 0, baseDamage: 8, baseCost: 100, fireRate: 1200},
-    'AK47': {owned: false, level: 0, baseDamage: 12, baseCost: 500, fireRate: 300},
-    'Shortgun': {owned: false, level: 0, baseDamage: 18, baseCost: 1000, fireRate: 1200},
-    'AWM': {owned: false, level: 0, baseDamage: 30, baseCost: 2000, fireRate: 2500}
+    'Pistol': {owned: true, level: 0, baseDamage: 5, baseCost: 0, fireRate: 1200, magSize: 12, reloadTime: 1200},
+    'D-Eagle': {owned: false, level: 0, baseDamage: 8, baseCost: 100, fireRate: 1200, magSize: 12, reloadTime: 1500},
+    'AK47': {owned: false, level: 0, baseDamage: 12, baseCost: 500, fireRate: 400, magSize: 40, reloadTime: 2000},
+    'Shortgun': {owned: false, level: 0, baseDamage: 18, baseCost: 1000, fireRate: 1200, magSize: 4, reloadTime: 2500},
+    'AWM': {owned: false, level: 0, baseDamage: 30, baseCost: 2000, fireRate: 2500, magSize: 4, reloadTime: 3000},
+    'Machine Gun': {owned: false, level: 0, baseDamage: 8, baseCost: 5000, fireRate: 150, magSize: 100, reloadTime: 3000}
 };
+
 let isPaused = false, gameLoopId, timeInterval;
 let player = {x: 0, y: 0, w: 24, h: 24, speed: 2.5}, camX = 0, camY = 0;
 let enemies = [], bullets = [], drops = [], chests = [], keys = {};
@@ -564,9 +638,17 @@ function restartGame() {
     hideModal('settings-modal'); hideModal('gameover-modal'); hideModal('shop-modal'); hideModal('skins-modal');
     money = 0; bandages = 0; kills = 0; score = 0; timeLived = 0; playerHp = maxHp;
     currentGun = 'Pistol'; gunDamage = 5; bombPrice = 100; enemyTier = 1;
+    spareMags = 3; currentAmmo = 12; isReloading = false; reloadEndTime = 0;
     moneyMultiplier = 1; moneyBoostTimer = 0; potionTimer = 0; potionActive = false;
     shieldActive = false; shieldTimer = 0; shieldPrice = 100;
-    gunStats = { 'Pistol': {owned: true, level: 0, baseDamage: 5, baseCost: 0, fireRate: 1200}, 'D-Eagle': {owned: false, level: 0, baseDamage: 8, baseCost: 100, fireRate: 1200}, 'AK47': {owned: false, level: 0, baseDamage: 12, baseCost: 500, fireRate: 300}, 'Shortgun': {owned: false, level: 0, baseDamage: 18, baseCost: 1000, fireRate: 1200}, 'AWM': {owned: false, level: 0, baseDamage: 30, baseCost: 2000, fireRate: 2500} };
+    gunStats = { 
+        'Pistol': {owned: true, level: 0, baseDamage: 5, baseCost: 0, fireRate: 1200, magSize: 12, reloadTime: 1200}, 
+        'D-Eagle': {owned: false, level: 0, baseDamage: 8, baseCost: 100, fireRate: 1200, magSize: 12, reloadTime: 1500}, 
+        'AK47': {owned: false, level: 0, baseDamage: 12, baseCost: 500, fireRate: 400, magSize: 40, reloadTime: 2000}, 
+        'Shortgun': {owned: false, level: 0, baseDamage: 18, baseCost: 1000, fireRate: 1200, magSize: 4, reloadTime: 2500}, 
+        'AWM': {owned: false, level: 0, baseDamage: 30, baseCost: 2000, fireRate: 2500, magSize: 4, reloadTime: 3000},
+        'Machine Gun': {owned: false, level: 0, baseDamage: 8, baseCost: 5000, fireRate: 150, magSize: 100, reloadTime: 3000}
+    };
     updateShopUI(); updateHUD(); document.getElementById('shield-cost-display').innerText = shieldPrice;
     player.x = 0; player.y = 0; camX = 0; camY = 0; enemies = []; bullets = []; drops = []; chests = []; isPaused = false; bossSpawnTimer = 0;
     clearInterval(timeInterval);
@@ -577,18 +659,54 @@ function restartGame() {
     loop();
 }
 
-function exitToMenu() { isPaused = true; clearInterval(timeInterval); hideModal('settings-modal'); hideModal('gameover-modal'); hideModal('shop-modal'); document.getElementById('game-screen').style.display = 'none'; document.getElementById('menu-screen').style.display = 'block'; updateUsernameDropdown(); if (gameLoopId) cancelAnimationFrame(gameLoopId); }
+function exitToMenu() { 
+    isPaused = true; 
+    clearInterval(timeInterval); 
+    hideModal('settings-modal'); hideModal('gameover-modal'); hideModal('shop-modal'); 
+    document.getElementById('game-screen').style.display = 'none'; 
+    document.getElementById('menu-screen').style.display = 'block'; 
+    updateUsernameDropdown(); 
+    if (gameLoopId) cancelAnimationFrame(gameLoopId);
+    if (document.exitFullscreen) { document.exitFullscreen(); }
+    else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
+    else if (document.msExitFullscreen) { document.msExitFullscreen(); }
+}
 function updateBombButton() { document.getElementById('bomb-price-badge').innerText = '$' + bombPrice; let btn = document.getElementById('bomb-circle-btn'); btn.disabled = (money < bombPrice); btn.style.opacity = (money < bombPrice) ? '0.6' : '1'; }
-function updateHUD() { document.getElementById('ui-money').innerText = money; document.getElementById('ui-score').innerText = score; document.getElementById('ui-time').innerText = timeLived; document.getElementById('heal-bandage-count').innerText = bandages; document.getElementById('ui-gun').innerText = currentGun; let powerupText = ''; if (moneyBoostTimer > 0) powerupText += '💰2x ' + moneyBoostTimer + 's '; if (potionActive) powerupText += '🧪+ ' + potionTimer + 's '; if (shieldActive) powerupText += '🛡️ ' + shieldTimer + 's '; document.getElementById('ui-powerups').innerText = powerupText; updateBombButton(); document.getElementById('shield-cost-display').innerText = shieldPrice; let shieldBtn = document.getElementById('btn-buy-shield'); if (shieldBtn) { shieldBtn.disabled = (money < shieldPrice || shieldActive); shieldBtn.style.opacity = (money < shieldPrice || shieldActive) ? '0.6' : '1'; } }
+function updateHUD() { 
+    document.getElementById('ui-money').innerText = money; 
+    document.getElementById('ui-score').innerText = score; 
+    document.getElementById('ui-time').innerText = timeLived; 
+    document.getElementById('heal-bandage-count').innerText = bandages; 
+    let gunText = currentGun;
+    if (isReloading) gunText += " (RELOADING...)";
+    else if (currentAmmo === 0 && spareMags === 0) gunText += " (EMPTY!)";
+    else gunText += " (" + currentAmmo + "/" + gunStats[currentGun].magSize + ")";
+    document.getElementById('ui-gun').innerText = gunText; 
+    let magEl = document.getElementById('ui-mags');
+    if(magEl) magEl.innerText = spareMags;
+    let powerupText = ''; if (moneyBoostTimer > 0) powerupText += '💰2x ' + moneyBoostTimer + 's '; if (potionActive) powerupText += '🧪+ ' + potionTimer + 's '; if (shieldActive) powerupText += '🛡️ ' + shieldTimer + 's '; document.getElementById('ui-powerups').innerText = powerupText; updateBombButton(); document.getElementById('shield-cost-display').innerText = shieldPrice; let shieldBtn = document.getElementById('btn-buy-shield'); if (shieldBtn) { shieldBtn.disabled = (money < shieldPrice || shieldActive); shieldBtn.style.opacity = (money < shieldPrice || shieldActive) ? '0.6' : '1'; } 
+}
 function openSettings() { isPaused = true; showModal('settings-modal'); }
 function resumeGame(id) { hideModal(id); if (id === 'shop-modal' || id === 'settings-modal') isPaused = false; }
 function goToShop() { isPaused = true; showModal('shop-modal'); updateShopUI(); document.getElementById('shop-message').innerText = ""; switchShopTab('guns'); }
 
+function buyMagazine() { if (money >= 70) { money -= 70; spareMags++; updateHUD(); document.getElementById('shop-message').innerText = "Purchased Spare Magazine!"; document.getElementById('shop-message').style.color = "#16a34a"; } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } }
 function buyBandages() { if (money >= 150) { money -= 150; bandages += 3; updateHUD(); document.getElementById('shop-message').innerText = "Purchased 3 Bandages!"; document.getElementById('shop-message').style.color = "#16a34a"; } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } }
 function buyPotion() { if (money >= 500) { money -= 500; potionActive = true; potionTimer = 90; playerHp = maxHp + 10; document.getElementById('shop-message').innerText = "Fully healed! +10 HP for 90s!"; document.getElementById('shop-message').style.color = "#16a34a"; updateHUD(); } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } }
 function buyShield() { if (money >= shieldPrice && !shieldActive) { money -= shieldPrice; shieldActive = true; shieldTimer = 10; shieldPrice = Math.min(shieldPrice * 2, 1600); document.getElementById('shop-message').innerText = "Shield activated! 10s invincibility."; document.getElementById('shop-message').style.color = "#16a34a"; updateHUD(); } else if (shieldActive) { document.getElementById('shop-message').innerText = "Shield already active!"; document.getElementById('shop-message').style.color = "#dc2626"; } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } }
 function buyMoneyBoost() { if (money >= 1000) { money -= 1000; moneyMultiplier = 2; moneyBoostTimer = 90; document.getElementById('shop-message').innerText = "2x Money for 90s!"; document.getElementById('shop-message').style.color = "#16a34a"; updateHUD(); } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } }
 function useBandage() { if (bandages > 0 && playerHp < maxHp) { bandages--; playerHp = Math.min(maxHp, playerHp + 2); updateHUD(); } }
+
+function reloadGun() {
+    if (isReloading || currentAmmo === gunStats[currentGun].magSize) return;
+    if (spareMags > 0) {
+        isReloading = true;
+        spareMags--;
+        reloadEndTime = Date.now() + gunStats[currentGun].reloadTime;
+        updateHUD();
+    }
+}
+
 function useBomb() { 
     if (money >= bombPrice) { 
         money -= bombPrice; bombPrice = Math.min(bombPrice * 2, 1600); let bombScore = 0; 
@@ -599,10 +717,8 @@ function useBomb() {
                 let val = (e.isBoss ? 200 : 25) * moneyMultiplier;
                 let d1 = {id: genId(), x: e.x, y: e.y, type: 'money', val: val};
                 drops.push(d1);
-                
                 sendBroadcast('enemy_died', { id: e.id });
                 sendBroadcast('item_dropped', d1);
-                
                 if (e.isBoss || Math.random() > 0.8) {
                     let d2 = {id: genId(), x: e.x + 10, y: e.y, type: 'bandage'};
                     drops.push(d2);
@@ -614,13 +730,41 @@ function useBomb() {
         score += bombScore; updateHUD(); 
     } 
 }
-function buyGun(name) { let gun = gunStats[name]; if (gun.owned) { currentGun = name; gunDamage = gun.baseDamage + (gun.level * 3); document.getElementById('shop-message').innerText = "Equipped " + name; document.getElementById('shop-message').style.color = "#16a34a"; updateShopUI(); } else if (money >= gun.baseCost) { money -= gun.baseCost; gun.owned = true; currentGun = name; gunDamage = gun.baseDamage + (gun.level * 3); updateHUD(); updateShopUI(); document.getElementById('shop-message').innerText = "Purchased " + name; document.getElementById('shop-message').style.color = "#16a34a"; } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } }
+function buyGun(name) { 
+    let gun = gunStats[name]; 
+    if (gun.owned) { 
+        currentGun = name; 
+        gunDamage = gun.baseDamage + (gun.level * 3); 
+        currentAmmo = gun.magSize; 
+        isReloading = false;
+        document.getElementById('shop-message').innerText = "Equipped " + name; 
+        document.getElementById('shop-message').style.color = "#16a34a"; 
+        updateShopUI(); 
+        updateHUD();
+    } else if (money >= gun.baseCost) { 
+        money -= gun.baseCost; 
+        gun.owned = true; 
+        currentGun = name; 
+        gunDamage = gun.baseDamage + (gun.level * 3); 
+        currentAmmo = gun.magSize; 
+        isReloading = false;
+        updateHUD(); 
+        updateShopUI(); 
+        document.getElementById('shop-message').innerText = "Purchased " + name; 
+        document.getElementById('shop-message').style.color = "#16a34a"; 
+    } else { 
+        document.getElementById('shop-message').innerText = "Not enough money!"; 
+        document.getElementById('shop-message').style.color = "#dc2626"; 
+    } 
+}
 function upgradeGun(name) { let gun = gunStats[name]; if (!gun.owned || gun.level >= 3) return; let cost = gun.baseCost * (gun.level + 1); if (money >= cost) { money -= cost; gun.level++; gunDamage = gun.baseDamage + (gun.level * 3); updateHUD(); updateShopUI(); document.getElementById('shop-message').innerText = name + " upgraded to Lvl " + gun.level + "!"; document.getElementById('shop-message').style.color = "#16a34a"; } }
-function updateShopUI() { ['D-Eagle', 'AK47', 'Shortgun', 'AWM'].forEach(name => { let gun = gunStats[name], key = name.toLowerCase(); if (key === 'd-eagle') key = 'deagle'; if (key === 'shortgun') key = 'shortgun'; document.getElementById(key + '-lvl').innerText = gun.level; let buyBtn = document.getElementById('btn-buy-' + key), upgBtn = document.getElementById('btn-upgrade-' + key); if (!buyBtn) return; if (gun.owned) { buyBtn.innerText = (currentGun === name) ? 'EQUIPPED' : 'EQUIP'; document.getElementById(key + '-cost').innerText = 'Owned'; upgBtn.style.display = 'inline-block'; if (gun.level >= 3) { upgBtn.innerText = 'MAX'; upgBtn.disabled = true; } else { upgBtn.innerText = 'UPGRADE ($' + gun.baseCost * (gun.level + 1) + ')'; upgBtn.disabled = false; } } else { buyBtn.innerText = 'BUY'; upgBtn.style.display = 'none'; document.getElementById(key + '-cost').innerText = gun.baseCost; } }); }
+function updateShopUI() { ['D-Eagle', 'AK47', 'Shortgun', 'AWM', 'Machine Gun'].forEach(name => { let gun = gunStats[name], key = name.toLowerCase(); if (key === 'd-eagle') key = 'deagle'; if (key === 'shortgun') key = 'shortgun'; if (key === 'machine gun') key = 'machinegun'; document.getElementById(key + '-lvl').innerText = gun.level; let buyBtn = document.getElementById('btn-buy-' + key), upgBtn = document.getElementById('btn-upgrade-' + key); if (!buyBtn) return; if (gun.owned) { buyBtn.innerText = (currentGun === name) ? 'EQUIPPED' : 'EQUIP'; document.getElementById(key + '-cost').innerText = 'Owned'; upgBtn.style.display = 'inline-block'; if (gun.level >= 3) { upgBtn.innerText = 'MAX'; upgBtn.disabled = true; } else { upgBtn.innerText = 'UPGRADE ($' + gun.baseCost * (gun.level + 1) + ')'; upgBtn.disabled = false; } } else { buyBtn.innerText = 'BUY'; upgBtn.style.display = 'none'; document.getElementById(key + '-cost').innerText = gun.baseCost; } }); }
 
 window.addEventListener('keydown', e => {
     if (document.activeElement === document.getElementById('chat-input')) return;
-    keys[e.key.toLowerCase()] = true;
+    let key = e.key.toLowerCase();
+    keys[key] = true;
+    if (key === 'r') reloadGun(); 
 });
 window.addEventListener('keyup', e => {
     if (document.activeElement === document.getElementById('chat-input')) return;
@@ -672,42 +816,20 @@ function handleJoy(t) { let r = joyZone.getBoundingClientRect(), cx = r.left + r
 function spawnEnemy(syncData = null) { 
     let newEnemy;
     if (syncData) {
-        newEnemy = {
-            ...syncData,
-            w: syncData.isBoss ? 40 : 24,
-            h: syncData.isBoss ? 40 : 24,
-            lastHitPlayer: 0
-        };
+        newEnemy = { ...syncData, w: syncData.isBoss ? 40 : 24, h: syncData.isBoss ? 40 : 24, lastHitPlayer: 0 };
     } else {
         let a = Math.random() * Math.PI * 2, d = Math.max(CW, CH) * 0.6; let hmult = getEnemyHealthMultiplier(); let baseHp = Math.floor(60 * hmult); 
         newEnemy = {id: genId(), owner: selectedUser, x: player.x + Math.cos(a) * d, y: player.y + Math.sin(a) * d, w: 24, h: 24, hp: baseHp, maxHp: baseHp, speed: 0.8 + Math.random() * 0.4, lastHitPlayer: 0, isBoss: false};
     }
-    
-    if (!enemies.find(en => en.id === newEnemy.id)) {
-        enemies.push(newEnemy);
-        if (!syncData) sendBroadcast('enemy_spawn', newEnemy);
-    }
+    if (!enemies.find(en => en.id === newEnemy.id)) { enemies.push(newEnemy); if (!syncData) sendBroadcast('enemy_spawn', newEnemy); }
     return newEnemy;
 }
 
 function spawnBoss(syncData = null) { 
     let newBoss;
-    if (syncData) {
-        newBoss = {
-            ...syncData,
-            w: 40,
-            h: 40,
-            lastHitPlayer: 0
-        };
-    } else {
-        let a = Math.random() * Math.PI * 2, d = Math.max(CW, CH) * 0.6; let hmult = getEnemyHealthMultiplier(); let baseHp = Math.floor(90 * hmult); 
-        newBoss = {id: genId(), owner: selectedUser, x: player.x + Math.cos(a) * d, y: player.y + Math.sin(a) * d, w: 40, h: 40, hp: baseHp, maxHp: baseHp, speed: 0.6, lastHitPlayer: 0, isBoss: true};
-    }
-    
-    if (!enemies.find(en => en.id === newBoss.id)) {
-        enemies.push(newBoss);
-        if (!syncData) sendBroadcast('enemy_spawn', newBoss);
-    }
+    if (syncData) { newBoss = { ...syncData, w: 40, h: 40, lastHitPlayer: 0 }; }
+    else { let a = Math.random() * Math.PI * 2, d = Math.max(CW, CH) * 0.6; let hmult = getEnemyHealthMultiplier(); let baseHp = Math.floor(90 * hmult); newBoss = {id: genId(), owner: selectedUser, x: player.x + Math.cos(a) * d, y: player.y + Math.sin(a) * d, w: 40, h: 40, hp: baseHp, maxHp: baseHp, speed: 0.6, lastHitPlayer: 0, isBoss: true}; }
+    if (!enemies.find(en => en.id === newBoss.id)) { enemies.push(newBoss); if (!syncData) sendBroadcast('enemy_spawn', newBoss); }
     return newBoss;
 }
 
@@ -724,14 +846,8 @@ function separateEnemies() {
             let e1 = enemies[i], e2 = enemies[j];
             let dx = e2.x - e1.x, dy = e2.y - e1.y;
             if (Math.abs(dx) > 40 || Math.abs(dy) > 40) continue; 
-            
-            let d = Math.hypot(dx, dy); 
-            let min = (e1.w + e2.w) / 2; 
-            if (d < min && d > 0) { 
-                let o = min - d; 
-                e1.x -= (dx / d) * o * 0.5; e1.y -= (dy / d) * o * 0.5; 
-                e2.x += (dx / d) * o * 0.5; e2.y += (dy / d) * o * 0.5; 
-            } 
+            let d = Math.hypot(dx, dy); let min = (e1.w + e2.w) / 2; 
+            if (d < min && d > 0) { let o = min - d; e1.x -= (dx / d) * o * 0.5; e1.y -= (dy / d) * o * 0.5; e2.x += (dx / d) * o * 0.5; e2.y += (dy / d) * o * 0.5; } 
         } 
     }
 }
@@ -742,88 +858,50 @@ function drawMinimap() {
     ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(mapX, mapY, mapW, mapH); ctx.strokeStyle = '#facc15'; ctx.lineWidth = 2; ctx.strokeRect(mapX, mapY, mapW, mapH);
     function worldToMap(wx, wy) { return { x: centerX + (wx - player.x) * scale, y: centerY + (wy - player.y) * scale }; }
     let radSq = minimapRadius * minimapRadius; 
-    ctx.fillStyle = '#dc2626'; enemies.forEach(e => { 
-        let dx = e.x - player.x, dy = e.y - player.y;
-        if (dx*dx + dy*dy <= radSq) { let p = worldToMap(e.x, e.y); ctx.fillRect(p.x-1.5, p.y-1.5, 3, 3); } 
-    });
-    ctx.fillStyle = '#facc15'; chests.forEach(c => { 
-        let dx = c.x - player.x, dy = c.y - player.y;
-        if (dx*dx + dy*dy <= radSq) { let p = worldToMap(c.x, c.y); ctx.fillRect(p.x-2, p.y-2, 4, 4); } 
-    });
-    ctx.fillStyle = '#22c55e'; drops.forEach(d => { 
-        let dx = d.x - player.x, dy = d.y - player.y;
-        if (dx*dx + dy*dy <= radSq) { let p = worldToMap(d.x, d.y); ctx.fillRect(p.x-1, p.y-1, 2, 2); } 
-    });
+    ctx.fillStyle = '#dc2626'; enemies.forEach(e => { let dx = e.x - player.x, dy = e.y - player.y; if (dx*dx + dy*dy <= radSq) { let p = worldToMap(e.x, e.y); ctx.fillRect(p.x-1.5, p.y-1.5, 3, 3); } });
+    ctx.fillStyle = '#facc15'; chests.forEach(c => { let dx = c.x - player.x, dy = c.y - player.y; if (dx*dx + dy*dy <= radSq) { let p = worldToMap(c.x, c.y); ctx.fillRect(p.x-2, p.y-2, 4, 4); } });
+    ctx.fillStyle = '#22c55e'; drops.forEach(d => { let dx = d.x - player.x, dy = d.y - player.y; if (dx*dx + dy*dy <= radSq) { let p = worldToMap(d.x, d.y); ctx.fillRect(p.x-1, p.y-1, 2, 2); } });
     ctx.fillStyle = '#3b82f6'; let pp = worldToMap(player.x, player.y); ctx.fillRect(pp.x-2.5, pp.y-2.5, 5, 5); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.strokeRect(pp.x-2.5, pp.y-2.5, 5, 5);
 }
 
 function loop() {
     if (isPaused) { gameLoopId = requestAnimationFrame(loop); return; }
     let now = Date.now(); camX = player.x - CW/2; camY = player.y - CH/2;
+    if (isReloading && now >= reloadEndTime) { isReloading = false; currentAmmo = gunStats[currentGun].magSize; updateHUD(); }
     ctx.clearRect(0, 0, CW, CH);
     if (!window.sandPattern) window.sandPattern = ctx.createPattern(texSand, 'repeat');
-    ctx.save();
-    ctx.translate(-camX % 32, -camY % 32);
-    ctx.fillStyle = window.sandPattern;
-    ctx.fillRect(-32, -32, CW + 64, CH + 64);
-    ctx.restore();
+    ctx.save(); ctx.translate(-camX % 32, -camY % 32); ctx.fillStyle = window.sandPattern; ctx.fillRect(-32, -32, CW + 64, CH + 64); ctx.restore();
     let dx = 0, dy = 0;
     if (keys['w']) dy = -1; if (keys['s']) dy = 1; if (keys['a']) dx = -1; if (keys['d']) dx = 1;
     if (isDragging) { dx = joyX; dy = joyY; }
     let md = Math.hypot(dx, dy); if (md > 0) { player.x += (dx / md) * player.speed; player.y += (dy / md) * player.speed; }
-
     let currentMaxHp = potionActive ? maxHp + 10 : maxHp;
-    
-    let mySkin = (currentSkin === 'custom') 
-        ? { outer: customOuter, inner: customInner } 
-        : (SKIN_COLORS[currentSkin] || SKIN_COLORS['blue']);
-
+    let mySkin = (currentSkin === 'custom') ? { outer: customOuter, inner: customInner } : (SKIN_COLORS[currentSkin] || SKIN_COLORS['blue']);
     if (selectedUser && now - lastBroadcastTime > 50 && (dx !== 0 || dy !== 0)) {
         sendBroadcast('player_sync', { user: selectedUser, x: player.x, y: player.y, hp: playerHp, maxHp: currentMaxHp, gun: currentGun, skinOuter: mySkin.outer, skinInner: mySkin.inner });
         lastBroadcastTime = now;
     }
-
     if (Math.random() < 0.012) spawnEnemy(); 
     if (Math.random() < 0.001 && chests.length < 5) spawnChest();
     bossSpawnTimer++; if (bossSpawnTimer >= 1800) { spawnBoss(); bossSpawnTimer = 0; }
-    
     if (now - lastEnemySync > 50) {
         const myEnemies = enemies.filter(e => e.owner === selectedUser);
         if (myEnemies.length > 0) {
-            const enemyData = myEnemies.map(e => ({
-                id: e.id, x: e.x, y: e.y, hp: e.hp, maxHp: e.maxHp,
-                speed: e.speed, isBoss: e.isBoss, owner: e.owner
-            }));
+            const enemyData = myEnemies.map(e => ({ id: e.id, x: e.x, y: e.y, hp: e.hp, maxHp: e.maxHp, speed: e.speed, isBoss: e.isBoss, owner: e.owner }));
             sendBroadcast('all_enemies_sync', { enemies: enemyData });
         }
         lastEnemySync = now;
     }
-    
     let nearestLocal = null, minLocalDist = Infinity;
-    
     for (let i = enemies.length - 1; i >= 0; i--) {
         let e = enemies[i];
-        
         let distToLocal = Math.hypot(player.x - e.x, player.y - e.y);
         if (distToLocal < minLocalDist) { minLocalDist = distToLocal; nearestLocal = e; }
-        
         let playerTargetX = player.x, playerTargetY = player.y, minDist = distToLocal;
-        for (let user in otherPlayers) {
-            let op = otherPlayers[user];
-            let od = Math.hypot(op.x - e.x, op.y - e.y);
-            if (od < minDist) { minDist = od; playerTargetX = op.x; playerTargetY = op.y; }
-        }
-
+        for (let user in otherPlayers) { let op = otherPlayers[user]; let od = Math.hypot(op.x - e.x, op.y - e.y); if (od < minDist) { minDist = od; playerTargetX = op.x; playerTargetY = op.y; } }
         let edx = playerTargetX - e.x, edy = playerTargetY - e.y;
-        
-        if (e.netTargetX !== undefined && e.owner !== selectedUser) {
-            e.x += (e.netTargetX - e.x) * 0.2;
-            e.y += (e.netTargetY - e.y) * 0.2;
-        } else if (minDist > 0) { 
-            e.x += (edx / minDist) * e.speed; 
-            e.y += (edy / minDist) * e.speed; 
-        }
-
+        if (e.netTargetX !== undefined && e.owner !== selectedUser) { e.x += (e.netTargetX - e.x) * 0.2; e.y += (e.netTargetY - e.y) * 0.2; }
+        else if (minDist > 0) { e.x += (edx / minDist) * e.speed; e.y += (edy / minDist) * e.speed; }
         if (distToLocal < (e.isBoss ? 30 : 20) && now - e.lastHitPlayer > 1000) {
             if (!shieldActive) playerHp--;
             e.lastHitPlayer = now; updateHUD();
@@ -850,125 +928,108 @@ function loop() {
         ctx.fillText(Math.ceil(e.hp) + '/' + e.maxHp, bx + bw/2, by + 5);
     }
     separateEnemies();
-    
     let fireRate = getFireRate();
-    if (nearestLocal && now - lastShot >= fireRate) {
-        let bx = nearestLocal.x - player.x, by = nearestLocal.y - player.y, bd = Math.hypot(bx, by);
-        let bulletSpeed = 8, baseAngle = Math.atan2(by, bx);
-        if (currentGun === 'Shortgun') {
-            let pelletCount = 5, spreadAngle = 0.3;
-            for (let p = 0; p < pelletCount; p++) {
-                let angleOffset = (p - (pelletCount - 1) / 2) * (spreadAngle / (pelletCount - 1));
-                let angle = baseAngle + angleOffset;
-                bullets.push({x: player.x + 12, y: player.y + 12, vx: Math.cos(angle) * bulletSpeed, vy: Math.sin(angle) * bulletSpeed, r: 3, damage: Math.floor(gunDamage * 0.6), hitEnemies: []});
-            }
-        } else { bullets.push({x: player.x + 12, y: player.y + 12, vx: (bx / bd) * bulletSpeed, vy: (by / bd) * bulletSpeed, r: 4, damage: gunDamage, hitEnemies: []}); }
-        lastShot = now;
+    if (nearestLocal && now - lastShot >= fireRate && !isReloading) {
+        if (currentAmmo > 0) {
+            let bx = nearestLocal.x - player.x, by = nearestLocal.y - player.y, bd = Math.hypot(bx, by);
+            let bulletSpeed = 8, baseAngle = Math.atan2(by, bx);
+            if (currentGun === 'Shortgun') {
+                let pelletCount = 5, spreadAngle = 0.3;
+                for (let p = 0; p < pelletCount; p++) {
+                    let angleOffset = (p - (pelletCount - 1) / 2) * (spreadAngle / (pelletCount - 1));
+                    let angle = baseAngle + angleOffset;
+                    bullets.push({x: player.x + 12, y: player.y + 12, vx: Math.cos(angle) * bulletSpeed, vy: Math.sin(angle) * bulletSpeed, r: 3, damage: Math.floor(gunDamage * 0.6), hitEnemies: []});
+                }
+            } else { bullets.push({x: player.x + 12, y: player.y + 12, vx: (bx / bd) * bulletSpeed, vy: (by / bd) * bulletSpeed, r: 4, damage: gunDamage, hitEnemies: []}); }
+            currentAmmo--;
+            lastShot = now;
+            updateHUD();
+            if (currentAmmo === 0) { reloadGun(); }
+        } else { reloadGun(); }
     }
-    
     for (let i = bullets.length - 1; i >= 0; i--) {
         let b = bullets[i]; b.x += b.vx; b.y += b.vy;
         ctx.fillStyle = '#000'; ctx.fillRect(b.x - camX, b.y - camY, b.r*2, b.r*2); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.strokeRect(b.x - camX, b.y - camY, b.r*2, b.r*2);
         if (Math.hypot(player.x - b.x, player.y - b.y) > 1500) { bullets.splice(i, 1); continue; }
-        
         for (let j = enemies.length - 1; j >= 0; j--) {
             let e = enemies[j];
             if (!b.hitEnemies.includes(e.id) && b.x > e.x && b.x < e.x + e.w && b.y > e.y && b.y < e.y + e.h) {
                 b.hitEnemies.push(e.id);
                 let actualDamage = Math.min(b.damage, e.hp); e.hp -= actualDamage; b.damage -= actualDamage;
+                score += 10; 
                 let totalDamage = actualDamage + (b.damage || 0.01); let slowFactor = 1 - (actualDamage / totalDamage) * 0.3;
                 b.vx *= slowFactor; b.vy *= slowFactor; b.r = Math.max(2, b.r - 0.3);
-                
                 if (e.hp <= 0) { 
                     score += 50; kills++; 
                     let val = (e.isBoss ? 200 : 25) * moneyMultiplier; 
                     let d1 = {id: genId(), x: e.x, y: e.y, type: 'money', val: val};
                     drops.push(d1); 
-                    
                     sendBroadcast('enemy_died', { id: e.id });
                     sendBroadcast('item_dropped', d1);
-
-                    if (e.isBoss || Math.random() > 0.8) {
-                        let d2 = {id: genId(), x: e.x + 10, y: e.y, type: 'bandage'};
-                        drops.push(d2);
-                        sendBroadcast('item_dropped', d2);
-                    }
+                    if (e.isBoss || Math.random() > 0.8) { let d2 = {id: genId(), x: e.x + 10, y: e.y, type: 'bandage'}; drops.push(d2); sendBroadcast('item_dropped', d2); }
                     enemies.splice(j, 1); 
-                } else {
-                    sendBroadcast('enemy_hit', { id: e.id, hp: e.hp });
-                }
+                } else { sendBroadcast('enemy_hit', { id: e.id, hp: e.hp }); }
                 if (b.damage <= 0) { bullets.splice(i, 1); break; }
             }
         }
         if (b.damage <= 0) { continue; }
         updateHUD();
     }
-    
     for (let i = drops.length - 1; i >= 0; i--) {
         let d = drops[i]; if (d.type === 'money') ctx.drawImage(texMoney, d.x - camX, d.y - camY, 24, 24); else ctx.drawImage(texBandage, d.x - camX, d.y - camY, 24, 24);
-        if (Math.hypot(player.x - d.x, player.y - d.y) < 60) { 
-            if (d.type === 'money') money += d.val; else bandages++; 
-            updateHUD(); 
-            sendBroadcast('item_collected', { id: d.id });
-            drops.splice(i, 1); 
-        }
+        if (Math.hypot(player.x - d.x, player.y - d.y) < 60) { if (d.type === 'money') money += d.val; else bandages++; updateHUD(); sendBroadcast('item_collected', { id: d.id }); drops.splice(i, 1); }
     }
-    
     for (let i = chests.length - 1; i >= 0; i--) { 
         let c = chests[i]; ctx.drawImage(texChest, c.x - camX, c.y - camY, c.w, c.h); 
         if (Math.hypot(player.x - c.x, player.y - c.y) < 35) { 
             let d1 = {id: genId(), x: c.x, y: c.y, type: 'money', val: 100 * moneyMultiplier};
             drops.push(d1); 
-            
             sendBroadcast('chest_opened', { id: c.id });
             sendBroadcast('item_dropped', d1);
-
             chests.splice(i, 1); 
         } 
     }
-    
     for (let user in otherPlayers) {
         let op = otherPlayers[user];
         if (now - op.lastSeen > 3000) { delete otherPlayers[user]; continue; }
-        
         op.x += (op.targetX - op.x) * 0.2;
         op.y += (op.targetY - op.y) * 0.2;
-
         let px = op.x - camX, py = op.y - camY;
-        
-        ctx.save();
-        ctx.translate(px + 12, py + 12);
+        ctx.save(); ctx.translate(px + 12, py + 12);
         ctx.fillStyle = '#451a03'; ctx.fillRect(10, -4, 14, 8);
         ctx.fillStyle = op.skinOuter || '#059669'; ctx.fillRect(-12, -12, 24, 24);
         ctx.fillStyle = op.skinInner || '#10b981'; ctx.fillRect(-8, -8, 16, 16);
         ctx.restore();
-
-        ctx.fillStyle = '#fff'; ctx.font = '8px "Press Start 2P"'; ctx.textAlign = 'center';
-        ctx.fillText(user, px + 12, py - 18);
-
+        let opRankInfo = getPlayerRankInfo(user);
+        ctx.fillStyle = opRankInfo.color; ctx.font = '12px "Press Start 2P"'; ctx.textAlign = 'center';
+        ctx.fillText(opRankInfo.text, px + 12, py - 36);
+        ctx.fillStyle = '#fff'; ctx.font = '10px "Press Start 2P"'; ctx.textAlign = 'center';
+        ctx.fillText(user, px + 12, py - 22);
         let obw = 30, obh = 6, obx = px - 3, oby = py - 12, ohp = op.hp / op.maxHp;
         ctx.fillStyle = '#422006'; ctx.fillRect(obx, oby, obw, obh);
         ctx.fillStyle = ohp > 0.5 ? '#22c55e' : ohp > 0.25 ? '#eab308' : '#dc2626';
         ctx.fillRect(obx, oby, obw * ohp, obh);
         ctx.strokeStyle = '#000'; ctx.lineWidth = 1; ctx.strokeRect(obx, oby, obw, obh);
     }
-
     ctx.save();
     let psx = player.x + 12 - camX, psy = player.y + 12 - camY;
     ctx.translate(psx, psy);
     if (nearestLocal) ctx.rotate(Math.atan2(nearestLocal.y - player.y, nearestLocal.x - player.x));
-    
     ctx.fillStyle = '#451a03'; ctx.fillRect(10, -4, 14, 8);
     ctx.fillStyle = mySkin.outer; ctx.fillRect(-12, -12, 24, 24);
     ctx.fillStyle = mySkin.inner; ctx.fillRect(-8, -8, 16, 16);
     ctx.restore();
-    
     let bw = 30, bh = 6, bx = psx - bw/2, by = psy - 25, hp = playerHp / currentMaxHp;
     ctx.fillStyle = '#422006'; ctx.fillRect(bx, by, bw, bh);
     ctx.fillStyle = hp > 0.5 ? '#22c55e' : hp > 0.25 ? '#eab308' : '#dc2626'; ctx.fillRect(bx, by, bw * hp, bh);
     ctx.strokeStyle = '#000'; ctx.lineWidth = 1; ctx.strokeRect(bx, by, bw, bh);
-    ctx.fillStyle = '#fff'; ctx.font = '8px "Press Start 2P"'; ctx.textAlign = 'center'; ctx.fillText(playerHp + '/' + currentMaxHp, psx, by - 2);
-    
+    ctx.fillStyle = '#fff'; ctx.font = '8px "Press Start 2P"'; ctx.textAlign = 'center'; 
+    ctx.fillText(playerHp + '/' + currentMaxHp, psx, by - 2);
+    ctx.font = '10px "Press Start 2P"';
+    ctx.fillText(selectedUser || 'Player', psx, by - 16);
+    let myRankInfo = getPlayerRankInfo(selectedUser);
+    ctx.fillStyle = myRankInfo.color; ctx.font = '12px "Press Start 2P"'; ctx.textAlign = 'center';
+    ctx.fillText(myRankInfo.text, psx, by - 32);
     drawMinimap();
     gameLoopId = requestAnimationFrame(loop);
 }
