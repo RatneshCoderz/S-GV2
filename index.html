@@ -142,9 +142,9 @@
     <div class="modal-box yellow-ui">
         <h2 class="modal-title">Credits</h2>
         <div class="credits-section">
-            <div class="role">👨‍💻 DEVELOPER</div><div class="names">Ratnesh Kumar 7 B</div>
-            <div class="role">🤝 ASSIST-DEVELOPER</div><div class="names">Harshit</div>
-            <div class="role">👑 ORGANIZERS (Admins)</div><div class="names">Priyanshu</div><div class="names">Yash Kumar Singh</div><div class="names">Ujjawal</div>
+            <div class="role">👨‍💻 DEVELOPER</div><div class="names">Ratnesh Kumar</div>
+            <div class="role">🤝 ASSIST-DEVELOPER</div><div class="names">Harshit</div><div class="names">Priyanshu</div>
+            <div class="role">👑 ORGANIZERS (Admins)</div><div class="names">Yash Kumar Singh</div><div class="names">Ujjawal</div>
         </div>
         <button class="btn" onclick="hideModal('credits-modal')">Close</button>
     </div>
@@ -332,12 +332,27 @@ function checkVerification() {
     const codeInput = document.getElementById('verify-input').value;
     const errorMsg = document.getElementById('verify-error');
     const dropdownInput = document.getElementById('dropdown-username-input').value.trim();
-    if(!selectedUser && !dropdownInput) {
+    const currentUser = dropdownInput || selectedUser;
+    
+    if(!currentUser) {
         hideModal('verify-modal');
         document.getElementById('menu-error').innerText = "PLEASE CHOOSE A USERNAME FIRST!";
         return;
     }
-    if (codeInput === "ratcat") {
+
+    const rankInfo = getPlayerRankInfo(currentUser);
+    let expectedCode = "";
+    
+    // Set expected code dynamically based on user rank
+    if (rankInfo.text === '👑 OWNER') {
+        expectedCode = "ratycaty";
+    } else if (rankInfo.text === '🤝 ASSIST-DEV') {
+        expectedCode = "meow";
+    } else if (rankInfo.text === '🛡️ ADMIN') {
+        expectedCode = "ratcat";
+    }
+
+    if (codeInput === expectedCode) {
         errorMsg.innerText = "";
         document.getElementById('verify-input').value = "";
         hideModal('verify-modal');
@@ -362,7 +377,7 @@ const RATCAT_RANKS = {
     'ratnesh': { text: '👑 OWNER', color: '#00ffff' },
     'ratnesh kumar': { text: '👑 OWNER', color: '#00ffff' },
     'harshit': { text: '🤝 ASSIST-DEV', color: '#00ffff' },
-    'priyanshu': { text: '🛡️ ADMIN', color: '#ff0000' },
+    'priyanshu': { text: '🤝 ASSIST-DEV', color: '#00ffff' }, // Updated Priyanshu
     'yash kumar singh': { text: '🛡️ ADMIN', color: '#ff0000' },
     'ujjwal': { text: '🛡️ ADMIN', color: '#ff0000' },
     'ujjawal': { text: '🛡️ ADMIN', color: '#ff0000' }
@@ -455,7 +470,7 @@ function startGame() {
         })
         .on('broadcast', { event: 'enemy_hit' }, p => {
             let e = enemies.find(en => en.id === p.payload.id);
-            if (e) e.hp = p.payload.hp;
+            if (e) e.hp -= p.payload.damage;
         })
         .on('broadcast', { event: 'enemy_died' }, p => {
             let idx = enemies.findIndex(en => en.id === p.payload.id);
@@ -485,7 +500,9 @@ function startGame() {
                 if (existingEnemy) {
                     existingEnemy.netTargetX = syncedEnemy.x;
                     existingEnemy.netTargetY = syncedEnemy.y;
-                    existingEnemy.hp = syncedEnemy.hp;
+                    if (Math.abs(existingEnemy.hp - syncedEnemy.hp) > 10) {
+                        existingEnemy.hp = syncedEnemy.hp;
+                    }
                     existingEnemy.owner = syncedEnemy.owner;
                 } else {
                     enemies.push({
@@ -877,10 +894,12 @@ function loop() {
     let md = Math.hypot(dx, dy); if (md > 0) { player.x += (dx / md) * player.speed; player.y += (dy / md) * player.speed; }
     let currentMaxHp = potionActive ? maxHp + 10 : maxHp;
     let mySkin = (currentSkin === 'custom') ? { outer: customOuter, inner: customInner } : (SKIN_COLORS[currentSkin] || SKIN_COLORS['blue']);
-    if (selectedUser && now - lastBroadcastTime > 50 && (dx !== 0 || dy !== 0)) {
+    
+    if (selectedUser && now - lastBroadcastTime > 30) {
         sendBroadcast('player_sync', { user: selectedUser, x: player.x, y: player.y, hp: playerHp, maxHp: currentMaxHp, gun: currentGun, skinOuter: mySkin.outer, skinInner: mySkin.inner });
         lastBroadcastTime = now;
     }
+    
     if (Math.random() < 0.012) spawnEnemy(); 
     if (Math.random() < 0.001 && chests.length < 5) spawnChest();
     bossSpawnTimer++; if (bossSpawnTimer >= 1800) { spawnBoss(); bossSpawnTimer = 0; }
@@ -900,7 +919,7 @@ function loop() {
         let playerTargetX = player.x, playerTargetY = player.y, minDist = distToLocal;
         for (let user in otherPlayers) { let op = otherPlayers[user]; let od = Math.hypot(op.x - e.x, op.y - e.y); if (od < minDist) { minDist = od; playerTargetX = op.x; playerTargetY = op.y; } }
         let edx = playerTargetX - e.x, edy = playerTargetY - e.y;
-        if (e.netTargetX !== undefined && e.owner !== selectedUser) { e.x += (e.netTargetX - e.x) * 0.2; e.y += (e.netTargetY - e.y) * 0.2; }
+        if (e.netTargetX !== undefined && e.owner !== selectedUser) { e.x += (e.netTargetX - e.x) * 0.4; e.y += (e.netTargetY - e.y) * 0.4; }
         else if (minDist > 0) { e.x += (edx / minDist) * e.speed; e.y += (edy / minDist) * e.speed; }
         if (distToLocal < (e.isBoss ? 30 : 20) && now - e.lastHitPlayer > 1000) {
             if (!shieldActive) playerHp--;
@@ -968,7 +987,9 @@ function loop() {
                     sendBroadcast('item_dropped', d1);
                     if (e.isBoss || Math.random() > 0.8) { let d2 = {id: genId(), x: e.x + 10, y: e.y, type: 'bandage'}; drops.push(d2); sendBroadcast('item_dropped', d2); }
                     enemies.splice(j, 1); 
-                } else { sendBroadcast('enemy_hit', { id: e.id, hp: e.hp }); }
+                } else { 
+                    sendBroadcast('enemy_hit', { id: e.id, damage: actualDamage }); 
+                }
                 if (b.damage <= 0) { bullets.splice(i, 1); break; }
             }
         }
@@ -992,8 +1013,8 @@ function loop() {
     for (let user in otherPlayers) {
         let op = otherPlayers[user];
         if (now - op.lastSeen > 3000) { delete otherPlayers[user]; continue; }
-        op.x += (op.targetX - op.x) * 0.2;
-        op.y += (op.targetY - op.y) * 0.2;
+        op.x += (op.targetX - op.x) * 0.4;
+        op.y += (op.targetY - op.y) * 0.4;
         let px = op.x - camX, py = op.y - camY;
         ctx.save(); ctx.translate(px + 12, py + 12);
         ctx.fillStyle = '#451a03'; ctx.fillRect(10, -4, 14, 8);
