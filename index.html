@@ -17,7 +17,7 @@
         #splash-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; background: #1e1e1e; color: white; z-index: 100; position: absolute; top: 0; left: 0; }
         .vscode-logo { filter: drop-shadow(0 0 10px #007acc); margin-bottom: 20px; }
         #menu-screen, #game-screen { display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
-        #menu-screen { background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect width="64" height="64" fill="%23166534"/><rect x="16" y="16" width="4" height="4" fill="%2315803d"/><rect x="48" y="32" width="4" height="4" fill="%2322c55e"/></svg>') repeat; }
+        #menu-screen { background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect width="64" height="64" fill="%23166534"/><rect x="16" y="16" width="4" height="4" fill="%2315803d"/><rect x="48" y="32" width="4" height="4" fill="%2322c55e"/></svg>') repeat; transition: background 1s ease-in-out; }
         .menu-top { position: absolute; top: 20px; width: 100%; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; padding: 0 20px; }
         .menu-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 100%; padding: 0 20px; }
         .menu-title { font-size: clamp(24px, 5vw, 40px); color: #facc15; text-shadow: 4px 4px 0px #713f12; margin-bottom: 20px; line-height: 1.5; }
@@ -92,7 +92,7 @@
 
 <div id="menu-screen">
     <div class="menu-top">
-        <button class="btn" onclick="showModal('skins-modal')">👕 Customization</button>
+        <button class="btn" onclick="showModal('skins-modal')">👕 Custom</button>
         <button class="btn" onclick="showModal('credits-modal')">Credits</button>
         <button class="btn" onclick="showLeaderboard()">🌍 Top 5</button>
         <button class="btn" onclick="window.close()">Exit</button>
@@ -106,20 +106,16 @@
         </div>
     </div>
     <div class="menu-center">
-        <h1 class="menu-title">Defence Evolution</h1>
         
-        <!-- Mode Toggle -->
         <div style="margin-bottom: 20px;">
             <button class="btn" id="mode-toggle-btn" onclick="toggleGameMode()" style="background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%); font-size: 14px; padding: 10px 20px;">🌍 MULTIPLAYER</button>
         </div>
         
-        <!-- Play / Continue Buttons -->
         <div style="display:flex; justify-content:center; gap:15px; flex-wrap:wrap; margin-bottom: 30px;">
             <button class="btn" style="font-size:clamp(16px, 3vw, 24px); padding:15px 30px;" onclick="checkRankThenPlay(false)">▶ NEW GAME</button>
             <button class="btn" style="font-size:clamp(16px, 3vw, 24px); padding:15px 30px; background: linear-gradient(180deg, #4ade80 0%, #16a34a 100%); border-color:#064e3b;" onclick="checkRankThenPlay(true)">💾 CONTINUE</button>
         </div>
         
-        <!-- YouTube Channel Link -->
         <div style="display:flex; justify-content:center;">
             <a href="https://www.youtube.com/@DefenceEvolutionOfficial" target="_blank" class="btn" style="background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%); border-color: #7f1d1d; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
@@ -133,7 +129,7 @@
 
 <div id="skins-modal" class="modal-overlay">
     <div class="modal-box yellow-ui">
-        <h2 class="modal-title">Customization</h2>
+        <h2 class="modal-title">Custom</h2>
         <p class="shop-msg" id="skin-menu-message"></p>
         <div style="display:flex; flex-direction:column; gap:10px; max-height: 50vh; overflow-y: auto; padding-right: 5px;">
             
@@ -233,6 +229,9 @@
                 <div class="game-dropdown-item" ontouchstart="event.preventDefault(); placeProp('wire')" onmousedown="placeProp('wire')">
                     <span>〰️ Wire</span> <span class="badge" id="drop-wire-count">0</span>
                 </div>
+                <div class="game-dropdown-item" ontouchstart="event.preventDefault(); placeProp('turret')" onmousedown="placeProp('turret')">
+                    <span>🔫 Turret</span> <span class="badge" id="drop-turret-count">0</span>
+                </div>
             </div>
         </div>
 
@@ -266,7 +265,6 @@
             <button class="btn" id="tab-props" onclick="switchShopTab('props')" style="flex:1;">🧱 PROPS</button>
         </div>
         <div id="section-guns">
-            <!-- Weapons List -->
             <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>D-Eagle</strong><br>8 dmg | Lvl <span id="deagle-lvl">0</span>/3<br>Cost: $<span id="deagle-cost">100</span></div><div class="shop-item-buttons"><button class="btn" id="btn-buy-deagle" onclick="buyGun('D-Eagle')">BUY</button><button class="btn" id="btn-upgrade-deagle" onclick="upgradeGun('D-Eagle')" style="display:none;">UPG</button></div></div>
             <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>AK47</strong><br>12 dmg | Lvl <span id="ak47-lvl">0</span>/3<br>Cost: $<span id="ak47-cost">500</span></div><div class="shop-item-buttons"><button class="btn" id="btn-buy-ak47" onclick="buyGun('AK47')">BUY</button><button class="btn" id="btn-upgrade-ak47" onclick="upgradeGun('AK47')" style="display:none;">UPG</button></div></div>
             <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>MP40</strong><br>9 dmg | Lvl <span id="mp40-lvl">0</span>/3<br>Cost: $<span id="mp40-cost">2800</span></div><div class="shop-item-buttons"><button class="btn" id="btn-buy-mp40" onclick="buyGun('MP40')">BUY</button><button class="btn" id="btn-upgrade-mp40" onclick="upgradeGun('MP40')" style="display:none;">UPG</button></div></div>
@@ -289,6 +287,7 @@
         <div id="section-props" style="display:none;">
             <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>🧱 Wall</strong><br>Cost: $11</div><div class="shop-item-buttons"><button class="btn" onclick="buyWall()">BUY</button></div></div>
             <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>🪢 Barbed Wire</strong><br>Cost: $11</div><div class="shop-item-buttons"><button class="btn" onclick="buyWire()">BUY</button></div></div>
+            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>🔫 Auto-Turret</strong><br>Invincible, 10 rds/sec<br>15s Placed Cooldown<br>Cost: $10000</div><div class="shop-item-buttons"><button class="btn" onclick="buyTurret()">BUY</button></div></div>
         </div>
     </div>
 </div>
@@ -423,10 +422,22 @@ async function updateUsernameDropdown() {
     if(usernames.length === 0) container.innerHTML = '<div class="dropdown-item" style="color:#854d0e;">No history yet</div>';
     else usernames.forEach(name => { const div = document.createElement('div'); div.className = 'dropdown-item'; div.onclick = () => selectUser(name); div.innerText = name; container.appendChild(div); });
 }
-
 function clearUsernameHistory() { localStorage.removeItem('global_username_history'); document.getElementById('username-history-items').innerHTML = '<div class="dropdown-item" style="color:#854d0e;">No history yet</div>'; document.getElementById('username-list').classList.remove('show'); }
 
 setTimeout(() => { document.getElementById('splash-screen').style.display = 'none'; document.getElementById('menu-screen').style.display = 'block'; updateUsernameDropdown(); }, 2500);
+
+const menuScreenEl = document.getElementById('menu-screen');
+const menuBackgrounds = [
+    `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect width="64" height="64" fill="%23fcd34d"/><rect x="16" y="16" width="4" height="4" fill="%23fbbf24"/><rect x="48" y="32" width="4" height="4" fill="%23d97706"/></svg>') repeat`, // Desert (Sand)
+    `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect width="64" height="64" fill="%23166534"/><rect x="16" y="16" width="4" height="4" fill="%2315803d"/><rect x="48" y="32" width="4" height="4" fill="%2322c55e"/></svg>') repeat`, // Forest (Green)
+    `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect width="64" height="64" fill="%231e293b"/><rect x="16" y="16" width="4" height="4" fill="%23334155"/><rect x="48" y="32" width="4" height="4" fill="%23ea580c"/></svg>') repeat` // Volcanic (Lava)
+];
+let currentMenuBg = 0;
+menuScreenEl.style.background = menuBackgrounds[0]; 
+setInterval(() => {
+    currentMenuBg = (currentMenuBg + 1) % menuBackgrounds.length;
+    menuScreenEl.style.background = menuBackgrounds[currentMenuBg];
+}, 5000);
 
 let selectedUser = "";
 function toggleUsername() { const list = document.getElementById('username-list'); list.classList.toggle('show'); if(list.classList.contains('show')) updateUsernameDropdown(); }
@@ -509,9 +520,11 @@ function equipPet(type) { currentPet = type; localStorage.setItem('savedPet', ty
 function equipCustomGun() { gunOuter = document.getElementById('gun-outer').value; gunInner = document.getElementById('gun-inner').value; localStorage.setItem('gunOuter', gunOuter); localStorage.setItem('gunInner', gunInner); notifySkin("Gun Skin Saved!"); }
 
 let money = 0, bandages = 0, kills = 0, score = 0, timeLived = 0, playerHp = 10, maxHp = 10;
-let currentAmmo = 12, spareMags = 3, isReloading = false, reloadEndTime = 0; let wallsCount = 0, wiresCount = 0;
+let currentAmmo = 12, spareMags = 3, isReloading = false, reloadEndTime = 0; 
+let wallsCount = 0, wiresCount = 0, turretsCount = 0, lastTurretPlaceTime = 0;
+let shieldActive = false, shieldEndTime = 0, shieldPrice = 100;
 const SKIN_COLORS = { 'blue': { outer: '#1d4ed8', inner: '#3b82f6' }, 'red': { outer: '#b91c1c', inner: '#ef4444' }, 'purple': { outer: '#6d28d9', inner: '#8b5cf6' }, 'orange': { outer: '#c2410c', inner: '#f97316' }, 'green': { outer: '#059669', inner: '#10b981' } };
-let currentGun = 'Pistol', gunDamage = 5, moneyMultiplier = 1, moneyBoostTimer = 0, potionTimer = 0, potionActive = false, bombPrice = 100, shieldActive = false, shieldTimer = 0, shieldPrice = 100, enemyTier = 1, minimapRadius = 400;
+let currentGun = 'Pistol', gunDamage = 5, moneyMultiplier = 1, moneyBoostTimer = 0, potionTimer = 0, potionActive = false, bombPrice = 100, enemyTier = 1, minimapRadius = 400;
 
 let gunStats = {
     'Pistol': {owned: true, level: 0, baseDamage: 5, baseCost: 0, fireRate: 1200, magSize: 12, reloadTime: 1200},
@@ -531,7 +544,43 @@ let gunStats = {
 let isPaused = false, gameLoopId, timeInterval;
 let player = {x: 0, y: 0, w: 24, h: 24, speed: 2.5, petX: 0, petY: 0}, camX = 0, camY = 0;
 let enemies = [], bullets = [], drops = [], chests = [], props = [], keys = {};
-let activeBombs = [], explosions = [];
+let activeBombs = [], explosions = [], obstacles = [];
+
+function generateObstacles() {
+    obstacles = [];
+    for(let i = 0; i < 40; i++) {
+        let isRock = Math.random() > 0.5;
+        obstacles.push({
+            x: Math.random() * MAP_SIZE * 2 - MAP_SIZE,
+            y: Math.random() * MAP_SIZE * 2 - MAP_SIZE,
+            w: isRock ? 32 : 48,
+            h: isRock ? 32 : 48,
+            type: isRock ? 'rock' : 'tree'
+        });
+    }
+}
+
+// Push entities (player/enemies) out of rocks/trees
+function resolveObstacleCollision(ent) {
+    for (let obs of obstacles) {
+        let entRight = ent.x + (ent.w || 24), entBottom = ent.y + (ent.h || 24);
+        let obsRight = obs.x + obs.w, obsBottom = obs.y + obs.h;
+
+        if (ent.x < obsRight && entRight > obs.x && ent.y < obsBottom && entBottom > obs.y) {
+            let overlapLeft = entRight - obs.x;
+            let overlapRight = obsRight - ent.x;
+            let overlapTop = entBottom - obs.y;
+            let overlapBottom = obsBottom - ent.y;
+            let min = Math.min(overlapLeft, overlapRight, overlapTop, overlapBottom);
+
+            if (min === overlapLeft) ent.x -= overlapLeft;
+            else if (min === overlapRight) ent.x += overlapRight;
+            else if (min === overlapTop) ent.y -= overlapTop;
+            else if (min === overlapBottom) ent.y += overlapBottom;
+        }
+    }
+}
+
 let joyX = 0, joyY = 0, isDragging = false, lastShot = 0, bossSpawnTimer = 0; let lastEnemySync = 0; 
 
 // Dynamic Biome Shifting Variables
@@ -547,7 +596,6 @@ function saveUISettings() { minimapPosition = document.getElementById('minimap-p
 function getEnemyHealthMultiplier() { let totalUpgrades = 0; for (let gun in gunStats) if (gunStats[gun].owned) totalUpgrades += gunStats[gun].level; enemyTier = 1 + Math.floor(totalUpgrades / 2); return 1 + (enemyTier - 1) * 0.5; }
 function getFireRate() { return gunStats[currentGun]?.fireRate || 1200; }
 
-// Procedural Shading Canvas Textures
 function createPixelTexture(type, config) {
     let tc = document.createElement('canvas'); tc.width = 32; tc.height = 32; let tctx = tc.getContext('2d');
     const px = (x,y,w,h,c) => { tctx.fillStyle = c; tctx.fillRect(x,y,w,h); };
@@ -584,11 +632,14 @@ const texPetDog = createPixelTexture('pet','dog'), texPetCat = createPixelTextur
 const PET_TEXTURES = { 'dog': texPetDog, 'cat': texPetCat, 'robot': texPetRobot };
 
 const MAP_SIZE = 2048; let bgPatterns = []; let biomesGenerated = false;
+
+// 0: Desert, 1: Forest, 2: Volcanic (Cycle order requested)
 function generateBiomes() {
     if (biomesGenerated) return; bgPatterns = [];
     let biomesSetup = [
-        { base: texGrass, patch: texDirt, pond: texWater, pondBorder: '#4d7c0f' }, { base: texSand, patch: texDirt, pond: texWater, pondBorder: '#b45309' },
-        { base: texSnow, patch: texRock, pond: texIce, pondBorder: '#94a3b8' }, { base: texRock, patch: texDirt, pond: texLava, pondBorder: '#450a0a' }
+        { base: texSand, patch: texDirt, pond: texWater, pondBorder: '#b45309' }, // Desert
+        { base: texGrass, patch: texDirt, pond: texWater, pondBorder: '#4d7c0f' }, // Forest
+        { base: texRock, patch: texDirt, pond: texLava, pondBorder: '#450a0a' } // Volcanic
     ];
     biomesSetup.forEach(b => {
         let bc = document.createElement('canvas'); bc.width = MAP_SIZE; bc.height = MAP_SIZE; let bx = bc.getContext('2d');
@@ -600,15 +651,14 @@ function generateBiomes() {
     }); biomesGenerated = true;
 }
 
-// SAVE & LOAD SYSTEM
 function saveGame() {
-    const gameState = { playerX: player.x, playerY: player.y, money, bandages, kills, score, timeLived, playerHp, maxHp, currentGun, spareMags, currentAmmo, wallsCount, wiresCount, moneyMultiplier, moneyBoostTimer, potionTimer, potionActive, shieldActive, shieldTimer, shieldPrice, enemyTier, bombPrice, gunStats, currentBiome };
+    const gameState = { playerX: player.x, playerY: player.y, money, bandages, kills, score, timeLived, playerHp, maxHp, currentGun, spareMags, currentAmmo, wallsCount, wiresCount, turretsCount, moneyMultiplier, moneyBoostTimer, potionTimer, potionActive, shieldActive, shieldEndTime, shieldPrice, enemyTier, bombPrice, gunStats, currentBiome };
     localStorage.setItem('defence_save_' + selectedUser, JSON.stringify(gameState)); alert('Game Session Saved Successfully!');
 }
 function loadGame() {
     const saved = localStorage.getItem('defence_save_' + selectedUser);
     if (saved) {
-        const s = JSON.parse(saved); player.x = s.playerX || 0; player.y = s.playerY || 0; player.petX = player.x; player.petY = player.y; money = s.money || 0; bandages = s.bandages || 0; kills = s.kills || 0; score = s.score || 0; timeLived = s.timeLived || 0; playerHp = s.playerHp || 10; maxHp = s.maxHp || 10; currentGun = s.currentGun || 'Pistol'; spareMags = s.spareMags || 3; currentAmmo = s.currentAmmo || 12; wallsCount = s.wallsCount || 0; wiresCount = s.wiresCount || 0; moneyMultiplier = s.moneyMultiplier || 1; moneyBoostTimer = s.moneyBoostTimer || 0; potionTimer = s.potionTimer || 0; potionActive = s.potionActive || false; shieldActive = s.shieldActive || false; shieldTimer = s.shieldTimer || 0; shieldPrice = s.shieldPrice || 100; enemyTier = s.enemyTier || 1; bombPrice = s.bombPrice || 100; currentBiome = s.currentBiome || 0; isBiomeTransitioning = false; if(s.gunStats) gunStats = s.gunStats;
+        const s = JSON.parse(saved); player.x = s.playerX || 0; player.y = s.playerY || 0; player.petX = player.x; player.petY = player.y; money = s.money || 0; bandages = s.bandages || 0; kills = s.kills || 0; score = s.score || 0; timeLived = s.timeLived || 0; playerHp = s.playerHp || 10; maxHp = s.maxHp || 10; currentGun = s.currentGun || 'Pistol'; spareMags = s.spareMags || 3; currentAmmo = s.currentAmmo || 12; wallsCount = s.wallsCount || 0; wiresCount = s.wiresCount || 0; turretsCount = s.turretsCount || 0; moneyMultiplier = s.moneyMultiplier || 1; moneyBoostTimer = s.moneyBoostTimer || 0; potionTimer = s.potionTimer || 0; potionActive = s.potionActive || false; shieldActive = s.shieldActive || false; shieldEndTime = s.shieldEndTime || 0; shieldPrice = s.shieldPrice || 100; enemyTier = s.enemyTier || 1; bombPrice = s.bombPrice || 100; currentBiome = s.currentBiome || 0; isBiomeTransitioning = false; if(s.gunStats) gunStats = s.gunStats;
         return true;
     } return false;
 }
@@ -617,15 +667,15 @@ function restartGame(isContinue = false) {
     hideModal('settings-modal'); hideModal('gameover-modal'); hideModal('shop-modal'); hideModal('skins-modal'); generateBiomes();
     let loaded = false; if (isContinue) { loaded = loadGame(); if(!loaded) alert("No saved game found! Starting a new game instead."); }
     if (!loaded) {
-        money = 0; bandages = 0; kills = 0; score = 0; timeLived = 0; playerHp = maxHp; currentGun = 'Pistol'; gunDamage = 5; bombPrice = 100; enemyTier = 1; spareMags = 3; currentAmmo = 12; isReloading = false; reloadEndTime = 0; wallsCount = 0; wiresCount = 0; moneyMultiplier = 1; moneyBoostTimer = 0; potionTimer = 0; potionActive = false; shieldActive = false; shieldTimer = 0; shieldPrice = 100;
+        money = 999999; bandages = 0; kills = 0; score = 0; timeLived = 0; playerHp = maxHp; currentGun = 'Pistol'; gunDamage = 5; bombPrice = 100; enemyTier = 1; spareMags = 3; currentAmmo = 12; isReloading = false; reloadEndTime = 0; wallsCount = 0; wiresCount = 0; turretsCount = 0; moneyMultiplier = 1; moneyBoostTimer = 0; potionTimer = 0; potionActive = false; shieldActive = false; shieldEndTime = 0; shieldPrice = 100;
         gunStats = { 'Pistol': {owned: true, level: 0, baseDamage: 5, baseCost: 0, fireRate: 1200, magSize: 12, reloadTime: 1200}, 'D-Eagle': {owned: false, level: 0, baseDamage: 8, baseCost: 100, fireRate: 1200, magSize: 12, reloadTime: 1500}, 'AK47': {owned: false, level: 0, baseDamage: 12, baseCost: 500, fireRate: 400, magSize: 40, reloadTime: 2000}, 'Shortgun': {owned: false, level: 0, baseDamage: 18, baseCost: 1000, fireRate: 1200, magSize: 4, reloadTime: 2500}, 'AWM': {owned: false, level: 0, baseDamage: 30, baseCost: 2000, fireRate: 2500, magSize: 4, reloadTime: 3000}, 'Machine Gun': {owned: false, level: 0, baseDamage: 8, baseCost: 5000, fireRate: 150, magSize: 100, reloadTime: 3000}, 'S12K': {owned: false, level: 0, baseDamage: 12, baseCost: 1500, fireRate: 600, magSize: 8, reloadTime: 2000}, 'M24': {owned: false, level: 0, baseDamage: 50, baseCost: 1800, fireRate: 2000, magSize: 5, reloadTime: 2500}, 'P90': {owned: false, level: 0, baseDamage: 7, baseCost: 3500, fireRate: 100, magSize: 50, reloadTime: 2500}, 'MP40': {owned: false, level: 0, baseDamage: 9, baseCost: 2800, fireRate: 180, magSize: 32, reloadTime: 2000}, 'RPG': {owned: false, level: 0, baseDamage: 100, baseCost: 8000, fireRate: 3000, magSize: 1, reloadTime: 3500}, 'S1887': {owned: false, level: 0, baseDamage: 25, baseCost: 2500, fireRate: 1500, magSize: 2, reloadTime: 1500} };
-        player.x = 0; player.y = 0; player.petX = 0; player.petY = 0; currentBiome = 0; isBiomeTransitioning = false;
+        player.x = 0; player.y = 0; player.petX = 0; player.petY = 0; currentBiome = 0; isBiomeTransitioning = false; lastTurretPlaceTime = 0;
     }
     let currentGunData = gunStats[currentGun]; gunDamage = currentGunData.baseDamage + (currentGunData.level * 3);
     updateShopUI(); updateHUD(); document.getElementById('shield-cost-display').innerText = shieldPrice;
-    camX = 0; camY = 0; enemies = []; bullets = []; drops = []; chests = []; props = []; activeBombs = []; explosions = []; isPaused = false; bossSpawnTimer = 0;
+    camX = 0; camY = 0; enemies = []; bullets = []; drops = []; chests = []; props = []; activeBombs = []; explosions = []; isPaused = false; bossSpawnTimer = 0; generateObstacles();
     continuousMoveStartTime = Date.now();
-    clearInterval(timeInterval); timeInterval = setInterval(() => { if (!isPaused) { timeLived++; if (moneyBoostTimer > 0) { moneyBoostTimer--; if (moneyBoostTimer <= 0) moneyMultiplier = 1; } if (potionTimer > 0) { potionTimer--; if (potionTimer <= 0) { potionActive = false; if (playerHp > maxHp) playerHp = maxHp; } } if (shieldTimer > 0) { shieldTimer--; if (shieldTimer <= 0) shieldActive = false; } updateHUD(); } }, 1000);
+    clearInterval(timeInterval); timeInterval = setInterval(() => { if (!isPaused) { timeLived++; if (moneyBoostTimer > 0) { moneyBoostTimer--; if (moneyBoostTimer <= 0) moneyMultiplier = 1; } if (potionTimer > 0) { potionTimer--; if (potionTimer <= 0) { potionActive = false; if (playerHp > maxHp) playerHp = maxHp; } } updateHUD(); } }, 1000);
     lastShot = Date.now(); lastEnemySync = Date.now(); if (gameLoopId) cancelAnimationFrame(gameLoopId); loop();
 }
 
@@ -633,15 +683,36 @@ function exitToMenu() { isPaused = true; clearInterval(timeInterval); hideModal(
 function updateBombButton() { document.getElementById('bomb-price-badge').innerText = '$' + bombPrice; let btn = document.getElementById('bomb-circle-btn'); btn.disabled = (money < bombPrice); btn.style.opacity = (money < bombPrice) ? '0.6' : '1'; }
 function updateHUD() { 
     document.getElementById('ui-money').innerText = money; document.getElementById('ui-score').innerText = score; document.getElementById('ui-time').innerText = timeLived; 
-    let dropHeal = document.getElementById('drop-heal-count'); if(dropHeal) dropHeal.innerText = bandages; let dropWall = document.getElementById('drop-wall-count'); if(dropWall) dropWall.innerText = wallsCount; let dropWire = document.getElementById('drop-wire-count'); if(dropWire) dropWire.innerText = wiresCount;
+    let dropHeal = document.getElementById('drop-heal-count'); if(dropHeal) dropHeal.innerText = bandages; let dropWall = document.getElementById('drop-wall-count'); if(dropWall) dropWall.innerText = wallsCount; 
+    let dropWire = document.getElementById('drop-wire-count'); if(dropWire) dropWire.innerText = wiresCount; let dropTurret = document.getElementById('drop-turret-count'); if(dropTurret) dropTurret.innerText = turretsCount;
     let gunText = currentGun; if (isReloading) gunText += " (RELOADING...)"; else if (currentAmmo === 0 && spareMags === 0) gunText += " (EMPTY!)"; else gunText += " (" + currentAmmo + "/" + gunStats[currentGun].magSize + ")"; document.getElementById('ui-gun').innerText = gunText; 
     let magEl = document.getElementById('ui-mags'); if(magEl) magEl.innerText = spareMags;
-    let powerupText = ''; if (moneyBoostTimer > 0) powerupText += '💰2x ' + moneyBoostTimer + 's '; if (potionActive) powerupText += '🧪+ ' + potionTimer + 's '; if (shieldActive) powerupText += '🛡️ ' + shieldTimer + 's '; document.getElementById('ui-powerups').innerText = powerupText; updateBombButton(); document.getElementById('shield-cost-display').innerText = shieldPrice; let shieldBtn = document.getElementById('btn-buy-shield'); if (shieldBtn) { shieldBtn.disabled = (money < shieldPrice || shieldActive); shieldBtn.style.opacity = (money < shieldPrice || shieldActive) ? '0.6' : '1'; } 
+    let displayShieldTimer = shieldActive ? Math.ceil((shieldEndTime - Date.now()) / 1000) : 0;
+    let powerupText = ''; if (moneyBoostTimer > 0) powerupText += '💰2x ' + moneyBoostTimer + 's '; if (potionActive) powerupText += '🧪+ ' + potionTimer + 's '; if (shieldActive && displayShieldTimer > 0) powerupText += '🛡️ ' + displayShieldTimer + 's '; document.getElementById('ui-powerups').innerText = powerupText; updateBombButton(); document.getElementById('shield-cost-display').innerText = shieldPrice; let shieldBtn = document.getElementById('btn-buy-shield'); if (shieldBtn) { shieldBtn.disabled = (money < shieldPrice || shieldActive); shieldBtn.style.opacity = (money < shieldPrice || shieldActive) ? '0.6' : '1'; } 
 }
 function openSettings() { isPaused = true; showModal('settings-modal'); } function resumeGame(id) { hideModal(id); if (id === 'shop-modal' || id === 'settings-modal') isPaused = false; } function goToShop() { isPaused = true; showModal('shop-modal'); updateShopUI(); document.getElementById('shop-message').innerText = ""; switchShopTab('guns'); }
-function buyMagazine() { if (money >= 70) { money -= 70; spareMags++; updateHUD(); document.getElementById('shop-message').innerText = "Purchased Spare Magazine!"; document.getElementById('shop-message').style.color = "#16a34a"; } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } } function buyBandages() { if (money >= 150) { money -= 150; bandages += 3; updateHUD(); document.getElementById('shop-message').innerText = "Purchased 3 Bandages!"; document.getElementById('shop-message').style.color = "#16a34a"; } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } } function buyPotion() { if (money >= 500) { money -= 500; potionActive = true; potionTimer = 90; playerHp = maxHp + 10; document.getElementById('shop-message').innerText = "Fully healed! +10 HP for 90s!"; document.getElementById('shop-message').style.color = "#16a34a"; updateHUD(); } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } } function buyShield() { if (money >= shieldPrice && !shieldActive) { money -= shieldPrice; shieldActive = true; shieldTimer = 10; shieldPrice = Math.min(shieldPrice * 2, 1600); document.getElementById('shop-message').innerText = "Shield activated! 10s invincibility."; document.getElementById('shop-message').style.color = "#16a34a"; updateHUD(); } else if (shieldActive) { document.getElementById('shop-message').innerText = "Shield already active!"; document.getElementById('shop-message').style.color = "#dc2626"; } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } } function buyMoneyBoost() { if (money >= 1000) { money -= 1000; moneyMultiplier = 2; moneyBoostTimer = 90; document.getElementById('shop-message').innerText = "2x Money for 90s!"; document.getElementById('shop-message').style.color = "#16a34a"; updateHUD(); } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } } function useBandage() { if (bandages > 0 && playerHp < maxHp) { bandages--; playerHp = Math.min(maxHp, playerHp + 2); updateHUD(); } } function buyWall() { if (money >= 11) { money -= 11; wallsCount++; updateHUD(); document.getElementById('shop-message').innerText = "Purchased Wall!"; document.getElementById('shop-message').style.color = "#16a34a"; } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } } function buyWire() { if (money >= 11) { money -= 11; wiresCount++; updateHUD(); document.getElementById('shop-message').innerText = "Purchased Barbed Wire!"; document.getElementById('shop-message').style.color = "#16a34a"; } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } }
+function buyMagazine() { if (money >= 70) { money -= 70; spareMags++; updateHUD(); document.getElementById('shop-message').innerText = "Purchased Spare Magazine!"; document.getElementById('shop-message').style.color = "#16a34a"; } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } } function buyBandages() { if (money >= 150) { money -= 150; bandages += 3; updateHUD(); document.getElementById('shop-message').innerText = "Purchased 3 Bandages!"; document.getElementById('shop-message').style.color = "#16a34a"; } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } } function buyPotion() { if (money >= 500) { money -= 500; potionActive = true; potionTimer = 90; playerHp = maxHp + 10; document.getElementById('shop-message').innerText = "Fully healed! +10 HP for 90s!"; document.getElementById('shop-message').style.color = "#16a34a"; updateHUD(); } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } } 
+function buyShield() { if (money >= shieldPrice && !shieldActive) { money -= shieldPrice; shieldActive = true; shieldEndTime = Date.now() + 10000; shieldPrice = Math.min(shieldPrice * 2, 1600); document.getElementById('shop-message').innerText = "Shield activated! 10s invincibility."; document.getElementById('shop-message').style.color = "#16a34a"; updateHUD(); } else if (shieldActive) { document.getElementById('shop-message').innerText = "Shield already active!"; document.getElementById('shop-message').style.color = "#dc2626"; } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } } 
+function buyMoneyBoost() { if (money >= 1000) { money -= 1000; moneyMultiplier = 2; moneyBoostTimer = 90; document.getElementById('shop-message').innerText = "2x Money for 90s!"; document.getElementById('shop-message').style.color = "#16a34a"; updateHUD(); } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } } function useBandage() { if (bandages > 0 && playerHp < maxHp) { bandages--; playerHp = Math.min(maxHp, playerHp + 2); updateHUD(); } } function buyWall() { if (money >= 11) { money -= 11; wallsCount++; updateHUD(); document.getElementById('shop-message').innerText = "Purchased Wall!"; document.getElementById('shop-message').style.color = "#16a34a"; } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } } function buyWire() { if (money >= 11) { money -= 11; wiresCount++; updateHUD(); document.getElementById('shop-message').innerText = "Purchased Barbed Wire!"; document.getElementById('shop-message').style.color = "#16a34a"; } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } }
+function buyTurret() { if (money >= 10000) { money -= 10000; turretsCount++; updateHUD(); document.getElementById('shop-message').innerText = "Purchased Auto-Turret!"; document.getElementById('shop-message').style.color = "#16a34a"; } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } }
 
-function placeProp(type) { if (type === 'wall' && wallsCount > 0) { wallsCount--; } else if (type === 'wire' && wiresCount > 0) { wiresCount--; } else return; let p = { id: genId(), type: type, x: player.x, y: player.y, w: 32, h: 32, hp: 100, maxHp: 100, lastHit: 0 }; props.push(p); sendBroadcast('prop_spawn', p); updateHUD(); }
+function placeProp(type) { 
+    let now = Date.now();
+    if (type === 'wall' && wallsCount > 0) { wallsCount--; } 
+    else if (type === 'wire' && wiresCount > 0) { wiresCount--; } 
+    else if (type === 'turret' && turretsCount > 0) {
+        if (now - lastTurretPlaceTime < 15000) {
+            let wait = Math.ceil((15000 - (now - lastTurretPlaceTime)) / 1000);
+            addChatMessage('System', `Turret cooldown! Wait ${wait}s`);
+            return;
+        }
+        turretsCount--; lastTurretPlaceTime = now;
+    } else return; 
+    
+    let p = { id: genId(), type: type, x: player.x, y: player.y, w: 32, h: 32, hp: 100, maxHp: 100, lastHit: 0 }; 
+    if (type === 'turret') { p.hp = 999999; p.maxHp = 999999; p.isInvincible = true; p.lastShot = 0; }
+    props.push(p); sendBroadcast('prop_spawn', p); updateHUD(); 
+}
 function reloadGun() { if (isReloading || currentAmmo === gunStats[currentGun].magSize) return; if (spareMags > 0) { isReloading = true; spareMags--; reloadEndTime = Date.now() + gunStats[currentGun].reloadTime; updateHUD(); } }
 
 function useBomb() { 
@@ -715,7 +786,10 @@ function drawMinimap() {
 function loop() {
     if (isPaused) { gameLoopId = requestAnimationFrame(loop); return; }
     let now = Date.now(); camX = player.x - CW/2; camY = player.y - CH/2;
+    
+    if (shieldActive && now > shieldEndTime) { shieldActive = false; updateHUD(); }
     if (isReloading && now >= reloadEndTime) { isReloading = false; currentAmmo = gunStats[currentGun].magSize; updateHUD(); }
+    
     ctx.clearRect(0, 0, CW, CH);
     
     let currentDx = 0, currentDy = 0;
@@ -723,6 +797,7 @@ function loop() {
     if (isDragging) { currentDx = joyX; currentDy = joyY; }
     let md = Math.hypot(currentDx, currentDy); 
     if (md > 0) { currentDx /= md; currentDy /= md; player.x += currentDx * player.speed; player.y += currentDy * player.speed; }
+    resolveObstacleCollision(player); // Prevent player from walking through rocks/trees
     
     if (md > 0.1) {
         let dirChange = Math.hypot(currentDx - moveDirX, currentDy - moveDirY);
@@ -769,14 +844,20 @@ function loop() {
         lastEnemySync = now;
     }
     
-    // THROWABLE BOMBS RENDER
+    // THROWABLE BOMBS RENDER WITH RADIUS
     for (let i = activeBombs.length - 1; i >= 0; i--) {
         let b = activeBombs[i];
         b.x += b.vx; b.y += b.vy; b.vx *= 0.95; b.vy *= 0.95;
         b.timer--;
+        
+        ctx.beginPath(); ctx.arc(b.x - camX, b.y - camY, 200, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(239, 68, 68, 0.1)'; ctx.fill();
+        ctx.strokeStyle = 'rgba(239, 68, 68, 0.5)'; ctx.setLineDash([5, 5]); ctx.stroke(); ctx.setLineDash([]);
+        
         ctx.fillStyle = (b.timer % 10 < 5) ? '#dc2626' : '#000';
         ctx.beginPath(); ctx.arc(b.x - camX, b.y - camY, 6, 0, Math.PI*2); ctx.fill();
         ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke();
+        
         if (b.timer <= 0) {
             let bombScore = 0;
             for (let j = enemies.length - 1; j >= 0; j--) {
@@ -794,11 +875,70 @@ function loop() {
         }
     }
     
+    // RENDER ROCKS AND TREES
+    for (let obs of obstacles) {
+        let px = obs.x - camX, py = obs.y - camY;
+        if (px < -100 || px > CW + 100 || py < -100 || py > CH + 100) continue; // Skip off-screen rendering
+        if (obs.type === 'rock') {
+            ctx.drawImage(texRock, px, py, obs.w, obs.h);
+        } else {
+            ctx.fillStyle = '#451a03'; // Tree trunk
+            ctx.fillRect(px + obs.w/2 - 6, py + obs.h/2, 12, obs.h/2);
+            ctx.fillStyle = '#14532d'; // Tree leaves
+            ctx.beginPath(); ctx.arc(px + obs.w/2, py + obs.h/2 - 10, obs.w/2, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle = '#064e3b'; ctx.lineWidth = 3; ctx.stroke();
+        }
+    }
+
+    // THEMATIC PROPS AND TURRETS RENDER
+    let wallColors = [
+        ['#b45309', '#d97706', '#78350f'], // Desert: Sandstone
+        ['#451a03', '#78350f', '#290f02'], // Forest: Wood logs
+        ['#1c1917', '#334155', '#0f172a']  // Volcanic: Dark stone
+    ];
+    let wc = wallColors[currentBiome] || wallColors[0];
+
     for (let p of props) {
         let px = p.x - camX, py = p.y - camY;
-        if (p.type === 'wall') { ctx.fillStyle = '#78350f'; ctx.fillRect(px, py, p.w, p.h); ctx.fillStyle = '#92400e'; ctx.fillRect(px+2, py+2, p.w-4, p.h-4); ctx.fillStyle = '#451a03'; for(let by=4; by<p.h-2; by+=8) { ctx.fillRect(px+2, py+by, p.w-4, 2); let offset = (by/8)%2 === 0 ? 0 : 8; for(let bx=4+offset; bx<p.w-2; bx+=16) { ctx.fillRect(px+bx, py+by-6, 2, 8); } } } 
-        else { ctx.fillStyle = '#475569'; ctx.fillRect(px, py, p.w, p.h); ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2; ctx.beginPath(); for(let i=0; i<4; i++) { ctx.arc(px + 8 + i*5, py + 8 + i*5, 6, 0, Math.PI*2); ctx.arc(px + 24 - i*5, py + 8 + i*5, 6, 0, Math.PI*2); } ctx.stroke(); }
-        let bw = 24, bh = 4, bx = px + p.w/2 - bw/2, by = py - 6; ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(bx, by, bw, bh); ctx.fillStyle = '#3b82f6'; ctx.fillRect(bx, by, bw * (p.hp/p.maxHp), bh);
+        if (p.type === 'turret') {
+            ctx.fillStyle = '#1e293b'; ctx.fillRect(px, py, p.w, p.h);
+            ctx.strokeStyle = '#475569'; ctx.lineWidth=2; ctx.strokeRect(px, py, p.w, p.h);
+            
+            let nearestE = null, minDistE = 300;
+            for (let e of enemies) {
+                let d = Math.hypot((p.x+16) - e.x, (p.y+16) - e.y);
+                if (d < minDistE) { minDistE = d; nearestE = e; }
+            }
+            if (nearestE && now - (p.lastShot || 0) >= 100) {
+                p.lastShot = now;
+                let angle = Math.atan2(nearestE.y - (p.y+16), nearestE.x - (p.x+16));
+                bullets.push({x: p.x+16, y: p.y+16, vx: Math.cos(angle)*12, vy: Math.sin(angle)*12, r: 2, damage: 10, hitEnemies: [], isRPG: false});
+            }
+            
+            ctx.save(); ctx.translate(px+16, py+16);
+            if (nearestE) ctx.rotate(Math.atan2(nearestE.y - (p.y+16), nearestE.x - (p.x+16)));
+            ctx.fillStyle = '#94a3b8'; ctx.fillRect(0, -4, 22, 8);
+            ctx.restore();
+            
+            ctx.beginPath(); ctx.arc(px+16, py+16, 300, 0, Math.PI*2);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)'; ctx.stroke();
+            
+        } else if (p.type === 'wall') { 
+            ctx.fillStyle = wc[0]; ctx.fillRect(px, py, p.w, p.h); 
+            ctx.fillStyle = wc[1]; ctx.fillRect(px+2, py+2, p.w-4, p.h-4); 
+            ctx.fillStyle = wc[2]; 
+            for(let by=4; by<p.h-2; by+=8) { 
+                ctx.fillRect(px+2, py+by, p.w-4, 2); 
+                let offset = (by/8)%2 === 0 ? 0 : 8; 
+                for(let bx=4+offset; bx<p.w-2; bx+=16) { ctx.fillRect(px+bx, py+by-6, 2, 8); } 
+            } 
+        } else { 
+            ctx.fillStyle = '#475569'; ctx.fillRect(px, py, p.w, p.h); ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2; ctx.beginPath(); for(let i=0; i<4; i++) { ctx.arc(px + 8 + i*5, py + 8 + i*5, 6, 0, Math.PI*2); ctx.arc(px + 24 - i*5, py + 8 + i*5, 6, 0, Math.PI*2); } ctx.stroke(); 
+        }
+        
+        if (!p.isInvincible) {
+            let bw = 24, bh = 4, bx = px + p.w/2 - bw/2, by = py - 6; ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(bx, by, bw, bh); ctx.fillStyle = '#3b82f6'; ctx.fillRect(bx, by, bw * (p.hp/p.maxHp), bh);
+        }
     }
     
     let nearestLocal = null, minLocalDist = Infinity;
@@ -811,7 +951,7 @@ function loop() {
         for (let p of props) { if (e.x < p.x + p.w && e.x + e.w > p.x && e.y < p.y + p.h && e.y + e.h > p.y) { collidedProp = p; break; } }
         if (collidedProp) {
             e.x -= (edx / minDist) * e.speed; e.y -= (edy / minDist) * e.speed;
-            if (now - (collidedProp.lastHit || 0) > 500) {
+            if (!collidedProp.isInvincible && now - (collidedProp.lastHit || 0) > 500) {
                 collidedProp.hp -= 10; collidedProp.lastHit = now;
                 if (collidedProp.type === 'wire') {
                     e.hp -= 2;
@@ -823,6 +963,7 @@ function loop() {
         } else {
             if (e.netTargetX !== undefined && e.owner !== selectedUser && isMultiplayer) { e.x += (e.netTargetX - e.x) * 0.4; e.y += (e.netTargetY - e.y) * 0.4; } else if (minDist > 0) { e.x += (edx / minDist) * e.speed; e.y += (edy / minDist) * e.speed; }
         }
+        resolveObstacleCollision(e); // Prevent enemies from walking through rocks/trees
         if (distToLocal < (e.isBoss ? 30 : 20) && now - e.lastHitPlayer > 1000) {
             if (!shieldActive) playerHp--; e.lastHitPlayer = now; updateHUD();
             if (playerHp <= 0) { isPaused = true; document.getElementById('go-player').innerText = selectedUser; document.getElementById('go-score').innerText = score; document.getElementById('go-time').innerText = timeLived; document.getElementById('go-kills').innerText = kills; isNewGlobalHighScore(score).then(isHigh => { if (isHigh) { addGlobalHighScore(selectedUser, score, timeLived, kills); document.getElementById('go-highscore-msg').innerText = "🏆 NEW GLOBAL HIGH SCORE! 🏆"; } else document.getElementById('go-highscore-msg').innerText = ""; }); showModal('gameover-modal'); return; }
@@ -856,6 +997,13 @@ function loop() {
     // HITBOX ANALYSIS
     for (let i = bullets.length - 1; i >= 0; i--) {
         let b = bullets[i]; b.x += b.vx; b.y += b.vy; ctx.fillStyle = b.isRPG ? '#dc2626' : '#000'; ctx.fillRect(b.x - camX, b.y - camY, b.r*2, b.r*2); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.strokeRect(b.x - camX, b.y - camY, b.r*2, b.r*2);
+        
+        if (b.isRPG) {
+            ctx.beginPath(); ctx.arc(b.x - camX, b.y - camY, 120, 0, Math.PI*2);
+            ctx.fillStyle = 'rgba(239, 68, 68, 0.05)'; ctx.fill();
+            ctx.strokeStyle = 'rgba(239, 68, 68, 0.2)'; ctx.lineWidth=1; ctx.stroke();
+        }
+
         if (Math.hypot(player.x - b.x, player.y - b.y) > 1500) { bullets.splice(i, 1); continue; }
         
         let hitSomething = false;
@@ -945,6 +1093,15 @@ function loop() {
     ctx.fillStyle = mySkin.inner; ctx.beginPath(); ctx.arc(0, 0, 8, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 1; ctx.stroke(); 
     ctx.fillStyle = mySkin.inner; ctx.beginPath(); ctx.arc(8, 6, 4, 0, Math.PI*2); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.arc(12, -4, 4, 0, Math.PI*2); ctx.fill(); ctx.stroke(); ctx.restore();
     
+    // Local Player Shield Radius Animation
+    if (shieldActive) {
+        let timeLeft = shieldEndTime - now;
+        let r = 16 + (timeLeft / 10000) * 40; 
+        ctx.beginPath(); ctx.arc(psx, psy, r, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.3)'; ctx.fill();
+        ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2; ctx.stroke();
+    }
+
     let bw = 30, bh = 6, bx = psx - bw/2, by = psy - 25, hp = playerHp / currentMaxHp; ctx.fillStyle = '#422006'; ctx.fillRect(bx, by, bw, bh); ctx.fillStyle = hp > 0.5 ? '#22c55e' : hp > 0.25 ? '#eab308' : '#dc2626'; ctx.fillRect(bx, by, bw * hp, bh); ctx.strokeStyle = '#000'; ctx.lineWidth = 1; ctx.strokeRect(bx, by, bw, bh); ctx.fillStyle = '#fff'; ctx.font = '8px "Press Start 2P"'; ctx.textAlign = 'center'; ctx.fillText(playerHp + '/' + currentMaxHp, psx, by - 2); ctx.font = '10px "Press Start 2P"'; ctx.fillText(selectedUser || 'Player', psx, by - 16); let myRankInfo = getPlayerRankInfo(selectedUser); ctx.fillStyle = myRankInfo.color; ctx.font = '12px "Press Start 2P"'; ctx.textAlign = 'center'; ctx.fillText(myRankInfo.text, psx, by - 32);
     
     drawMinimap(); gameLoopId = requestAnimationFrame(loop);
