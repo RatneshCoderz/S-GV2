@@ -119,23 +119,10 @@
         .circle-btn .badge { top: -4px; right: -4px; background: #dc2626; color: white; border-color: #451a03; }
         .circle-btn .mag-count { top: -4px; right: -4px; background: #000; color: #facc15; border-color: #451a03; }
 
-        /* MIC / VOICE CHAT */
-        #mic-circle-btn.mic-off { background: linear-gradient(180deg, #6b7280 0%, #374151 100%); filter: grayscale(60%); }
-        #mic-circle-btn.mic-speaking { box-shadow: 0 0 0 4px rgba(74,222,128,0.55), inset -2px -2px 0px rgba(0,0,0,0.3), inset 2px 2px 0px rgba(255,255,255,0.4); animation: micPulse 0.7s ease-in-out infinite; }
-        @keyframes micPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
-        .voice-status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px; }
-        .voice-status-dot.on { background: #4ade80; box-shadow: 0 0 6px #4ade80; }
-        .voice-status-dot.off { background: #dc2626; box-shadow: 0 0 6px #dc2626; }
-        .voice-volume-row { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
-        .voice-volume-row input[type="range"] { flex: 1; accent-color: #d97706; }
-        
         .settings-btn { background: none; border: none; font-size: clamp(20px, 5vw, 24px); cursor: pointer; padding: 5px; filter: drop-shadow(2px 2px 0px #451a03); }
         .leaderboard-list { list-style: none; padding: 0; font-size: clamp(8px, 2.5vw, 10px); line-height: 2; }
         .leaderboard-list li { padding: 8px; border-bottom: 2px solid #854d0e; background: rgba(0,0,0,0.1); margin-bottom: 4px; }
         
-        #chat-container { position: absolute; bottom: clamp(60px, 15vh, 100px); left: clamp(140px, 35vw, 160px); width: clamp(150px, 40vw, 300px); height: clamp(80px, 20vh, 150px); display: flex; flex-direction: column; z-index: 20; pointer-events: none; }
-        #chat-messages { flex: 1; overflow-y: auto; color: white; font-size: clamp(8px, 2vw, 10px); text-shadow: 1px 1px 0 #000; display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 5px; user-select: text; }
-        #chat-input { pointer-events: auto; background: rgba(0,0,0,0.6); border: 2px solid #854d0e; color: white; padding: 6px; font-family: 'Press Start 2P', monospace; font-size: clamp(6px, 1.8vw, 8px); outline: none; }
         input[type="color"] { border: 2px solid #854d0e; border-radius: 4px; background: #000; cursor: pointer; height: 26px; width: 36px; padding: 0; vertical-align: middle; }
         
         .game-action-dropdown { position: relative; }
@@ -164,6 +151,7 @@
         <button class="btn" onclick="showModal('skins-modal')">👕 Customize</button>
         <button class="btn" onclick="showModal('credits-modal')">Credits</button>
         <button class="btn" onclick="showLeaderboard()">🌍 Top 5</button>
+        <button class="btn" onclick="showModal('video-modal')">▶️ Watch Video</button>
         <div class="dropdown">
             <button class="btn" id="username-btn" onclick="toggleUsername()">Username ▼</button>
             <div class="dropdown-content yellow-ui" id="username-list">
@@ -281,6 +269,16 @@
     </div>
 </div>
 
+<div id="video-modal" class="modal-overlay">
+    <div class="modal-box yellow-ui">
+        <h2 class="modal-title">▶️ Watch Video</h2>
+        <div style="position:relative; width:100%; padding-top:56.25%; border:3px solid #854d0e; border-radius:6px; overflow:hidden;">
+            <iframe src="https://www.youtube.com/embed/3APatg2mF8w" title="Game video" style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+        <button class="btn" onclick="hideModal('video-modal')">Close</button>
+    </div>
+</div>
+
 <div id="leaderboard-modal" class="modal-overlay">
     <div class="modal-box yellow-ui">
         <h2 class="modal-title">🏆 Top 5 Players</h2>
@@ -322,14 +320,8 @@
 
         <button class="circle-btn" id="reload-circle-btn" ontouchstart="event.preventDefault(); reloadGun()" onmousedown="reloadGun()" title="Reload">🔄<span class="mag-count" id="ui-mags">3</span></button>
         <button class="circle-btn" id="bomb-circle-btn" ontouchstart="event.preventDefault(); useBomb()" onmousedown="useBomb()" title="Throw Bomb">💣<span class="price-badge" id="bomb-price-badge">$100</span></button>
-        <button class="circle-btn mic-off" id="mic-circle-btn" ontouchstart="event.preventDefault(); toggleMic()" onmousedown="toggleMic()" title="Toggle Mic (Voice Chat)">🎤</button>
         <button class="circle-btn" id="shop-circle-btn" ontouchstart="event.preventDefault(); goToShop()" onmousedown="goToShop()" title="Shop">🛒</button>
         <button class="settings-btn" id="settings-circle-btn" ontouchstart="event.preventDefault(); openSettings()" onmousedown="openSettings()" title="Settings">⚙️</button>
-    </div>
-    
-    <div id="chat-container">
-        <div id="chat-messages"></div>
-        <input id="chat-input" type="text" placeholder="Press ENTER to chat" />
     </div>
 
     <div class="hud-bottom" id="main-hud-bottom">
@@ -402,14 +394,6 @@
             </select>
             
             <button class="btn" style="width:100%; margin:10px 0; background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);" onclick="resetHUDLayout()">🗑️ Reset HUD Layout</button>
-
-            <label>🎤 Voice Chat: <span id="voice-status-text"><span class="voice-status-dot off" id="voice-status-dot"></span>Off</span></label>
-            <div class="voice-volume-row">
-                <span>🔊</span>
-                <input type="range" id="voice-volume-slider" min="0" max="100" value="100" oninput="setVoiceVolume(this.value)">
-                <span id="voice-volume-label">100%</span>
-            </div>
-            <button class="btn" id="settings-mic-toggle-btn" style="width:100%; margin:10px 0;" onclick="toggleMic()">🎤 Turn Mic On</button>
         </div>
         
         <button class="btn" style="background: linear-gradient(180deg, #4ade80 0%, #16a34a 100%); margin-top: 10px;" onclick="saveGame()">💾 Save Game Session</button>
@@ -577,218 +561,6 @@ function sendBroadcast(eventName, payloadData) {
 
 function withTimeout(promise, ms) { return Promise.race([promise, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]); }
 
-// ============================================================
-// VOICE CHAT (real-time mic-to-mic audio between players in the room)
-// Uses WebRTC for the actual audio, and Firebase Realtime Database
-// (already wired up for the game) purely as the signaling channel
-// to exchange offers/answers/ICE candidates between peers.
-// ============================================================
-const RTC_ICE_CONFIG = { iceServers: [
-    { urls: 'stun:stun.l.google.com:19302' },
-    { urls: 'stun:stun1.l.google.com:19302' }
-] };
-let micEnabled = false;
-let localVoiceStream = null;
-let voicePeers = {};          // userId -> RTCPeerConnection
-let voiceRemoteAudioEls = {}; // userId -> <audio> element
-let voiceSignalRef = null;    // fbRef for ROOM_PATH/voice/mySessionId (incoming signals)
-let voiceVolume = 1;
-let localSpeaking = false;
-let voiceAnalysers = {};      // userId ('me' for local) -> {analyser, data}
-let voiceSpeakingLoopId = null;
-
-function loadVoiceSettings() {
-    const savedVol = localStorage.getItem('defence_voice_volume');
-    voiceVolume = savedVol !== null ? parseFloat(savedVol) : 1;
-    const slider = document.getElementById('voice-volume-slider');
-    if (slider) slider.value = Math.round(voiceVolume * 100);
-    const label = document.getElementById('voice-volume-label');
-    if (label) label.innerText = Math.round(voiceVolume * 100) + '%';
-}
-
-function setVoiceVolume(val) {
-    voiceVolume = Math.max(0, Math.min(1, val / 100));
-    localStorage.setItem('defence_voice_volume', voiceVolume);
-    const label = document.getElementById('voice-volume-label');
-    if (label) label.innerText = Math.round(voiceVolume * 100) + '%';
-    for (let uid in voiceRemoteAudioEls) { voiceRemoteAudioEls[uid].volume = voiceVolume; }
-}
-
-function sendVoiceSignal(toUid, type, data) {
-    if (!mySessionId) return;
-    db.ref(ROOM_PATH + '/voice/' + toUid).push({ from: mySessionId, type: type, data: data, ts: firebase.database.ServerValue.TIMESTAMP });
-}
-
-function attachSpeakingAnalyser(key, stream) {
-    try {
-        if (!window._voiceAudioCtx) window._voiceAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const ctx = window._voiceAudioCtx;
-        const source = ctx.createMediaStreamSource(stream);
-        const analyser = ctx.createAnalyser();
-        analyser.fftSize = 512;
-        analyser.smoothingTimeConstant = 0.6;
-        source.connect(analyser);
-        voiceAnalysers[key] = { analyser, data: new Uint8Array(analyser.frequencyBinCount), source };
-    } catch (e) { /* audio analysis is optional (speaking indicator only) */ }
-}
-
-function detachSpeakingAnalyser(key) {
-    const a = voiceAnalysers[key];
-    if (a && a.source) { try { a.source.disconnect(); } catch (e) {} }
-    delete voiceAnalysers[key];
-}
-
-function startVoiceSpeakingLoop() {
-    if (voiceSpeakingLoopId) return;
-    voiceSpeakingLoopId = setInterval(() => {
-        for (let key in voiceAnalysers) {
-            const a = voiceAnalysers[key];
-            a.analyser.getByteFrequencyData(a.data);
-            let sum = 0; for (let i = 0; i < a.data.length; i++) sum += a.data[i];
-            const avg = sum / a.data.length;
-            const isSpeaking = avg > 12;
-            if (key === 'me') {
-                localSpeaking = isSpeaking;
-                const micBtn = document.getElementById('mic-circle-btn');
-                if (micBtn) micBtn.classList.toggle('mic-speaking', isSpeaking && micEnabled);
-            } else if (otherPlayers[key]) {
-                otherPlayers[key].speaking = isSpeaking;
-            }
-        }
-    }, 150);
-}
-
-function stopVoiceSpeakingLoop() {
-    if (voiceSpeakingLoopId) { clearInterval(voiceSpeakingLoopId); voiceSpeakingLoopId = null; }
-}
-
-function ensureVoicePeer(uid, isInitiator) {
-    if (!micEnabled || uid === mySessionId) return null;
-    if (voicePeers[uid]) return voicePeers[uid];
-
-    const pc = new RTCPeerConnection(RTC_ICE_CONFIG);
-    voicePeers[uid] = pc;
-
-    if (localVoiceStream) { localVoiceStream.getTracks().forEach(track => pc.addTrack(track, localVoiceStream)); }
-
-    pc.onicecandidate = (evt) => { if (evt.candidate) sendVoiceSignal(uid, 'candidate', evt.candidate.toJSON()); };
-
-    pc.ontrack = (evt) => {
-        let audioEl = voiceRemoteAudioEls[uid];
-        if (!audioEl) {
-            audioEl = document.createElement('audio');
-            audioEl.autoplay = true; audioEl.id = 'voice-audio-' + uid;
-            audioEl.style.display = 'none';
-            document.body.appendChild(audioEl);
-            voiceRemoteAudioEls[uid] = audioEl;
-        }
-        audioEl.srcObject = evt.streams[0];
-        audioEl.volume = voiceVolume;
-        attachSpeakingAnalyser(uid, evt.streams[0]);
-        startVoiceSpeakingLoop();
-    };
-
-    pc.onconnectionstatechange = () => { if (['failed', 'closed', 'disconnected'].includes(pc.connectionState)) closeVoicePeer(uid); };
-
-    if (isInitiator) {
-        pc.onnegotiationneeded = async () => {
-            try {
-                const offer = await pc.createOffer();
-                await pc.setLocalDescription(offer);
-                sendVoiceSignal(uid, 'offer', { sdp: pc.localDescription.sdp, type: pc.localDescription.type });
-            } catch (e) { /* ignore */ }
-        };
-    }
-    return pc;
-}
-
-async function handleVoiceSignal(fromUid, type, data) {
-    if (!micEnabled) return;
-    const pc = ensureVoicePeer(fromUid, false);
-    if (!pc) return;
-    try {
-        if (type === 'offer') {
-            await pc.setRemoteDescription(new RTCSessionDescription(data));
-            const answer = await pc.createAnswer();
-            await pc.setLocalDescription(answer);
-            sendVoiceSignal(fromUid, 'answer', { sdp: pc.localDescription.sdp, type: pc.localDescription.type });
-        } else if (type === 'answer') {
-            if (!pc.currentRemoteDescription) await pc.setRemoteDescription(new RTCSessionDescription(data));
-        } else if (type === 'candidate') {
-            try { await pc.addIceCandidate(new RTCIceCandidate(data)); } catch (e) { /* ignore late candidates */ }
-        }
-    } catch (e) { /* ignore malformed/late signals */ }
-}
-
-function closeVoicePeer(uid) {
-    const pc = voicePeers[uid];
-    if (pc) { try { pc.close(); } catch (e) {} delete voicePeers[uid]; }
-    const audioEl = voiceRemoteAudioEls[uid];
-    if (audioEl) { audioEl.srcObject = null; audioEl.remove(); delete voiceRemoteAudioEls[uid]; }
-    detachSpeakingAnalyser(uid);
-    if (otherPlayers[uid]) otherPlayers[uid].speaking = false;
-    db.ref(ROOM_PATH + '/voice/' + uid).off();
-}
-
-function connectVoiceToAllPlayers() {
-    for (let uid in otherPlayers) { ensureVoicePeer(uid, mySessionId < uid); }
-}
-
-function updateMicUI() {
-    const micBtn = document.getElementById('mic-circle-btn');
-    const dot = document.getElementById('voice-status-dot');
-    const statusText = document.getElementById('voice-status-text');
-    const settingsBtn = document.getElementById('settings-mic-toggle-btn');
-    if (micBtn) { micBtn.classList.toggle('mic-off', !micEnabled); micBtn.innerText = micEnabled ? '🎤' : '🔇'; micBtn.title = micEnabled ? 'Voice Chat: On (tap to mute)' : 'Voice Chat: Off (tap to talk)'; if (!micEnabled) micBtn.classList.remove('mic-speaking'); }
-    if (dot) dot.className = 'voice-status-dot ' + (micEnabled ? 'on' : 'off');
-    if (statusText) statusText.innerHTML = (micEnabled ? '<span class="voice-status-dot on" id="voice-status-dot"></span>On' : '<span class="voice-status-dot off" id="voice-status-dot"></span>Off');
-    if (settingsBtn) settingsBtn.innerText = micEnabled ? '🔇 Turn Mic Off' : '🎤 Turn Mic On';
-}
-
-async function toggleMic() {
-    if (hudEditActive) return;
-    if (!isChannelReady || !mySessionId) { updateMicUI(); return; }
-
-    if (!micEnabled) {
-        try {
-            localVoiceStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
-        } catch (e) {
-            alert('🎤 Could not access your microphone. Please allow microphone permission and try again.');
-            return;
-        }
-        micEnabled = true;
-        updateMicUI();
-        attachSpeakingAnalyser('me', localVoiceStream);
-        startVoiceSpeakingLoop();
-
-        voiceSignalRef = db.ref(ROOM_PATH + '/voice/' + mySessionId);
-        voiceSignalRef.on('child_added', snap => {
-            const msg = snap.val();
-            if (msg && msg.from && msg.from !== mySessionId) handleVoiceSignal(msg.from, msg.type, msg.data);
-            snap.ref.remove().catch(() => {});
-        });
-
-        connectVoiceToAllPlayers();
-    } else {
-        micEnabled = false;
-        updateMicUI();
-        if (voiceSignalRef) { voiceSignalRef.off(); db.ref(ROOM_PATH + '/voice/' + mySessionId).remove().catch(() => {}); voiceSignalRef = null; }
-        for (let uid in voicePeers) closeVoicePeer(uid);
-        detachSpeakingAnalyser('me');
-        if (localVoiceStream) { localVoiceStream.getTracks().forEach(t => t.stop()); localVoiceStream = null; }
-        stopVoiceSpeakingLoop();
-    }
-}
-
-function leaveVoiceChat() {
-    if (micEnabled) { micEnabled = false; updateMicUI(); }
-    if (voiceSignalRef) { voiceSignalRef.off(); voiceSignalRef = null; }
-    if (mySessionId) db.ref(ROOM_PATH + '/voice/' + mySessionId).remove().catch(() => {});
-    for (let uid in voicePeers) closeVoicePeer(uid);
-    detachSpeakingAnalyser('me');
-    if (localVoiceStream) { localVoiceStream.getTracks().forEach(t => t.stop()); localVoiceStream = null; }
-    stopVoiceSpeakingLoop();
-}
 async function getGlobalLeaderboard() {
     const local = getLocalLeaderboard().map(e => ({ player_name: e.player_name, score: e.score, kills: e.kills, time_lived: e.time }));
     try {
@@ -1462,7 +1234,6 @@ function startGame() {
     document.getElementById('menu-error').innerText = ""; document.getElementById('menu-screen').style.display = 'none'; document.getElementById('game-screen').style.display = 'block';
 
     if (isMultiplayer) {
-        document.getElementById('chat-container').style.display = 'flex';
         if (!isChannelReady) {
             mySessionId = selectedUser + '_' + genId();
 
@@ -1471,7 +1242,6 @@ function startGame() {
             //   (enemies, props, events) so a fresh room greets the next people who join.
             // - If teammates are still around, my disconnect only removes my own presence data.
             function refreshDisconnectCleanup() {
-                db.ref(ROOM_PATH + '/voice/' + mySessionId).onDisconnect().remove();
                 if (Object.keys(otherPlayers).length === 0) {
                     db.ref(ROOM_PATH + '/players/' + mySessionId).onDisconnect().cancel();
                     db.ref(ROOM_PATH + '/enemySync/' + mySessionId).onDisconnect().cancel();
@@ -1492,7 +1262,7 @@ function startGame() {
                     if (user === mySessionId) continue;
                     let pd = val[user];
                     if (typeof pd.ts === 'number' && now - pd.ts > 8000) continue;
-                    if (!otherPlayers[user]) { otherPlayers[user] = { ...pd, targetX: pd.x, targetY: pd.y, lastSeen: Date.now(), skinOuter: pd.skinOuter || '#059669', skinInner: pd.skinInner || '#10b981', petType: pd.petType||'dog', gunOuter: pd.gunOuter||'#1f2937', gunInner: pd.gunInner||'#4b5563' }; if (micEnabled) ensureVoicePeer(user, mySessionId < user); }
+                    if (!otherPlayers[user]) { otherPlayers[user] = { ...pd, targetX: pd.x, targetY: pd.y, lastSeen: Date.now(), skinOuter: pd.skinOuter || '#059669', skinInner: pd.skinInner || '#10b981', petType: pd.petType||'dog', gunOuter: pd.gunOuter||'#1f2937', gunInner: pd.gunInner||'#4b5563' }; }
                     else { otherPlayers[user].targetX = pd.x; otherPlayers[user].targetY = pd.y; otherPlayers[user].hp = pd.hp; otherPlayers[user].maxHp = pd.maxHp; otherPlayers[user].gun = pd.gun; otherPlayers[user].lastSeen = Date.now(); otherPlayers[user].user = pd.user; otherPlayers[user].skinOuter = pd.skinOuter || '#059669'; otherPlayers[user].skinInner = pd.skinInner || '#10b981'; otherPlayers[user].petType = pd.petType||'dog'; otherPlayers[user].gunOuter = pd.gunOuter||'#1f2937'; otherPlayers[user].gunInner = pd.gunInner||'#4b5563'; }
                 }
                 // Anyone who was known before but is missing now has left the room.
@@ -1501,7 +1271,6 @@ function startGame() {
                 for (let leftUser of previouslyKnown) {
                     if (!val[leftUser]) {
                         delete otherPlayers[leftUser];
-                        closeVoicePeer(leftUser);
                         for (let en of enemies) { if (en.owner === leftUser) { en.owner = mySessionId; en.netTargetX = undefined; en.netTargetY = undefined; } }
                         db.ref(ROOM_PATH + '/enemySync/' + leftUser).remove().catch(() => {});
                     }
@@ -1536,7 +1305,6 @@ function startGame() {
                     case 'chest_opened': { let idx = chests.findIndex(c => c.id === p.payload.id); if (idx !== -1) chests.splice(idx, 1); break; }
                     case 'item_dropped': if (!drops.find(d => d.id === p.payload.id)) drops.push(p.payload); break;
                     case 'item_collected': { let idx = drops.findIndex(d => d.id === p.payload.id); if (idx !== -1) drops.splice(idx, 1); break; }
-                    case 'chat_msg': addChatMessage(p.payload.user, p.payload.msg); break;
                     case 'prop_spawn': if (!props.find(pr => pr.id === p.payload.id)) props.push(p.payload); break;
                     case 'prop_destroyed': { let idx = props.findIndex(pr => pr.id === p.payload.id); if (idx !== -1) props.splice(idx, 1); break; }
                     case 'bomb_thrown': activeBombs.push(p.payload); break;
@@ -1548,9 +1316,7 @@ function startGame() {
             isChannelReady = true;
         }
     } else {
-        document.getElementById('chat-container').style.display = 'none';
         if (isChannelReady) {
-            leaveVoiceChat();
             if (fbPlayersRef) fbPlayersRef.off();
             if (fbEnemySyncRef) fbEnemySyncRef.off();
             if (fbEventsRef) fbEventsRef.off();
@@ -1561,14 +1327,6 @@ function startGame() {
     }
     resize(); loadUISettings(); restartGame(isContinueNext);
 }
-
-function addChatMessage(user, msg) {
-    const box = document.getElementById('chat-messages'); const el = document.createElement('div');
-    el.style.marginBottom = '4px'; el.innerHTML = `<span style="color:#facc15">${user}:</span> <span style="color:#fff">${msg}</span>`;
-    box.appendChild(el); if (box.children.length > 8) box.removeChild(box.firstChild); box.scrollTop = box.scrollHeight;
-}
-document.getElementById('chat-input').addEventListener('keydown', function(e) { e.stopPropagation(); if (e.key === 'Enter') { const msg = this.value.trim(); if (msg && selectedUser) { addChatMessage(selectedUser, msg); sendBroadcast('chat_msg', { user: selectedUser, msg: msg }); this.value = ''; } this.blur(); } });
-document.addEventListener('keydown', function(e) { if (e.key === 'Enter' && document.activeElement !== document.getElementById('chat-input') && document.getElementById('game-screen').style.display === 'block') { document.getElementById('chat-input').focus(); } });
 
 function switchShopTab(tab) {
     const sections = ['guns', 'recovery', 'props'];
@@ -1731,7 +1489,7 @@ function enterHUDEditMode() {
     
     hudEditActive = true;
     
-    const draggables = ['btn-inventory-wrap', 'reload-circle-btn', 'bomb-circle-btn', 'mic-circle-btn', 'shop-circle-btn', 'settings-circle-btn', 'main-hud-top', 'main-hud-bottom'];
+    const draggables = ['btn-inventory-wrap', 'reload-circle-btn', 'bomb-circle-btn', 'shop-circle-btn', 'settings-circle-btn', 'main-hud-top', 'main-hud-bottom'];
     
     draggables.forEach(id => {
         let el = document.getElementById(id);
@@ -1761,8 +1519,6 @@ function enterHUDEditMode() {
 }
 
 function loadUISettings() {
-    loadVoiceSettings();
-    updateMicUI();
     const savedMinimap = localStorage.getItem('minimapPos');
     const savedButtons = localStorage.getItem('buttonsPos');
 
@@ -1773,7 +1529,7 @@ function loadUISettings() {
     document.getElementById('minimap-pos').value = minimapPosition;
     document.getElementById('buttons-pos').value = buttonsPosition;
 
-    const draggables = ['btn-inventory-wrap', 'reload-circle-btn', 'bomb-circle-btn', 'mic-circle-btn', 'shop-circle-btn', 'settings-circle-btn', 'main-hud-top', 'main-hud-bottom'];
+    const draggables = ['btn-inventory-wrap', 'reload-circle-btn', 'bomb-circle-btn', 'shop-circle-btn', 'settings-circle-btn', 'main-hud-top', 'main-hud-bottom'];
     
     draggables.forEach(id => {
         let savedLeft = localStorage.getItem('customHUD_' + id + '_left');
@@ -1796,7 +1552,7 @@ function loadUISettings() {
 }
 
 function resetHUDLayout() {
-    const draggables = ['btn-inventory-wrap', 'reload-circle-btn', 'bomb-circle-btn', 'mic-circle-btn', 'shop-circle-btn', 'settings-circle-btn', 'main-hud-top', 'main-hud-bottom'];
+    const draggables = ['btn-inventory-wrap', 'reload-circle-btn', 'bomb-circle-btn', 'shop-circle-btn', 'settings-circle-btn', 'main-hud-top', 'main-hud-bottom'];
     let container = document.getElementById('action-buttons-container');
     
     draggables.forEach(id => {
@@ -1871,7 +1627,7 @@ function endCutscene() {
     document.getElementById('main-hud-top').style.display = 'flex';
     document.getElementById('main-hud-bottom').style.display = 'flex';
     
-    const draggables = ['btn-inventory-wrap', 'reload-circle-btn', 'bomb-circle-btn', 'mic-circle-btn', 'shop-circle-btn', 'settings-circle-btn'];
+    const draggables = ['btn-inventory-wrap', 'reload-circle-btn', 'bomb-circle-btn', 'shop-circle-btn', 'settings-circle-btn'];
     let anyDragged = false;
     draggables.forEach(id => {
         let savedLeft = localStorage.getItem('customHUD_' + id + '_left');
@@ -1906,7 +1662,7 @@ function playCutscene() {
     document.getElementById('main-hud-bottom').style.display = 'none';
     document.getElementById('action-buttons-container').style.display = 'none';
     
-    const draggables = ['btn-inventory-wrap', 'reload-circle-btn', 'bomb-circle-btn', 'mic-circle-btn', 'shop-circle-btn', 'settings-circle-btn'];
+    const draggables = ['btn-inventory-wrap', 'reload-circle-btn', 'bomb-circle-btn', 'shop-circle-btn', 'settings-circle-btn'];
     draggables.forEach(id => {
         let el = document.getElementById(id);
         if(el && el.style.position === 'absolute') el.style.display = 'none';
@@ -1980,7 +1736,6 @@ function exitToMenu() {
     // Actually leave the shared multiplayer room so teammates see us gone immediately
     // (their enemy-ownership handoff and room-cleanup logic depends on this).
     if (isChannelReady) {
-        leaveVoiceChat();
         if (fbPlayersRef) fbPlayersRef.off();
         if (fbEnemySyncRef) fbEnemySyncRef.off();
         if (fbEventsRef) fbEventsRef.off();
@@ -2037,7 +1792,6 @@ function placeProp(type) {
     else if (type === 'turret' && turretsCount > 0) {
         if (now - lastTurretPlaceTime < 15000) {
             let wait = Math.ceil((15000 - (now - lastTurretPlaceTime)) / 1000);
-            addChatMessage('System', `Turret cooldown! Wait ${wait}s`);
             return;
         }
         turretsCount--; lastTurretPlaceTime = now;
@@ -2056,8 +1810,8 @@ function updateShopUI() { ['D-Eagle', 'AK47', 'Shortgun', 'AWM', 'Machine Gun', 
     if (armorLvlEl) { armorLvlEl.innerText = armorLevel; if (armorLevel >= 5) { armorCostEl.innerText = 'MAX'; armorBtn.innerText = 'MAX'; armorBtn.disabled = true; } else { let cost = 200 * (armorLevel + 1); armorCostEl.innerText = cost; armorBtn.innerText = 'BUY'; armorBtn.disabled = false; } }
 }
 
-window.addEventListener('keydown', e => { if (document.activeElement === document.getElementById('chat-input')) return; keys[e.key.toLowerCase()] = true; if (e.key.toLowerCase() === 'r') reloadGun(); });
-window.addEventListener('keyup', e => { if (document.activeElement === document.getElementById('chat-input')) return; keys[e.key.toLowerCase()] = false; });
+window.addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; if (e.key.toLowerCase() === 'r') reloadGun(); });
+window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
 const joyZone = document.getElementById('joystick-zone'), joyKnob = document.getElementById('joystick-knob'); let joystickTouchId = null;
 joyZone.addEventListener('touchstart', e => { e.preventDefault(); for(let i=0; i < e.changedTouches.length; i++) { if(joystickTouchId === null) { joystickTouchId = e.changedTouches[i].identifier; isDragging = true; handleJoy(e.changedTouches[i]); } } }, { passive: false });
 joyZone.addEventListener('touchmove', e => { e.preventDefault(); if (isDragging) { for(let i=0; i < e.changedTouches.length; i++) { if(e.changedTouches[i].identifier === joystickTouchId) { handleJoy(e.changedTouches[i]); } } } }, { passive: false });
@@ -2649,7 +2403,6 @@ function loop() {
     ctx.strokeStyle = 'rgba(0,0,0,0.7)'; ctx.lineWidth = 1; ctx.strokeRect(bx, by, bw, bh);
     ctx.restore();
     ctx.fillStyle = '#fff'; ctx.font = '8px "Press Start 2P"'; ctx.textAlign = 'center'; ctx.fillText(playerHp + '/' + currentMaxHp, psx, by - 2); ctx.font = '10px "Press Start 2P"'; ctx.fillText(selectedUser || 'Player', psx, by - 16); ctx.fillStyle = myRankInfo.color; ctx.font = '12px "Press Start 2P"'; ctx.textAlign = 'center'; ctx.fillText(myRankInfo.text, psx, by - 32);
-    if (micEnabled && localSpeaking) { ctx.save(); ctx.font = '12px "Press Start 2P"'; ctx.textAlign = 'center'; ctx.fillStyle = '#4ade80'; ctx.shadowColor = '#4ade80'; ctx.shadowBlur = 8; ctx.fillText('🎤', psx + ctx.measureText(selectedUser || 'Player').width / 2 + 14, by - 16); ctx.restore(); }
     
     // Render Particles
     for (let i = particles.length - 1; i >= 0; i--) {
@@ -2710,4 +2463,4 @@ document.addEventListener('click', function(e) {
 });
 </script>
 </body>
-</html> 
+</html>
