@@ -9,7 +9,2477 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Press Start 2P', monospace; user-select: none; }
+        body { background:a<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Defence Evolution</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Press Start 2P', monospace; user-select: none; }
         body { background: #111; display: flex; justify-content: center; align-items: center; width: 100vw; height: 100vh; overflow: hidden; touch-action: none; position: fixed; }
+        .yellow-ui { background: linear-gradient(180deg, #fef08a 0%, #eab308 100%); border: clamp(2px, 1vw, 4px) solid #854d0e; color: #422006; box-shadow: inset -4px -4px 0px rgba(0,0,0,0.2), inset 4px 4px 0px rgba(255,255,255,0.4), 4px 4px 0px rgba(0,0,0,0.5); text-shadow: 1px 1px 0px rgba(255,255,255,0.5); }
+        .btn { background: linear-gradient(180deg, #fcd34d 0%, #d97706 100%); border: clamp(2px, 0.5vw, 4px) solid #78350f; color: #fff; padding: clamp(8px, 2vw, 12px) clamp(10px, 3vw, 20px); cursor: pointer; text-transform: uppercase; font-size: clamp(8px, 2.5vw, 12px); box-shadow: inset -3px -3px 0px rgba(0,0,0,0.3), inset 3px 3px 0px rgba(255,255,255,0.4); text-shadow: 2px 2px 0px #451a03; transition: all 0.12s ease-out; }
+        .btn:hover:not(:disabled) { filter: brightness(1.12); transform: translateY(-2px); box-shadow: inset -3px -3px 0px rgba(0,0,0,0.3), inset 3px 3px 0px rgba(255,255,255,0.4), 0 6px 14px rgba(0,0,0,0.35), 0 0 12px rgba(252,211,77,0.5); }
+        .btn:active { box-shadow: inset 3px 3px 0px rgba(0,0,0,0.5); transform: translateY(2px); }
+        .btn:disabled { filter: grayscale(100%); cursor: not-allowed; opacity: 0.6; }
+        .btn.active-tab { background: linear-gradient(180deg, #fbbf24 0%, #b45309 100%); border-color: #451a03; box-shadow: inset 3px 3px 0px rgba(0,0,0,0.5); }
+        
+        #splash-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; background: radial-gradient(circle at 50% 40%, #1e293b 0%, #0f172a 100%); color: white; z-index: 100; position: absolute; top: 0; left: 0; overflow: hidden; }
+        .vscode-logo { filter: drop-shadow(0 0 10px #007acc); margin-bottom: 20px; width: clamp(60px, 15vw, 100px); }
+
+        .splash-globe { width: clamp(70px, 16vw, 110px); height: clamp(70px, 16vw, 110px); border-radius: 50%; background: radial-gradient(circle at 35% 30%, #4ade80, #16a34a 60%, #14532d 100%); box-shadow: 0 0 30px rgba(74, 222, 128, 0.6), inset -8px -8px 20px rgba(0,0,0,0.4); position: relative; animation: popIn 0.6s ease-out; margin-bottom: 20px; }
+        .splash-globe::after { content:''; position:absolute; inset:0; border-radius:50%; background: repeating-linear-gradient(90deg, transparent 0 12px, rgba(255,255,255,0.15) 12px 14px); animation: spinGlobe 6s linear infinite; }
+        @keyframes spinGlobe { 0% { transform: translateX(0); } 100% { transform: translateX(-24px); } }
+        @keyframes popIn { 0% { transform: scale(0.4); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        .splash-pulse-dot { width: 10px; height: 10px; border-radius: 50%; background: #4ade80; display: inline-block; box-shadow: 0 0 10px #4ade80; animation: pulseDot 1.2s ease-in-out infinite; margin-right: 8px; }
+        @keyframes pulseDot { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.7); } }
+
+        .splash-online-row { display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.08); border: 2px solid rgba(74, 222, 128, 0.5); padding: 10px 18px; border-radius: 30px; font-size: clamp(9px, 2.4vw, 12px); letter-spacing: 1px; margin-top: 18px; animation: fadeSlideUp 0.8s ease-out 0.3s both; }
+        .splash-title-multi { font-family: 'Press Start 2P', monospace; font-size: clamp(14px, 4vw, 24px); color: #facc15; text-shadow: 3px 3px 0px #713f12; letter-spacing: 2px; animation: fadeSlideUp 0.8s ease-out both; }
+        .splash-sub-multi { font-size: clamp(9px, 2.5vw, 13px); color: #94a3b8; margin-top: 10px; letter-spacing: 1px; animation: fadeSlideUp 0.8s ease-out 0.15s both; }
+        @keyframes fadeSlideUp { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
+
+        .splash-bar-track { width: clamp(160px, 50vw, 260px); height: 8px; background: rgba(255,255,255,0.1); border-radius: 6px; margin-top: 22px; overflow: hidden; animation: fadeSlideUp 0.8s ease-out 0.4s both; }
+        .splash-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #4ade80, #22c55e); border-radius: 6px; animation: fillBar 4.5s ease-in-out forwards 0.5s; }
+        @keyframes fillBar { 0% { width: 0%; } 100% { width: 100%; } }
+        
+        #menu-screen, #game-screen { display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+        #menu-screen { transition: background-image 1s ease-in-out; background-size: 64px 64px !important; background-repeat: repeat !important; image-rendering: pixelated; }
+        
+        /* ACTION CUTSCENE STYLES */
+        #cutscene-overlay { display: none; position: fixed; inset: 0; background: radial-gradient(circle, transparent 0%, rgba(0,0,0,0.85) 100%); z-index: 200; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; transition: background 0.1s; }
+        #cutscene-text { color: #facc15; font-size: clamp(14px, 4vw, 24px); line-height: 2; text-shadow: 4px 4px 0px #000; white-space: pre-wrap; word-spacing: 5px; z-index: 201; }
+        
+        @keyframes actionShake {
+            0% { transform: translate(2px, 2px) rotate(0deg); }
+            20% { transform: translate(-2px, -3px) rotate(-1deg); }
+            40% { transform: translate(-4px, 0px) rotate(1deg); }
+            60% { transform: translate(4px, 3px) rotate(0deg); }
+            80% { transform: translate(-2px, -2px) rotate(1deg); }
+            100% { transform: translate(2px, -3px) rotate(-1deg); }
+        }
+        .text-intense { animation: actionShake 0.1s infinite; color: #ef4444 !important; text-shadow: 4px 4px 0px #000 !important; transform: scale(1.3); }
+
+        .skip-btn { position: absolute; bottom: 30px; right: 30px; background: rgba(0,0,0,0.5); border: 2px solid #854d0e; padding: 10px; color: #fcd34d; font-size: 12px; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; font-family: 'Press Start 2P', monospace; z-index: 201; }
+        .skip-btn:hover { background: rgba(0,0,0,0.8); color: #facc15; }
+
+        .menu-top { position: absolute; top: 20px; width: 100%; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; padding: 0 10px; }
+        .menu-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 100%; padding: 0 20px; }
+        .menu-title { font-size: clamp(20px, 6vw, 40px); color: #facc15; text-shadow: clamp(2px, 0.5vw, 4px) clamp(2px, 0.5vw, 4px) 0px #713f12, 0 0 20px rgba(250,204,21,0.5); margin-bottom: 20px; line-height: 1.5; animation: titleGlow 2.4s ease-in-out infinite; }
+        @keyframes titleGlow { 0%,100% { text-shadow: clamp(2px, 0.5vw, 4px) clamp(2px, 0.5vw, 4px) 0px #713f12, 0 0 16px rgba(250,204,21,0.4); } 50% { text-shadow: clamp(2px, 0.5vw, 4px) clamp(2px, 0.5vw, 4px) 0px #713f12, 0 0 32px rgba(250,204,21,0.85); } }
+        
+        .dropdown { position: relative; display: inline-block; }
+        .dropdown-content { display: none; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); width: clamp(200px, 80vw, 280px); z-index: 10; flex-direction: column; max-height: 300px; overflow-y: auto; }
+        .dropdown-content.show { display: flex; }
+        .dropdown-item { padding: 12px; border-top: 2px solid #854d0e; cursor: pointer; text-align: center; font-size: 10px; background: #fef08a; }
+        .dropdown-item:hover { filter: brightness(1.2); }
+        .username-input-in-dropdown { background: #fef08a; border: none; border-bottom: 4px solid #854d0e; color: #422006; padding: 12px; font-size: 10px; text-align: center; width: 100%; font-family: 'Press Start 2P', monospace; outline: none; }
+        
+        .hud-top { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px; z-index: 10; flex-wrap: wrap; }
+        .hud-box { padding: clamp(6px, 1.5vw, 10px); font-size: clamp(7px, 2vw, 10px); text-align: center; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; justify-content: center; gap: clamp(5px, 2vw, 15px); align-items: center; flex-wrap: wrap; }
+        .hud-bottom { position: absolute; bottom: clamp(10px, 3vh, 30px); left: 10px; right: 10px; display: flex; justify-content: center; gap: 10px; z-index: 10; flex-wrap: wrap; }
+        
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 50; justify-content: center; align-items: center; flex-direction: column; border: clamp(4px, 1vw, 8px) solid #854d0e; box-shadow: inset 0 0 0 clamp(2px, 0.5vw, 4px) #facc15, 0 0 40px rgba(0,0,0,0.8); padding: 10px; }
+        .modal-box { padding: clamp(15px, 4vw, 30px); max-width: 95vw; width: 600px; text-align: center; display: flex; flex-direction: column; gap: clamp(10px, 3vw, 20px); max-height: 85vh; overflow-y: auto; border: 6px double #78350f; }
+        .modal-title { font-size: clamp(14px, 4vw, 24px); margin-bottom: 10px; border-bottom: 4px solid #854d0e; padding-bottom: 10px; }
+        
+        .shop-section-title { font-size: clamp(10px, 3vw, 14px); color: #facc15; text-shadow: 2px 2px 0px #713f12; margin: 15px 0 10px 0; padding: 8px; background: rgba(0,0,0,0.3); border: 2px solid #854d0e; }
+        .credits-section, .instructions-section { font-size: clamp(10px, 3vw, 12px); line-height: 2; text-align: left; }
+        .credits-section { text-align: center; line-height: 2.2; }
+        .credits-section .role { color: #cfa600; font-size: clamp(12px, 3.5vw, 16px); text-shadow: 2px 2px 0px #713f12; padding-bottom: 4px; border-bottom: 2px dashed rgba(133,77,14,0.4); display: inline-block; }
+        .credits-section .names { color: #422006; font-size: clamp(10px, 2.5vw, 12px); margin-bottom: 4px; }
+        
+        .shop-item { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); padding: clamp(10px, 2.5vw, 15px); border: 2px solid #854d0e; flex-wrap: wrap; gap: 10px; }
+        .shop-item-details { text-align: left; font-size: clamp(8px, 2.2vw, 10px); line-height: 1.8; flex: 1; min-width: 150px; }
+        .shop-item-buttons { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+        .shop-msg { color: #dc2626; font-size: clamp(10px, 2.5vw, 12px); height: 12px; text-shadow: 1px 1px 0 #000; }
+        
+        #gameCanvas { image-rendering: pixelated; width: 100%; height: 100%; display: block; position: absolute; top: 0; left: 0; }
+        #tactical-vignette {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5;
+            background:
+                radial-gradient(ellipse at center, rgba(0,0,0,0) 45%, rgba(0,0,0,0.55) 100%),
+                linear-gradient(rgba(10,14,10,0.12), rgba(10,14,10,0.12));
+            mix-blend-mode: multiply;
+        }
+        #tactical-vignette::after {
+            content: ''; position: absolute; inset: 0;
+            background-image: repeating-linear-gradient(0deg, rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 1px, transparent 1px, transparent 3px);
+            opacity: 0.35; mix-blend-mode: overlay;
+        }
+        
+        #joystick-zone { position: absolute; bottom: clamp(60px, 15vh, 100px); left: clamp(10px, 5vw, 20px); width: clamp(90px, 25vw, 120px); height: clamp(90px, 25vw, 120px); border: 4px solid rgba(255,255,255,0.3); border-radius: 50%; display: block; z-index: 5; background: rgba(0,0,0,0.2); }
+        #joystick-knob { position: absolute; top: 50%; left: 50%; width: 40%; height: 40%; background: #fcd34d; border: 4px solid #b45309; border-radius: 50%; transform: translate(-50%,-50%); pointer-events: none; }
+        
+        #action-buttons-container { position: absolute; display: flex; flex-direction: row; align-items: center; gap: clamp(5px, 2vw, 10px); z-index: 10; flex-wrap: wrap; max-width: clamp(150px, 40vw, 220px); justify-content: flex-end; }
+        #action-buttons-container.top-right { top: 10px; right: 10px; left: auto; bottom: auto; }
+        #action-buttons-container.top-left { top: 10px; left: 10px; right: auto; bottom: auto; justify-content: flex-start; }
+        #action-buttons-container.bottom-right { bottom: clamp(60px, 15vh, 100px); right: 10px; top: auto; left: auto; }
+        #action-buttons-container.bottom-left { bottom: clamp(60px, 15vh, 100px); left: 10px; top: auto; right: auto; justify-content: flex-start; }
+        
+        .circle-btn { width: clamp(38px, 10vw, 48px); height: clamp(38px, 10vw, 48px); border-radius: 50%; background: linear-gradient(180deg, #fcd34d 0%, #d97706 100%); border: 3px solid #78350f; color: #fff; font-size: clamp(14px, 4vw, 20px); display: flex; align-items: center; justify-content: center; box-shadow: inset -2px -2px 0px rgba(0,0,0,0.3), inset 2px 2px 0px rgba(255,255,255,0.4); text-shadow: 1px 1px 0px #451a03; cursor: pointer; position: relative; transition: all 0.1s; padding: 0; line-height: 1; }
+        .circle-btn:active { box-shadow: inset 3px 3px 0px rgba(0,0,0,0.5); transform: translateY(2px); }
+        .circle-btn:disabled { filter: grayscale(100%); opacity: 0.6; cursor: not-allowed; }
+        .circle-btn .price-badge, .circle-btn .badge, .circle-btn .mag-count { position: absolute; font-size: clamp(6px, 2vw, 8px); padding: 1px 4px; border-radius: 10px; line-height: 1.2; text-shadow: none; border: 2px solid; }
+        .circle-btn .price-badge { bottom: -4px; right: -4px; background: #451a03; color: #fcd34d; border-color: #854d0e; }
+        .circle-btn .badge { top: -4px; right: -4px; background: #dc2626; color: white; border-color: #451a03; }
+        .circle-btn .mag-count { top: -4px; right: -4px; background: #000; color: #facc15; border-color: #451a03; }
+
+        .settings-btn { background: none; border: none; font-size: clamp(20px, 5vw, 24px); cursor: pointer; padding: 5px; filter: drop-shadow(2px 2px 0px #451a03); }
+        .leaderboard-list { list-style: none; padding: 0; font-size: clamp(8px, 2.5vw, 10px); line-height: 2; }
+        .leaderboard-list li { padding: 8px; border-bottom: 2px solid #854d0e; background: rgba(0,0,0,0.1); margin-bottom: 4px; }
+        
+        input[type="color"] { border: 2px solid #854d0e; border-radius: 4px; background: #000; cursor: pointer; height: 26px; width: 36px; padding: 0; vertical-align: middle; }
+        
+        .game-action-dropdown { position: relative; }
+        .game-action-dropdown .dropdown-content { left: auto; right: 0; transform: none; top: calc(100% + 10px); width: clamp(140px, 40vw, 180px); }
+        .bottom-right .game-action-dropdown .dropdown-content, .bottom-left .game-action-dropdown .dropdown-content { top: auto; bottom: calc(100% + 10px); }
+        .top-left .game-action-dropdown .dropdown-content, .bottom-left .game-action-dropdown .dropdown-content { right: auto; left: 0; }
+        .game-dropdown-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; color: #422006; border-bottom: 2px solid #854d0e; cursor: pointer; font-size: clamp(8px, 2vw, 10px); background: #fef08a; }
+        .game-dropdown-item:hover, .game-dropdown-item:active { filter: brightness(1.1); }
+        .game-dropdown-item .badge { background: #dc2626; color: white; border: 2px solid #451a03; border-radius: 10px; font-size: 8px; padding: 2px 6px; }
+
+    </style>
+</head>
+<body>
+
+<div id="splash-screen">
+    <div class="splash-globe"></div>
+    <h1 class="splash-title-multi">DEFENCE EVOLUTION</h1>
+    <div class="splash-online-row"><span class="splash-pulse-dot"></span>LIVE ONLINE MULTIPLAYER</div>
+    <p class="splash-sub-multi">Team up with players around the world in real time</p>
+    <div class="splash-bar-track"><div class="splash-bar-fill"></div></div>
+</div>
+
+<div id="menu-screen">
+    <div class="menu-top">
+        <button class="btn" onclick="showModal('instructions-modal')">📖 How to Play</button>
+        <button class="btn" onclick="showModal('skins-modal')">👕 Customize</button>
+        <button class="btn" onclick="showModal('credits-modal')">Credits</button>
+        <button class="btn" onclick="showLeaderboard()">🌍 Top 5</button>
+        <button class="btn" onclick="showModal('video-modal')">▶️ Watch Video</button>
+        <div class="dropdown">
+            <button class="btn" id="username-btn" onclick="toggleUsername()">Username ▼</button>
+            <div class="dropdown-content yellow-ui" id="username-list">
+                <input type="text" class="username-input-in-dropdown" id="dropdown-username-input" placeholder="Type new username..." maxlength="16" onclick="event.stopPropagation()">
+                <div id="username-history-items"></div>
+                <div class="dropdown-item" style="color:#dc2626;" onclick="clearUsernameHistory()">Clear History</div>
+            </div>
+        </div>
+    </div>
+    <div class="menu-center">
+        <h1 class="menu-title">Defence Evolution</h1>
+        
+        <div style="margin-bottom: 20px;">
+
+        </div>
+        
+        <div style="display:flex; justify-content:center; gap:15px; flex-wrap:wrap; margin-bottom: 30px;">
+            <button class="btn" style="font-size:clamp(14px, 4vw, 24px); padding:15px 30px;" onclick="checkRankThenPlay(false)">▶ NEW GAME</button>
+            <button class="btn" style="font-size:clamp(14px, 4vw, 24px); padding:15px 30px; background: linear-gradient(180deg, #4ade80 0%, #16a34a 100%); border-color:#064e3b;" onclick="checkRankThenPlay(true)">💾 CONTINUE</button>
+        </div>
+
+
+        
+        <div style="display:flex; justify-content:center;">
+            <a href="https://www.youtube.com/@RatyCaty_Editz" target="_blank" class="btn" style="background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%); border-color: #7f1d1d; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+                Subscribe
+            </a>
+        </div>
+        <p id="menu-error" style="color:#dc2626; font-size:10px; margin-top:20px; height:12px; text-shadow: 1px 1px 0 #000;"></p>
+    </div>
+</div>
+
+<div id="cutscene-overlay">
+    <h2 id="cutscene-text"></h2>
+    <button class="skip-btn" onclick="endCutscene()">Skip >></button>
+</div>
+
+<div id="instructions-modal" class="modal-overlay">
+    <div class="modal-box yellow-ui">
+        <h2 class="modal-title">📖 How to Play</h2>
+        <div class="instructions-section">
+            <p><strong>Movement:</strong> Use <code>W A S D</code> keys on PC or the virtual joystick on Mobile.</p>
+            <p><strong>Shooting:</strong> The player automatically shoots at the nearest enemy. Make sure to stay close enough!</p>
+            <p><strong>Survival:</strong> Keep an eye on your Health (❤️). Use Bandages and Recovery Potions from the Shop to heal up.</p>
+            <p><strong>Shop & Upgrades:</strong> Use the 🛒 button to access the shop. You can buy new weapons, upgrade them, and purchase defenses like Walls and Auto-Turrets.</p>
+            <p><strong>The Objective:</strong> Survive as long as you can, earn money, kill enemies, and if you are brave enough, buy the <strong>Boss Key</strong> for $20,000 to challenge the Mega Boss!</p>
+        </div>
+        <button class="btn" style="margin-top:10px;" onclick="hideModal('instructions-modal')">Understood!</button>
+    </div>
+</div>
+
+<div id="skins-modal" class="modal-overlay">
+    <div class="modal-box yellow-ui">
+        <h2 class="modal-title">Customization</h2>
+        <p class="shop-msg" id="skin-menu-message"></p>
+        <div style="display:flex; flex-direction:column; gap:10px; max-height: 50vh; overflow-y: auto; padding-right: 5px;">
+            <div class="shop-section-title">Gun Skins</div>
+            <div class="shop-item yellow-ui" style="background: rgba(255,255,255,0.2); border: 2px dashed #854d0e; justify-content: center;">
+                <div class="shop-item-details" style="text-align: center; width:100%;">
+                    <div style="display:flex; justify-content:center; gap:15px; align-items:center; flex-wrap:wrap;">
+                        <label>Gun Base <input type="color" id="gun-outer" value="#1f2937"></label>
+                        <label>Gun Detail <input type="color" id="gun-inner" value="#4b5563"></label>
+                        <button class="btn" onclick="equipCustomGun()">SAVE GUN</button>
+                    </div>
+                </div>
+            </div>
+            <div class="shop-section-title">Pets</div>
+            <div class="shop-item yellow-ui">
+                <div class="shop-item-details"><strong style="color:#ea580c">🐕 Dog Companion</strong></div>
+                <div class="shop-item-buttons"><button class="btn" onclick="equipPet('dog')">EQUIP</button></div>
+            </div>
+            <div class="shop-item yellow-ui">
+                <div class="shop-item-details"><strong style="color:#000">🐈 Cat Companion</strong></div>
+                <div class="shop-item-buttons"><button class="btn" onclick="equipPet('cat')">EQUIP</button></div>
+            </div>
+            <div class="shop-item yellow-ui">
+                <div class="shop-item-details"><strong style="color:#2563eb">🤖 Robo-Drone</strong></div>
+                <div class="shop-item-buttons"><button class="btn" onclick="equipPet('robot')">EQUIP</button></div>
+            </div>
+            <div class="shop-section-title">Player Skins</div>
+            <div class="shop-item yellow-ui" style="background: rgba(255,255,255,0.2); border: 2px dashed #854d0e; justify-content: center;">
+                <div class="shop-item-details" style="text-align: center; width:100%;">
+                    <div style="display:flex; justify-content:center; gap:15px; align-items:center; flex-wrap:wrap;">
+                        <label>Outer <input type="color" id="custom-outer" value="#ffffff"></label>
+                        <label>Inner <input type="color" id="custom-inner" value="#aaaaaa"></label>
+                        <button class="btn" onclick="equipCustomSkin()">SAVE SKIN</button>
+                    </div>
+                </div>
+            </div>
+            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong style="color:#3b82f6">🔵 Blue Ranger</strong></div><div class="shop-item-buttons"><button class="btn" onclick="equipSkin('blue')">EQUIP</button></div></div>
+            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong style="color:#ef4444">🔴 Crimson Berserker</strong></div><div class="shop-item-buttons"><button class="btn" onclick="equipSkin('red')">EQUIP</button></div></div>
+            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong style="color:#8b5cf6">🟣 Purple Phantom</strong></div><div class="shop-item-buttons"><button class="btn" onclick="equipSkin('purple')">EQUIP</button></div></div>
+            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong style="color:#f97316">🟠 Orange Striker</strong></div><div class="shop-item-buttons"><button class="btn" onclick="equipSkin('orange')">EQUIP</button></div></div>
+        </div>
+        <button class="btn" style="margin-top:10px;" onclick="hideModal('skins-modal')">Close</button>
+    </div>
+</div>
+
+<div id="credits-modal" class="modal-overlay">
+    <div class="modal-box yellow-ui">
+        <h2 class="modal-title">🎖️ Credits</h2>
+        <div class="credits-section">
+            <div class="role">👨‍💻 DEVELOPER</div>
+            <div class="names">Ratnesh Kumar</div>
+            <div class="role" style="margin-top:16px;">🤝 ASSIST-DEVELOPERS</div>
+            <div class="names">Harshit · Priyanshu · Yash Kumar Singh · Ujjawal</div>
+            <div class="role" style="margin-top:16px;">🏫 SCHOOL</div>
+            <div class="names">St Peter's English Medium</div>
+            <a href="https://content.jdmagicbox.com/comp/purnia/r8/9999p6454.6454.121001160006.a8r8/catalogue/st-peter-s-school-shivaji-colony-purnia-schools-p092ncslqr-250.jpg" target="_blank" rel="noopener noreferrer" style="display:inline-block; margin-top:10px;">
+                <img src="https://content.jdmagicbox.com/comp/purnia/r8/9999p6454.6454.121001160006.a8r8/catalogue/st-peter-s-school-shivaji-colony-purnia-schools-p092ncslqr-250.jpg" alt="Reference" style="max-width:100%; width:260px; border-radius:6px; border:3px solid #854d0e; box-shadow:0 4px 12px rgba(0,0,0,0.4);">
+            </a>
+        </div>
+        <button class="btn" onclick="hideModal('credits-modal')">Close</button>
+    </div>
+</div>
+
+<div id="video-modal" class="modal-overlay">
+    <div class="modal-box yellow-ui">
+        <h2 class="modal-title">▶️ Watch Video</h2>
+        <div style="position:relative; width:100%; padding-top:56.25%; border:3px solid #854d0e; border-radius:6px; overflow:hidden;">
+            <iframe src="https://www.youtube.com/embed/3APatg2mF8w" title="Game video" style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+        <button class="btn" onclick="hideModal('video-modal')">Close</button>
+    </div>
+</div>
+
+<div id="leaderboard-modal" class="modal-overlay">
+    <div class="modal-box yellow-ui">
+        <h2 class="modal-title">🏆 Top 5 Players</h2>
+        <ul class="leaderboard-list" id="leaderboard-list"><li>Loading top 5 players...</li></ul>
+        <button class="btn" onclick="hideModal('leaderboard-modal')">Close</button>
+    </div>
+</div>
+
+<div id="game-screen">
+    <canvas id="gameCanvas"></canvas>
+    <div id="tactical-vignette"></div>
+    
+    <div class="hud-top" id="main-hud-top">
+        <div class="hud-box yellow-ui" style="justify-content: space-around; width:100%;">
+            <span>❤️ <span id="ui-hp-display">10</span></span>        </div>
+        <div class="hud-box yellow-ui" style="margin-top: 5px;">
+            $<span id="ui-money">0</span> | Score: <span id="ui-score">0</span>
+        </div>
+    </div>
+    
+    <div id="action-buttons-container" class="top-right">
+        <div class="dropdown game-action-dropdown" id="btn-inventory-wrap">
+            <button class="circle-btn" ontouchstart="event.preventDefault(); toggleInventoryDropdown()" onmousedown="toggleInventoryDropdown()" title="Inventory">🎒</button>
+            <div class="dropdown-content yellow-ui" id="inventory-dropdown">
+                <div class="game-dropdown-item" ontouchstart="event.preventDefault(); useBandage()" onmousedown="useBandage()">
+                    <span>❤️ Heal</span> <span class="badge" id="drop-heal-count">0</span>
+                </div>
+                <div class="game-dropdown-item" ontouchstart="event.preventDefault(); placeProp('wall')" onmousedown="placeProp('wall')">
+                    <span>🧱 Wall</span> <span class="badge" id="drop-wall-count">0</span>
+                </div>
+                <div class="game-dropdown-item" ontouchstart="event.preventDefault(); placeProp('wire')" onmousedown="placeProp('wire')">
+                    <span>〰️ Wire</span> <span class="badge" id="drop-wire-count">0</span>
+                </div>
+                <div class="game-dropdown-item" ontouchstart="event.preventDefault(); placeProp('turret')" onmousedown="placeProp('turret')">
+                    <span>🔫 Turret</span> <span class="badge" id="drop-turret-count">0</span>
+                </div>
+            </div>
+        </div>
+
+        <button class="circle-btn" id="reload-circle-btn" ontouchstart="event.preventDefault(); reloadGun()" onmousedown="reloadGun()" title="Reload">🔄<span class="mag-count" id="ui-mags">3</span></button>
+        <button class="circle-btn" id="bomb-circle-btn" ontouchstart="event.preventDefault(); useBomb()" onmousedown="useBomb()" title="Throw Bomb">💣<span class="price-badge" id="bomb-price-badge">$100</span></button>
+        <button class="circle-btn" id="shop-circle-btn" ontouchstart="event.preventDefault(); goToShop()" onmousedown="goToShop()" title="Shop">🛒</button>
+        <button class="settings-btn" id="settings-circle-btn" ontouchstart="event.preventDefault(); openSettings()" onmousedown="openSettings()" title="Settings">⚙️</button>
+    </div>
+
+    <div class="hud-bottom" id="main-hud-bottom">
+        <div class="hud-box yellow-ui" style="width: 100%;">
+            Time: <span id="ui-time">0</span>s | Gun: <span id="ui-gun">Pistol (12/12)</span> | <span id="ui-powerups"></span>
+        </div>
+    </div>
+    
+    <div id="joystick-zone"><div id="joystick-knob"></div></div>
+</div>
+
+<div id="shop-modal" class="modal-overlay">
+    <div class="modal-box yellow-ui">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2 class="modal-title" style="margin:0; border:none;">Shop</h2>
+            <button class="btn" onclick="resumeGame('shop-modal')">X</button>
+        </div>
+        <p class="shop-msg" id="shop-message"></p>
+        <div style="display:flex; gap:5px; flex-wrap:wrap;">
+            <button class="btn active-tab" id="tab-guns" onclick="switchShopTab('guns')" style="flex:1; padding: 10px;">🔫 GUNS</button>
+            <button class="btn" id="tab-recovery" onclick="switchShopTab('recovery')" style="flex:1; padding: 10px;">❤️ RECOVERY</button>
+            <button class="btn" id="tab-props" onclick="switchShopTab('props')" style="flex:1; padding: 10px;">🧱 PROPS</button>
+        </div>
+        <div id="section-guns">
+            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>D-Eagle</strong><br>8 dmg | Lvl <span id="deagle-lvl">0</span>/3<br>Cost: $<span id="deagle-cost">100</span></div><div class="shop-item-buttons"><button class="btn" id="btn-buy-deagle" onclick="buyGun('D-Eagle')">BUY</button><button class="btn" id="btn-upgrade-deagle" onclick="upgradeGun('D-Eagle')" style="display:none;">UPG</button></div></div>
+            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>AK47</strong><br>12 dmg | Lvl <span id="ak47-lvl">0</span>/3<br>Cost: $<span id="ak47-cost">500</span></div><div class="shop-item-buttons"><button class="btn" id="btn-buy-ak47" onclick="buyGun('AK47')">BUY</button><button class="btn" id="btn-upgrade-ak47" onclick="upgradeGun('AK47')" style="display:none;">UPG</button></div></div>
+            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>MP40</strong><br>9 dmg | Lvl <span id="mp40-lvl">0</span>/3<br>Cost: $<span id="mp40-cost">2800</span></div><div class="shop-item-buttons"><button class="btn" id="btn-buy-mp40" onclick="buyGun('MP40')">BUY</button><button class="btn" id="btn-upgrade-mp40" onclick="upgradeGun('MP40')" style="display:none;">UPG</button></div></div>
+            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>P90</strong><br>7 dmg | Lvl <span id="p90-lvl">0</span>/3<br>Cost: $<span id="p90-cost">3500</span></div><div class="shop-item-buttons"><button class="btn" id="btn-buy-p90" onclick="buyGun('P90')">BUY</button><button class="btn" id="btn-upgrade-p90" onclick="upgradeGun('P90')" style="display:none;">UPG</button></div></div>
+            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>Shortgun</strong><br>18x5 dmg | Lvl <span id="shortgun-lvl">0</span>/3<br>Cost: $<span id="shortgun-cost">1000</span></div><div class="shop-item-buttons"><button class="btn" id="btn-buy-shortgun" onclick="buyGun('Shortgun')">BUY</button><button class="btn" id="btn-upgrade-shortgun" onclick="upgradeGun('Shortgun')" style="display:none;">UPG</button></div></div>
+            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>S12K</strong><br>12x5 dmg | Lvl <span id="s12k-lvl">0</span>/3<br>Cost: $<span id="s12k-cost">1500</span></div><div class="shop-item-buttons"><button class="btn" id="btn-buy-s12k" onclick="buyGun('S12K')">BUY</button><button class="btn" id="btn-upgrade-s12k" onclick="upgradeGun('S12K')" style="display:none;">UPG</button></div></div>
+            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>S1887</strong><br>25x6 dmg | Lvl <span id="s1887-lvl">0</span>/3<br>Cost: $<span id="s1887-cost">2500</span></div><div class="shop-item-buttons"><button class="btn" id="btn-buy-s1887" onclick="buyGun('S1887')">BUY</button><button class="btn" id="btn-upgrade-s1887" onclick="upgradeGun('S1887')" style="display:none;">UPG</button></div></div>
+            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>M24 Sniper</strong><br>50 dmg | Lvl <span id="m24-lvl">0</span>/3<br>Cost: $<span id="m24-cost">1800</span></div><div class="shop-item-buttons"><button class="btn" id="btn-buy-m24" onclick="buyGun('M24')">BUY</button><button class="btn" id="btn-upgrade-m24" onclick="upgradeGun('M24')" style="display:none;">UPG</button></div></div>
+            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>AWM Sniper</strong><br>30 dmg | Lvl <span id="awm-lvl">0</span>/3<br>Cost: $<span id="awm-cost">2000</span></div><div class="shop-item-buttons"><button class="btn" id="btn-buy-awm" onclick="buyGun('AWM')">BUY</button><button class="btn" id="btn-upgrade-awm" onclick="upgradeGun('AWM')" style="display:none;">UPG</button></div></div>
+            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>Machine Gun</strong><br>8 dmg | Lvl <span id="machinegun-lvl">0</span>/3<br>Cost: $<span id="machinegun-cost">5000</span></div><div class="shop-item-buttons"><button class="btn" id="btn-buy-machinegun" onclick="buyGun('Machine Gun')">BUY</button><button class="btn" id="btn-upgrade-machinegun" onclick="upgradeGun('Machine Gun')" style="display:none;">UPG</button></div></div>
+            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>RPG</strong><br>100 Splash Dmg | Lvl <span id="rpg-lvl">0</span>/3<br>Cost: $<span id="rpg-cost">8000</span></div><div class="shop-item-buttons"><button class="btn" id="btn-buy-rpg" onclick="buyGun('RPG')">BUY</button><button class="btn" id="btn-upgrade-rpg" onclick="upgradeGun('RPG')" style="display:none;">UPG</button></div></div>
+            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>💰 2x Money Boost</strong><br>Cost: $1000</div><div class="shop-item-buttons"><button class="btn" onclick="buyMoneyBoost()">BUY</button></div></div>
+        </div>
+        <div id="section-recovery" style="display:none;">            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>📦 Spare Magazine</strong><br>Cost: $70</div><div class="shop-item-buttons"><button class="btn" onclick="buyMagazine()">BUY</button></div></div>
+            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>🩹 Bandage Pack (x3)</strong><br>Cost: $150</div><div class="shop-item-buttons"><button class="btn" onclick="buyBandages()">BUY</button></div></div>
+            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>🧪 Full Recovery Potion</strong><br>Cost: $500</div><div class="shop-item-buttons"><button class="btn" onclick="buyPotion()">BUY</button></div></div>
+            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>🛡️ Armor</strong><br>Reduces damage taken | Lvl <span id="armor-lvl">0</span>/5<br>Cost: $<span id="armor-cost">200</span></div><div class="shop-item-buttons"><button class="btn" id="btn-buy-armor" onclick="buyArmor()">BUY</button></div></div>
+            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>🛡️ Shield (10s)</strong><br>Cost: $<span id="shield-cost-display">100</span></div><div class="shop-item-buttons"><button class="btn" id="btn-buy-shield" onclick="buyShield()">BUY</button></div></div>
+        </div>
+        <div id="section-props" style="display:none;">
+            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>🧱 Wall</strong><br>Cost: $11</div><div class="shop-item-buttons"><button class="btn" onclick="buyWall()">BUY</button></div></div>
+            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>🪢 Barbed Wire</strong><br>Cost: $11</div><div class="shop-item-buttons"><button class="btn" onclick="buyWire()">BUY</button></div></div>
+            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>🔫 Auto-Turret</strong><br>Invincible, 10 rds/sec<br>15s Placed Cooldown<br>Cost: $10000</div><div class="shop-item-buttons"><button class="btn" onclick="buyTurret()">BUY</button></div></div>
+            <div class="shop-item yellow-ui" style="border: 4px solid #a855f7; box-shadow: 0 0 10px #a855f7 inset;"><div class="shop-item-details"><strong style="color: #a855f7;">🗝️ Boss Key</strong><br>Cost: $20000<br>Summons the Mega Boss!</div><div class="shop-item-buttons"><button class="btn" style="background: linear-gradient(180deg, #c084fc 0%, #7e22ce 100%);" onclick="buyBossKey()">BUY</button></div></div>
+        </div>
+    </div>
+</div>
+
+<div id="settings-modal" class="modal-overlay">
+    <div class="modal-box yellow-ui">
+        <h2 class="modal-title">Settings</h2>
+        <div style="font-size:clamp(10px, 3vw, 14px); text-align:left;">
+            <label>🗺️ Minimap Position:</label>
+            <select id="minimap-pos" class="btn" style="width:100%; margin:10px 0;">
+                <option value="top-right">Top Right</option>
+                <option value="top-left">Top Left</option>
+                <option value="bottom-right">Bottom Right</option>
+                <option value="bottom-left">Bottom Left</option>
+            </select>
+            <label>🎮 Buttons Position:</label>
+            <select id="buttons-pos" class="btn" style="width:100%; margin:10px 0;">
+                <option value="top-right">Top Right</option>
+                <option value="top-left">Top Left</option>
+                <option value="bottom-right">Bottom Right</option>
+                <option value="bottom-left">Bottom Left</option>
+            </select>
+            
+            <button class="btn" style="width:100%; margin:10px 0; background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);" onclick="resetHUDLayout()">🗑️ Reset HUD Layout</button>
+        </div>
+        
+        <button class="btn" style="background: linear-gradient(180deg, #4ade80 0%, #16a34a 100%); margin-top: 10px;" onclick="saveGame()">💾 Save Game Session</button>
+        <button class="btn" onclick="saveUISettings()">Save UI Settings</button>
+        <button class="btn" onclick="resumeGame('settings-modal')">Resume Game</button>
+        <button class="btn" onclick="exitToMenu()">Main Menu</button>
+    </div>
+</div>
+
+<div id="gameover-modal" class="modal-overlay">
+    <div class="modal-box yellow-ui">
+        <h2 class="modal-title" style="color:#dc2626;">YOU DIED</h2>
+        <p style="font-size:clamp(10px, 3vw, 14px);">Player: <span id="go-player"></span></p>
+        <p style="font-size:clamp(10px, 3vw, 14px);">Final Score: <span id="go-score"></span></p>
+        <p style="font-size:clamp(10px, 3vw, 14px);">Time Lived: <span id="go-time"></span>s</p>
+        <p style="font-size:clamp(10px, 3vw, 14px);">Kills: <span id="go-kills"></span></p>
+        <p style="font-size:clamp(10px, 3vw, 14px); color:#facc15;" id="go-highscore-msg"></p>
+        <button class="btn" onclick="restartGame(false)">Restart New Game</button>
+        <button class="btn" onclick="exitToMenu()">Main Menu</button>
+    </div>
+</div>
+
+<div id="verify-modal" class="modal-overlay">
+    <div class="modal-box yellow-ui">
+        <h2 class="modal-title">Access Restricted</h2>
+        <p style="font-size: clamp(8px, 2.5vw, 12px); line-height: 1.5; margin-bottom: 15px;">Please enter the verification code to play.</p>
+        <input type="password" id="verify-input" class="username-input-in-dropdown" placeholder="Enter code..." style="margin-bottom: 10px;">
+        <p id="verify-error" style="color: #dc2626; font-size: clamp(8px, 2.5vw, 10px); height: 12px; margin-bottom: 15px; text-shadow: 1px 1px 0 #000;"></p>
+        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            <button class="btn" onclick="checkVerification()">Verify & Play</button>
+            <button class="btn" onclick="hideModal('verify-modal')">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ⚠️ REPLACE THIS WITH YOUR OWN FIREBASE PROJECT'S CONFIG ⚠️
+// See SETUP_DATABASE.md (provided alongside this file) for step-by-step instructions.
+const firebaseConfig = {
+    apiKey: "AIzaSyAUZ0oXEwx_Cd429s4SmOaxicLkAnT2TSU",
+    authDomain: "defence-evolution-bcaf0.firebaseapp.com",
+    databaseURL: "https://defence-evolution-bcaf0-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "defence-evolution-bcaf0",
+    storageBucket: "defence-evolution-bcaf0.firebasestorage.app",
+    messagingSenderId: "405080740974",
+    appId: "1:405080740974:web:bb1bccc5c9d0d7c739c27f"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const ROOM_PATH = 'defenceEvolution/gameRoom';
+
+// SYNTHESIZED SOUND EFFECTS ENGINE
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playSound(type) {
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+    const now = audioCtx.currentTime;
+    
+    if(type === 'shoot') {
+        osc.type = 'square'; osc.frequency.setValueAtTime(400, now); osc.frequency.exponentialRampToValueAtTime(100, now + 0.1);
+        gainNode.gain.setValueAtTime(0.05, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+        osc.start(now); osc.stop(now + 0.1);
+    } else if (type === 'hit') {
+        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, now); osc.frequency.exponentialRampToValueAtTime(50, now + 0.1);
+        gainNode.gain.setValueAtTime(0.1, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+        osc.start(now); osc.stop(now + 0.1);
+    } else if (type === 'coin') {
+        osc.type = 'sine'; osc.frequency.setValueAtTime(800, now); osc.frequency.setValueAtTime(1200, now + 0.05);
+        gainNode.gain.setValueAtTime(0.05, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+        osc.start(now); osc.stop(now + 0.1);
+    } else if (type === 'explosion') {
+        osc.type = 'square'; osc.frequency.setValueAtTime(100, now); osc.frequency.exponentialRampToValueAtTime(20, now + 0.3);
+        gainNode.gain.setValueAtTime(0.15, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+        osc.start(now); osc.stop(now + 0.3);
+    } else if (type === 'boss') {
+        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(60, now); osc.frequency.exponentialRampToValueAtTime(30, now + 1.0);
+        gainNode.gain.setValueAtTime(0.3, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 1.0);
+        osc.start(now); osc.stop(now + 1.0);
+    }
+}
+
+// HUD BLOCKERS
+let hudEditActive = false;
+
+function toggleInventoryDropdown() { if(hudEditActive) return; document.getElementById('inventory-dropdown').classList.toggle('show'); }
+function openSettings() { if(hudEditActive) return; isPaused = true; showModal('settings-modal'); } 
+function resumeGame(id) { hideModal(id); if (id === 'shop-modal' || id === 'settings-modal') isPaused = false; } 
+function goToShop() { if(hudEditActive) return; isPaused = true; showModal('shop-modal'); updateShopUI(); document.getElementById('shop-message').innerText = ""; switchShopTab('guns'); }
+function useBomb() { 
+    if(hudEditActive) return; 
+    if (money >= bombPrice) { 
+        money -= bombPrice; bombPrice = Math.min(bombPrice * 2, 1600); 
+        let targetX = player.x + 200, targetY = player.y;
+        let dist = Infinity;
+        for(let e of enemies) { let d = Math.hypot(player.x - e.x, player.y - e.y); if(d < dist) { dist = d; targetX = e.x; targetY = e.y; } }
+        if (dist === Infinity && (joyX !== 0 || joyY !== 0)) { targetX = player.x + joyX*200; targetY = player.y + joyY*200; }
+        
+        let angle = Math.atan2(targetY - player.y, targetX - player.x);
+        let speed = 8;
+        let newBomb = { id: genId(), x: player.x, y: player.y, vx: Math.cos(angle)*speed, vy: Math.sin(angle)*speed, timer: 60 };
+        activeBombs.push(newBomb); sendBroadcast('bomb_thrown', newBomb); updateHUD(); 
+    } 
+}
+function reloadGun() { if(hudEditActive) return; if (isReloading || currentAmmo === gunStats[currentGun].magSize) return; if (spareMags > 0) { isReloading = true; spareMags--; reloadEndTime = Date.now() + gunStats[currentGun].reloadTime; updateHUD(); } }
+
+
+let isMultiplayer = true; // Game always runs in multiplayer mode
+
+let isContinueNext = false;
+function checkRankThenPlay(isContinueGame) {
+    if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    isContinueNext = isContinueGame;
+    const name = document.getElementById('dropdown-username-input').value.trim() || selectedUser;
+    if (!name) { document.getElementById('menu-error').innerText = "PLEASE CHOOSE A USERNAME FIRST!"; return; }
+    const rankInfo = getPlayerRankInfo(name);
+    if (rankInfo.text === 'MEMBER') { startGame(); } else { showModal('verify-modal'); }
+}
+
+function checkVerification() {
+    if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    const codeInput = document.getElementById('verify-input').value;
+    const errorMsg = document.getElementById('verify-error');
+    const dropdownInput = document.getElementById('dropdown-username-input').value.trim();
+    const currentUser = dropdownInput || selectedUser;
+    if(!currentUser) { hideModal('verify-modal'); document.getElementById('menu-error').innerText = "PLEASE CHOOSE A USERNAME FIRST!"; return; }
+
+    const rankInfo = getPlayerRankInfo(currentUser);
+    let expectedCode = "";
+    if (rankInfo.text === '👑 OWNER') expectedCode = "ratycaty";
+    else if (rankInfo.text === '🤝 ASSIST-DEV') expectedCode = "meow";
+    else if (rankInfo.text === '🛡️ ADMIN') expectedCode = "ratcat";
+
+    if (codeInput === expectedCode) {
+        errorMsg.innerText = ""; document.getElementById('verify-input').value = ""; hideModal('verify-modal');
+        let docEl = document.documentElement;
+        if (docEl.requestFullscreen) docEl.requestFullscreen(); else if (docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen(); else if (docEl.msRequestFullscreen) docEl.msRequestFullscreen();
+        startGame(); 
+    } else { errorMsg.innerText = "INVALID VERIFICATION CODE!"; }
+}
+
+let gameChannel = null; let isChannelReady = false; let otherPlayers = {}; let lastBroadcastTime = 0;
+function isSpawnAuthority() {
+    if (!isMultiplayer || !isChannelReady) return true; // solo play: always the authority
+    const ids = [mySessionId, ...Object.keys(otherPlayers)];
+    return mySessionId === ids.sort()[0]; // lowest session id in the room spawns for everyone
+}
+let fbPlayersRef = null, fbEnemySyncRef = null, fbEventsRef = null;
+let mySessionId = '';
+const genId = () => Math.random().toString(36).substr(2, 9);
+const RATCAT_RANKS = {
+    'ratnesh': { text: '👑 OWNER', color: '#00ffff' }, 'ratneshkumar': { text: '👑 OWNER', color: '#00ffff' },
+    'harshit': { text: '🤝 ASSIST-DEV', color: '#00ffff' }, 'priyanshu': { text: '🤝 ASSIST-DEV', color: '#00ffff' },
+    'yash kumar singh': { text: '🤝 ASSIST-DEV', color: '#00ffff' }, 'ujjwal': { text: '🤝 ASSIST-DEV', color: '#00ffff' },
+};
+
+function getPlayerRankInfo(username) {
+    if (!username) return { text: 'MEMBER', color: '#9ca3af' };
+    let cleanName = username.toLowerCase().replace(/[^a-z0-9]/g, '');
+    let rank = RATCAT_RANKS[cleanName]; return rank ? rank : { text: 'MEMBER', color: '#9ca3af' };
+}
+
+function sendBroadcast(eventName, payloadData) {
+    if (!isMultiplayer || !isChannelReady) return;
+    if (eventName === 'player_sync') { db.ref(ROOM_PATH + '/players/' + mySessionId).set({ ...payloadData, ts: firebase.database.ServerValue.TIMESTAMP }); return; }
+    if (eventName === 'all_enemies_sync') { db.ref(ROOM_PATH + '/enemySync/' + mySessionId).set({ enemies: payloadData.enemies, ts: firebase.database.ServerValue.TIMESTAMP }); return; }
+    db.ref(ROOM_PATH + '/events').push({ event: eventName, payload: payloadData, sender: mySessionId, ts: firebase.database.ServerValue.TIMESTAMP });
+}
+
+function withTimeout(promise, ms) { return Promise.race([promise, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]); }
+
+async function getGlobalLeaderboard() {
+    const local = getLocalLeaderboard().map(e => ({ player_name: e.player_name, score: e.score, kills: e.kills, time_lived: e.time }));
+    try {
+        const snap = await withTimeout(db.ref('leaderboard').orderByChild('score').limitToLast(50).once('value'), 4000);
+        const val = snap.val() || {};
+        const remote = Object.values(val);
+        const merged = [...remote, ...local];
+        const seen = new Set(); const deduped = [];
+        for (const e of merged) { const key = e.player_name + '-' + e.score + '-' + e.kills + '-' + e.time_lived; if (seen.has(key)) continue; seen.add(key); deduped.push(e); }
+        deduped.sort((a,b) => b.score - a.score);
+        return deduped;
+    } catch(e) { return local.sort((a,b) => b.score - a.score); }
+}
+async function getGlobalUsernames() { try { const snap = await withTimeout(db.ref('usernames').orderByChild('last_used').limitToLast(20).once('value'), 4000); const val = snap.val() || {}; return Object.keys(val).sort((a,b) => (val[b].last_used||0) - (val[a].last_used||0)); } catch(e) { return getLocalUsernames(); } }
+async function addGlobalUsername(username) {
+    const local = getLocalUsernames().filter(n => n !== username); local.unshift(username); saveLocalUsernames(local.slice(0,20));
+    try { await db.ref('usernames/' + username.replace(/[.#$\[\]\/]/g, '_')).set({ username: username, last_used: firebase.database.ServerValue.TIMESTAMP }); } catch(e) { /* saved locally already */ }
+}
+function getLocalUsernames() { try { return JSON.parse(localStorage.getItem('global_username_history')||'[]'); } catch(e) { return []; } }
+function saveLocalUsernames(usernames) { localStorage.setItem('global_username_history', JSON.stringify(usernames)); }
+async function addGlobalHighScore(playerName, score, timeLived, kills) {
+    const local = getLocalLeaderboard(); local.push({player_name: playerName, score: score, time: timeLived, kills: kills, date: new Date().toISOString()}); local.sort((a,b) => b.score - a.score); saveLocalLeaderboard(local.slice(0,50));
+    try { await withTimeout(db.ref('leaderboard').push({ player_name: playerName, score: score, time_lived: timeLived, kills: kills }), 4000); } catch(e) { /* saved locally already */ }
+}
+async function isNewGlobalHighScore(score) {
+    const local = getLocalLeaderboard();
+    const localIsHigh = local.length < 5 || score > (local[local.length-1]?.score || 0);
+    try { const snap = await withTimeout(db.ref('leaderboard').orderByChild('score').limitToLast(50).once('value'), 4000); const val = snap.val() || {}; const arr = Object.values(val); arr.sort((a,b)=>a.score-b.score); return (arr.length < 50 || score > (arr[0]?.score || 0)) || localIsHigh; } catch(e) { return localIsHigh; }
+}
+function getLocalLeaderboard() { try { return JSON.parse(localStorage.getItem('defence_leaderboard')||'[]'); } catch(e) { return []; } }
+function saveLocalLeaderboard(leaderboard) { localStorage.setItem('defence_leaderboard', JSON.stringify(leaderboard)); }
+
+async function updateUsernameDropdown() {
+    const container = document.getElementById('username-history-items'); container.innerHTML = '<div class="dropdown-item" style="color:#854d0e;">Loading...</div>';
+    const usernames = await getGlobalUsernames(); container.innerHTML = '';
+    if(usernames.length === 0) container.innerHTML = '<div class="dropdown-item" style="color:#854d0e;">No history yet</div>';
+    else usernames.forEach(name => { const div = document.createElement('div'); div.className = 'dropdown-item'; div.onclick = () => selectUser(name); div.innerText = name; container.appendChild(div); });
+}
+function clearUsernameHistory() { localStorage.removeItem('global_username_history'); document.getElementById('username-history-items').innerHTML = '<div class="dropdown-item" style="color:#854d0e;">No history yet</div>'; document.getElementById('username-list').classList.remove('show'); }
+
+function createPixelTexture(color, detailColor, type) {
+    let tc = document.createElement('canvas');
+    tc.width = 32;
+    tc.height = 32;
+    let tctx = tc.getContext('2d');
+    tctx.fillStyle = color;
+    if(color) tctx.fillRect(0,0,32,32);
+    tctx.fillStyle = detailColor;
+
+    if(type === 'sand') {
+        let g = tctx.createLinearGradient(0,0,32,32);
+        g.addColorStop(0, '#e8cf85'); g.addColorStop(0.5, '#d4b25e'); g.addColorStop(1, '#b8934a');
+        tctx.fillStyle = g; tctx.fillRect(0,0,32,32);
+        // broad soft dune shadows for depth
+        for(let i=0; i<3; i++) {
+            tctx.fillStyle = 'rgba(150,115,45,0.12)';
+            let px = Math.random()*32, py = Math.random()*32, r = 6 + Math.random()*7;
+            tctx.beginPath(); tctx.ellipse(px, py, r, r*0.6, Math.random()*Math.PI, 0, Math.PI*2); tctx.fill();
+        }
+        for(let i=0; i<6; i++) {
+            tctx.fillStyle = 'rgba(180,140,50,0.18)';
+            let px = Math.random()*32, py = Math.random()*32, r = 4 + Math.random()*5;
+            tctx.beginPath(); tctx.arc(px, py, r, 0, Math.PI*2); tctx.fill();
+        }
+        for(let i=0; i<70; i++) {
+            tctx.fillStyle = Math.random() > 0.5 ? 'rgba(90,65,20,0.35)' : 'rgba(255,240,190,0.35)';
+            tctx.fillRect(Math.random()*32, Math.random()*32, 1.5, 1.5);
+        }
+        tctx.strokeStyle = 'rgba(90,65,20,0.12)'; tctx.lineWidth = 1; tctx.strokeRect(0.5,0.5,31,31);
+        if (Math.random() < 0.35) {
+            // small pebble cluster
+            let rx = 4 + Math.random()*24, ry = 4 + Math.random()*24;
+            for (let r = 0; r < 3; r++) {
+                tctx.fillStyle = 'rgba(0,0,0,0.18)';
+                tctx.beginPath(); tctx.ellipse(rx + r*3 - 3, ry + (r%2)*2 + 0.6, 2, 1.3, 0, 0, Math.PI*2); tctx.fill();
+                tctx.fillStyle = 'rgba(120,95,55,0.6)';
+                tctx.beginPath(); tctx.ellipse(rx + r*3 - 3, ry + (r%2)*2, 2, 1.3, 0, 0, Math.PI*2); tctx.fill();
+                tctx.fillStyle = 'rgba(255,235,180,0.4)';
+                tctx.beginPath(); tctx.ellipse(rx + r*3 - 3.4, ry + (r%2)*2 - 0.4, 0.8, 0.5, 0, 0, Math.PI*2); tctx.fill();
+            }
+        } else if (Math.random() < 0.25) {
+            // tiny dry grass tuft
+            let gx = 4 + Math.random()*24, gy = 4 + Math.random()*24;
+            tctx.strokeStyle = 'rgba(120,105,35,0.6)'; tctx.lineWidth = 1;
+            for (let b = 0; b < 4; b++) {
+                let ang = -Math.PI/2 + (b - 1.5) * 0.35;
+                tctx.beginPath(); tctx.moveTo(gx, gy); tctx.lineTo(gx + Math.cos(ang)*4, gy + Math.sin(ang)*4); tctx.stroke();
+            }
+            tctx.strokeStyle = 'rgba(190,210,90,0.35)'; tctx.lineWidth = 0.6;
+            for (let b = 0; b < 3; b++) {
+                let ang = -Math.PI/2 + (b - 1) * 0.3;
+                tctx.beginPath(); tctx.moveTo(gx, gy); tctx.lineTo(gx + Math.cos(ang)*3, gy + Math.sin(ang)*3); tctx.stroke();
+            }
+        } else if (Math.random() < 0.2) {
+            // subtle crack
+            tctx.strokeStyle = 'rgba(80,55,15,0.32)'; tctx.lineWidth = 0.8;
+            let cx0 = Math.random()*32, cy0 = Math.random()*32;
+            tctx.beginPath(); tctx.moveTo(cx0, cy0);
+            for (let seg = 0; seg < 3; seg++) { cx0 += (Math.random()-0.5)*8; cy0 += (Math.random()-0.5)*8; tctx.lineTo(cx0, cy0); }
+            tctx.stroke();
+        }
+    } else if (type === 'chest') {
+        tctx.fillStyle = 'rgba(0,0,0,0.35)'; tctx.beginPath(); tctx.ellipse(16,29,11,3,0,0,Math.PI*2); tctx.fill();
+        let cg = tctx.createLinearGradient(0,6,0,28);
+        cg.addColorStop(0, '#a5652c'); cg.addColorStop(1, '#5c2e0d');
+        tctx.fillStyle = cg; tctx.fillRect(3,14,26,14);
+        tctx.strokeStyle = '#2b1305'; tctx.lineWidth = 1.5; tctx.strokeRect(3,14,26,14);
+        tctx.strokeStyle = 'rgba(0,0,0,0.25)';
+        for(let px=8; px<28; px+=6){ tctx.beginPath(); tctx.moveTo(px,15); tctx.lineTo(px,27); tctx.stroke(); }
+        let lg = tctx.createLinearGradient(0,3,0,15);
+        lg.addColorStop(0, '#d99a4e'); lg.addColorStop(1, '#8a4a1c');
+        tctx.fillStyle = lg;
+        tctx.beginPath(); tctx.moveTo(3,15); tctx.quadraticCurveTo(16,2,29,15); tctx.closePath(); tctx.fill();
+        tctx.strokeStyle = '#2b1305'; tctx.lineWidth = 1.5;
+        tctx.beginPath(); tctx.moveTo(3,15); tctx.quadraticCurveTo(16,2,29,15); tctx.stroke();
+        tctx.fillStyle = '#3f3f46'; tctx.fillRect(0,13,32,3); tctx.fillRect(14,3,4,25);
+        tctx.fillStyle = '#71717a'; tctx.fillRect(0,13,32,1);
+        tctx.fillStyle = '#a16207'; tctx.beginPath(); tctx.arc(16,17,4.5,0,Math.PI*2); tctx.fill();
+        tctx.fillStyle = '#fde047'; tctx.beginPath(); tctx.arc(16,17,2.8,0,Math.PI*2); tctx.fill();
+        tctx.fillStyle = 'rgba(255,255,255,0.6)'; tctx.beginPath(); tctx.arc(14.5,15.5,1,0,Math.PI*2); tctx.fill();
+    } else if (type === 'money') {
+        tctx.fillStyle = 'rgba(0,0,0,0.3)'; tctx.beginPath(); tctx.ellipse(16,27,10,2.5,0,0,Math.PI*2); tctx.fill();
+        tctx.fillStyle = '#a16207'; tctx.beginPath(); tctx.ellipse(16,20,11,6,0,0,Math.PI*2); tctx.fill();
+        let mg = tctx.createRadialGradient(13,13,2,16,15,13);
+        mg.addColorStop(0, '#fef08a'); mg.addColorStop(0.6, '#facc15'); mg.addColorStop(1, '#ca8a04');
+        tctx.fillStyle = mg; tctx.beginPath(); tctx.ellipse(16,15,11,6,0,0,Math.PI*2); tctx.fill();
+        tctx.strokeStyle = '#854d0e'; tctx.lineWidth = 1.2; tctx.stroke();
+        tctx.strokeStyle = 'rgba(133,77,14,0.5)'; tctx.beginPath(); tctx.ellipse(16,15,7,3.6,0,0,Math.PI*2); tctx.stroke();
+        tctx.fillStyle = '#78350f'; tctx.font = "bold 9px monospace"; tctx.textAlign = 'center'; tctx.fillText("$", 16, 18);
+        tctx.fillStyle = 'rgba(255,255,255,0.7)'; tctx.beginPath(); tctx.ellipse(12,12,2.5,1.2,-0.4,0,Math.PI*2); tctx.fill();
+    } else if (type === 'bandage') {
+        tctx.fillStyle = 'rgba(0,0,0,0.25)'; tctx.beginPath(); tctx.ellipse(16,27,9,2.5,0,0,Math.PI*2); tctx.fill();
+        tctx.save(); tctx.translate(16,16); tctx.rotate(-0.4);
+        let bg = tctx.createLinearGradient(-11,0,11,0);
+        bg.addColorStop(0, '#e2e8f0'); bg.addColorStop(0.5, '#ffffff'); bg.addColorStop(1, '#cbd5e1');
+        tctx.fillStyle = bg; tctx.fillRect(-11,-7,22,14);
+        tctx.strokeStyle = '#94a3b8'; tctx.lineWidth = 1; tctx.strokeRect(-11,-7,22,14);
+        tctx.strokeStyle = 'rgba(148,163,184,0.6)';
+        for(let fx=-7; fx<=7; fx+=4){ tctx.beginPath(); tctx.moveTo(fx,-7); tctx.lineTo(fx,7); tctx.stroke(); }
+        tctx.fillStyle = '#dc2626'; tctx.fillRect(-2.2,-5.5,4.4,11); tctx.fillRect(-5.5,-2.2,11,4.4);
+        tctx.strokeStyle = '#7f1d1d'; tctx.lineWidth = 0.6; tctx.strokeRect(-2.2,-5.5,4.4,11); tctx.strokeRect(-5.5,-2.2,11,4.4);
+        tctx.restore();
+    } else if (type === 'enemy') {
+        tctx.fillStyle = '#3f2a1d'; tctx.fillRect(10,2,12,8);
+        tctx.fillStyle = '#1a120b'; tctx.fillRect(9,1,14,4);
+        tctx.fillStyle = '#4d7c0f'; tctx.fillRect(6,8,20,16);
+        tctx.fillStyle = '#365314'; tctx.fillRect(6,8,20,4);
+        tctx.fillStyle = '#000'; tctx.fillRect(9,11,4,4); tctx.fillRect(19,11,4,4);
+        tctx.fillStyle = '#ef4444'; tctx.fillRect(10,12,2,2); tctx.fillRect(20,12,2,2);
+        tctx.fillStyle = '#1c1917'; tctx.fillRect(11,18,10,3);
+        tctx.fillStyle = '#292524'; tctx.fillRect(4,24,8,8); tctx.fillRect(20,24,8,8);
+    } else if (type === 'boss') {
+        tctx.fillStyle = '#1c1917'; tctx.fillRect(0,0,32,32);
+        tctx.fillStyle = '#7c2d12'; tctx.fillRect(2,4,28,24);
+        tctx.fillStyle = '#991b1b'; tctx.fillRect(4,8,24,18);
+        tctx.fillStyle = '#450a0a'; tctx.fillRect(4,8,24,5);
+        tctx.fillStyle = '#000'; tctx.fillRect(6,12,9,9); tctx.fillRect(17,12,9,9);
+        tctx.fillStyle = '#facc15'; tctx.fillRect(8,15,4,4); tctx.fillRect(19,15,4,4);
+        tctx.fillStyle = '#fbbf24'; tctx.fillRect(4,0,5,8); tctx.fillRect(13,0,6,8); tctx.fillRect(23,0,5,8);
+        tctx.fillStyle = '#f8fafc'; tctx.fillRect(10,22,3,5); tctx.fillRect(19,22,3,5);
+    } else if (type === 'pet_dog') {
+        tctx.fillStyle = 'rgba(0,0,0,0.3)'; tctx.beginPath(); tctx.ellipse(16,29,10,2.5,0,0,Math.PI*2); tctx.fill();
+        // tail
+        tctx.strokeStyle = '#92400e'; tctx.lineWidth = 3.5; tctx.lineCap = 'round';
+        tctx.beginPath(); tctx.moveTo(27,22); tctx.quadraticCurveTo(32,16,28,10); tctx.stroke();
+        // body
+        let dg = tctx.createRadialGradient(13,17,3,16,20,14);
+        dg.addColorStop(0, '#d97706'); dg.addColorStop(1, '#92400e');
+        tctx.fillStyle = dg; tctx.beginPath(); tctx.ellipse(16,21,11,8,0,0,Math.PI*2); tctx.fill();
+        // head
+        tctx.fillStyle = dg; tctx.beginPath(); tctx.ellipse(11,13,8,7.5,0,0,Math.PI*2); tctx.fill();
+        // ears (floppy)
+        tctx.fillStyle = '#78350f';
+        tctx.beginPath(); tctx.ellipse(5,11,3.2,5.5,-0.4,0,Math.PI*2); tctx.fill();
+        tctx.beginPath(); tctx.ellipse(16,10,3,5,0.5,0,Math.PI*2); tctx.fill();
+        // snout
+        tctx.fillStyle = '#fde68a'; tctx.beginPath(); tctx.ellipse(6,16,4,3,0,0,Math.PI*2); tctx.fill();
+        tctx.fillStyle = '#1c1917'; tctx.beginPath(); tctx.arc(3.5,15.5,1.4,0,Math.PI*2); tctx.fill();
+        // eye
+        tctx.fillStyle = '#1c1917'; tctx.beginPath(); tctx.arc(10,11,1.4,0,Math.PI*2); tctx.fill();
+        tctx.fillStyle = '#fff'; tctx.beginPath(); tctx.arc(10.5,10.5,0.5,0,Math.PI*2); tctx.fill();
+        // legs
+        tctx.fillStyle = '#92400e'; tctx.fillRect(10,26,3,4); tctx.fillRect(20,26,3,4);
+    } else if (type === 'pet_cat') {
+        tctx.fillStyle = 'rgba(0,0,0,0.3)'; tctx.beginPath(); tctx.ellipse(16,29,10,2.5,0,0,Math.PI*2); tctx.fill();
+        // tail curled
+        tctx.strokeStyle = '#27272a'; tctx.lineWidth = 3; tctx.lineCap = 'round';
+        tctx.beginPath(); tctx.moveTo(26,23); tctx.quadraticCurveTo(31,20,29,14); tctx.quadraticCurveTo(28,11,25,12); tctx.stroke();
+        // body
+        let cg2 = tctx.createRadialGradient(13,17,3,16,20,14);
+        cg2.addColorStop(0, '#3f3f46'); cg2.addColorStop(1, '#18181b');
+        tctx.fillStyle = cg2; tctx.beginPath(); tctx.ellipse(16,21,10,7.5,0,0,Math.PI*2); tctx.fill();
+        // head
+        tctx.fillStyle = cg2; tctx.beginPath(); tctx.arc(11,12,7,0,Math.PI*2); tctx.fill();
+        // pointed ears
+        tctx.fillStyle = '#18181b';
+        tctx.beginPath(); tctx.moveTo(5,9); tctx.lineTo(6,2); tctx.lineTo(10,7); tctx.closePath(); tctx.fill();
+        tctx.beginPath(); tctx.moveTo(14,7); tctx.lineTo(17,2); tctx.lineTo(17,9); tctx.closePath(); tctx.fill();
+        tctx.fillStyle = '#f472b6';
+        tctx.beginPath(); tctx.moveTo(6.5,8); tctx.lineTo(7,4); tctx.lineTo(9,7); tctx.closePath(); tctx.fill();
+        // eyes (green, catlike)
+        tctx.fillStyle = '#4ade80'; tctx.beginPath(); tctx.ellipse(8,12,1.5,2,0,0,Math.PI*2); tctx.fill(); tctx.beginPath(); tctx.ellipse(13,12,1.5,2,0,0,Math.PI*2); tctx.fill();
+        tctx.fillStyle = '#000'; tctx.fillRect(7.6,11,0.8,2); tctx.fillRect(12.6,11,0.8,2);
+        // nose + whiskers
+        tctx.fillStyle = '#f472b6'; tctx.beginPath(); tctx.moveTo(10,15); tctx.lineTo(11.5,15); tctx.lineTo(10.75,16.2); tctx.closePath(); tctx.fill();
+        tctx.strokeStyle = 'rgba(255,255,255,0.5)'; tctx.lineWidth = 0.5;
+        tctx.beginPath(); tctx.moveTo(2,14); tctx.lineTo(8,15); tctx.moveTo(2,17); tctx.lineTo(8,17); tctx.stroke();
+        // legs
+        tctx.fillStyle = '#18181b'; tctx.fillRect(10,26,3,4); tctx.fillRect(19,26,3,4);
+    } else if (type === 'pet_robot') {
+        tctx.fillStyle = 'rgba(0,0,0,0.3)'; tctx.beginPath(); tctx.ellipse(16,29,10,2.5,0,0,Math.PI*2); tctx.fill();
+        // antenna
+        tctx.strokeStyle = '#71717a'; tctx.lineWidth = 2; tctx.beginPath(); tctx.moveTo(16,10); tctx.lineTo(16,3); tctx.stroke();
+        tctx.fillStyle = '#f87171'; tctx.beginPath(); tctx.arc(16,2,2.2,0,Math.PI*2); tctx.fill();
+        // body (rounded metallic box)
+        let rg = tctx.createLinearGradient(6,10,26,28);
+        rg.addColorStop(0, '#e4e4e7'); rg.addColorStop(0.5, '#a1a1aa'); rg.addColorStop(1, '#71717a');
+        tctx.fillStyle = rg; 
+        tctx.beginPath(); tctx.moveTo(9,10); tctx.lineTo(23,10); tctx.quadraticCurveTo(27,10,27,15); tctx.lineTo(27,23); tctx.quadraticCurveTo(27,28,22,28); tctx.lineTo(10,28); tctx.quadraticCurveTo(5,28,5,23); tctx.lineTo(5,15); tctx.quadraticCurveTo(5,10,9,10); tctx.closePath(); tctx.fill();
+        tctx.strokeStyle = '#52525b'; tctx.lineWidth = 1; tctx.stroke();
+        // visor / face screen
+        tctx.fillStyle = '#0f172a'; tctx.fillRect(8,14,16,8); 
+        tctx.strokeStyle = '#3f3f46'; tctx.lineWidth = 1; tctx.strokeRect(8,14,16,8);
+        // glowing eye
+        let eg = tctx.createRadialGradient(16,18,1,16,18,5);
+        eg.addColorStop(0, '#7dd3fc'); eg.addColorStop(1, 'rgba(56,189,248,0)');
+        tctx.fillStyle = eg; tctx.beginPath(); tctx.arc(16,18,5,0,Math.PI*2); tctx.fill();
+        tctx.fillStyle = '#38bdf8'; tctx.beginPath(); tctx.arc(16,18,2.2,0,Math.PI*2); tctx.fill();
+        // side bolts
+        tctx.fillStyle = '#52525b'; tctx.beginPath(); tctx.arc(6,20,1.3,0,Math.PI*2); tctx.fill(); tctx.beginPath(); tctx.arc(26,20,1.3,0,Math.PI*2); tctx.fill();
+        // treads/legs
+        tctx.fillStyle = '#3f3f46'; tctx.fillRect(8,27,5,3); tctx.fillRect(19,27,5,3);
+    }
+    return tc;
+}
+
+const texSand = createPixelTexture('#7d7566', '#5e564a', 'sand');
+const texSandVariants = [texSand, createPixelTexture('#7d7566', '#5e564a', 'sand'), createPixelTexture('#7d7566', '#5e564a', 'sand'), createPixelTexture('#7d7566', '#5e564a', 'sand')];
+function pickGroundTile(tileX, tileY) {
+    let h = ((tileX * 374761393 + tileY * 668265263) ^ (tileX * 69069)) >>> 0;
+    return texSandVariants[h % texSandVariants.length];
+}
+function shadeColor(color, percent) {
+    let f = parseInt(color.slice(1), 16), t = percent < 0 ? 0 : 255, p = percent < 0 ? percent * -1 : percent;
+    let R = f >> 16, G = f >> 8 & 0x00FF, B = f & 0x0000FF;
+    return "#" + (0x1000000 + (Math.round((t - R) * p) + R) * 0x10000 + (Math.round((t - G) * p) + G) * 0x100 + (Math.round((t - B) * p) + B)).toString(16).slice(1);
+}
+function drawIsoCube(cx, cy, s, base) {
+    let top = shadeColor(base, 0.4), left = shadeColor(base, -0.05), right = shadeColor(base, -0.35);
+    let hw = s * 0.5, hh = s * 0.28;
+    ctx.save();
+    ctx.strokeStyle = 'rgba(0,0,0,0.35)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(cx, cy - s); ctx.lineTo(cx + hw, cy - s + hh); ctx.lineTo(cx, cy - s + hh * 2); ctx.lineTo(cx - hw, cy - s + hh); ctx.closePath(); ctx.fillStyle = top; ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx - hw, cy - s + hh); ctx.lineTo(cx, cy - s + hh * 2); ctx.lineTo(cx, cy); ctx.lineTo(cx - hw, cy - hh); ctx.closePath(); ctx.fillStyle = left; ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx + hw, cy - s + hh); ctx.lineTo(cx, cy - s + hh * 2); ctx.lineTo(cx, cy); ctx.lineTo(cx + hw, cy - hh); ctx.closePath(); ctx.fillStyle = right; ctx.fill(); ctx.stroke();
+    // subtle top highlight sheen
+    ctx.globalAlpha = 0.25; ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.moveTo(cx, cy - s); ctx.lineTo(cx + hw*0.4, cy - s + hh*0.4); ctx.lineTo(cx, cy - s + hh*0.8); ctx.lineTo(cx - hw*0.4, cy - s + hh*0.4); ctx.closePath(); ctx.fill();
+    ctx.restore();
+}
+function drawGroundShadow(cx, cy, rw, rh) {
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,0,0,0.32)';
+    ctx.beginPath(); ctx.ellipse(cx, cy, rw, rh, 0, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+}
+function drawGunSprite(outer, recoilKick) {
+    recoilKick = recoilKick || 0;
+    let barrelDark = shadeColor(outer, -0.45), barrelLight = shadeColor(outer, 0.3);
+    ctx.save();
+    let gg = ctx.createLinearGradient(0, -3.5, 0, 3.5);
+    gg.addColorStop(0, barrelLight); gg.addColorStop(0.5, outer); gg.addColorStop(1, barrelDark);
+    ctx.fillStyle = gg;
+    ctx.beginPath(); ctx.roundRect(10 - recoilKick, -3.5, 15, 7, 2); ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.45)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.roundRect(10 - recoilKick, -3.5, 15, 7, 2); ctx.stroke();
+    // grip
+    ctx.fillStyle = barrelDark;
+    ctx.beginPath(); ctx.roundRect(11 - recoilKick, 2.5, 5, 7, 2); ctx.fill();
+    // barrel tip
+    ctx.fillStyle = '#18181b'; ctx.fillRect(23 - recoilKick, -2, 3, 4);
+    // top highlight sheen + front sight glint
+    ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.fillRect(11 - recoilKick, -3, 12, 1);
+    ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fillRect(22 - recoilKick, -3, 1.5, 1.5);
+    ctx.restore();
+}
+function drawAura(cx, cy, rankText) {
+    if (rankText !== '👑 OWNER' && rankText !== '🤝 ASSIST-DEV') return;
+    let isOwner = rankText === '👑 OWNER';
+    let rgb = isOwner ? '250,204,21' : '56,189,248';
+    let t = Date.now() / 1000;
+    ctx.save();
+    // soft glowing core
+    let g = ctx.createRadialGradient(cx, cy, 0, cx, cy, 30);
+    g.addColorStop(0, `rgba(${rgb},${0.22 + Math.sin(t * 3) * 0.05})`);
+    g.addColorStop(1, `rgba(${rgb},0)`);
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, 30, 0, Math.PI * 2); ctx.fill();
+    // expanding pulse rings
+    for (let i = 0; i < 3; i++) {
+        let phase = ((t * 0.8 + i / 3) % 1);
+        let r = 12 + phase * 22;
+        let alpha = (1 - phase) * 0.55;
+        ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(${rgb},${alpha})`; ctx.lineWidth = 2; ctx.stroke();
+    }
+    // orbiting sparkles
+    for (let i = 0; i < (isOwner ? 4 : 3); i++) {
+        let ang = t * 2 + (i * Math.PI * 2 / (isOwner ? 4 : 3));
+        let sx = cx + Math.cos(ang) * 20, sy = cy + Math.sin(ang) * 20 * 0.55;
+        ctx.fillStyle = `rgba(${rgb},0.9)`;
+        ctx.beginPath(); ctx.arc(sx, sy, 1.8, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.restore();
+}
+function updatePet(entity, ownerX, ownerY) {
+    if (entity.petOffsetX === undefined) { entity.petOffsetX = -26; entity.petOffsetY = 4; }
+    if (entity.petPrevOwnerX === undefined) { entity.petPrevOwnerX = ownerX; entity.petPrevOwnerY = ownerY; }
+    let dx = ownerX - entity.petPrevOwnerX, dy = ownerY - entity.petPrevOwnerY;
+    let moveDist = Math.hypot(dx, dy);
+    if (moveDist > 0.05) {
+        let dirX = dx / moveDist, dirY = dy / moveDist;
+        let targetOffX = -dirX * 26, targetOffY = -dirY * 26 + 4;
+        entity.petOffsetX += (targetOffX - entity.petOffsetX) * 0.06;
+        entity.petOffsetY += (targetOffY - entity.petOffsetY) * 0.06;
+    }
+    entity.petPrevOwnerX = ownerX; entity.petPrevOwnerY = ownerY;
+    let targetX = ownerX + entity.petOffsetX, targetY = ownerY + entity.petOffsetY;
+    if (entity.petX === undefined) { entity.petX = targetX; entity.petY = targetY; }
+    let pdist = Math.hypot(targetX - entity.petX, targetY - entity.petY);
+    if (pdist > 300) { entity.petX = targetX; entity.petY = targetY; pdist = 0; }
+    let prevPetX = entity.petX;
+    entity.petX += (targetX - entity.petX) * 0.13;
+    entity.petY += (targetY - entity.petY) * 0.13;
+    return { x: entity.petX, y: entity.petY, moving: pdist > 1.5, facingLeft: entity.petX < prevPetX };
+}
+function drawPet(px, py, type, moving, seed, facingLeft) {
+    let anim = getWalkAnim(moving, seed, 2.2);
+    drawGroundShadow(px, py + 7, 7, 2.2);
+    let tex = getPetTexture(type);
+    ctx.save();
+    ctx.translate(px, py - anim.bob);
+    ctx.rotate(anim.tilt * 0.5);
+    ctx.scale(facingLeft ? -1 : 1, 1);
+    ctx.drawImage(tex, -8, -9, 16, 16);
+    ctx.restore();
+}
+function getWalkAnim(moving, seed, ampl) {
+    ampl = ampl || 3;
+    if (moving) {
+        let t = (Date.now() + seed) / 90;
+        return { bob: Math.abs(Math.sin(t)) * ampl, tilt: Math.sin(t) * 0.09, squash: 1 + Math.sin(t * 2) * 0.05, legShift: Math.sin(t) * ampl * 1.3 };
+    }
+    let bt = (Date.now() + seed) / 500;
+    return { bob: 0, tilt: 0, squash: 1 + Math.sin(bt) * 0.015, legShift: 0 };
+}
+const characterTextureCache = new Map();
+function getCharacterTexture(outer, inner) {
+    let key = outer + '|' + inner;
+    let cached = characterTextureCache.get(key);
+    if (cached) return cached;
+    let tex = buildCharacterTexture(outer, inner);
+    characterTextureCache.set(key, tex);
+    return tex;
+}
+function buildCharacterTexture(outer, inner) {
+    let tc = document.createElement('canvas'); tc.width = 64; tc.height = 88;
+    let x = tc.getContext('2d');
+    let armSleeve = shadeColor(outer, -0.35), armSleeveHi = shadeColor(outer, -0.1);
+    let bootColor = '#18181b', bootHi = '#3f3f46';
+    let torsoLight = shadeColor(outer, 0.3), torsoDark = shadeColor(outer, -0.4);
+    let headLight = shadeColor(inner, 0.35), headDark = shadeColor(inner, -0.3);
+    let strapColor = shadeColor(outer, -0.55);
+
+    x.fillStyle = 'rgba(0,0,0,0.25)'; x.beginPath(); x.ellipse(32, 85, 15, 4, 0, 0, Math.PI * 2); x.fill();
+
+    x.fillStyle = bootColor;
+    x.beginPath(); x.roundRect(20, 62, 10, 20, 3); x.fill();
+    x.beginPath(); x.roundRect(34, 62, 10, 20, 3); x.fill();
+    let bg = x.createLinearGradient(0, 74, 0, 88);
+    bg.addColorStop(0, bootHi); bg.addColorStop(1, bootColor);
+    x.fillStyle = bg;
+    x.beginPath(); x.roundRect(18, 74, 14, 10, 3); x.fill();
+    x.beginPath(); x.roundRect(32, 74, 14, 10, 3); x.fill();
+    x.strokeStyle = 'rgba(0,0,0,0.4)'; x.lineWidth = 1;
+    x.beginPath(); x.roundRect(18, 74, 14, 10, 3); x.stroke();
+    x.beginPath(); x.roundRect(32, 74, 14, 10, 3); x.stroke();
+
+    let ag = x.createLinearGradient(0, 34, 0, 66);
+    ag.addColorStop(0, armSleeveHi); ag.addColorStop(1, armSleeve);
+    x.fillStyle = ag;
+    x.beginPath(); x.roundRect(6, 36, 12, 30, 6); x.fill();
+    x.beginPath(); x.roundRect(46, 36, 12, 30, 6); x.fill();
+    x.fillStyle = headLight;
+    x.beginPath(); x.arc(12, 65, 5, 0, Math.PI * 2); x.fill();
+    x.beginPath(); x.arc(52, 65, 5, 0, Math.PI * 2); x.fill();
+
+    let tg = x.createLinearGradient(0, 30, 0, 68);
+    tg.addColorStop(0, torsoLight); tg.addColorStop(0.55, outer); tg.addColorStop(1, torsoDark);
+    x.fillStyle = tg;
+    x.beginPath(); x.roundRect(15, 30, 34, 38, 8); x.fill();
+    x.strokeStyle = 'rgba(0,0,0,0.35)'; x.lineWidth = 1.5;
+    x.beginPath(); x.roundRect(15, 30, 34, 38, 8); x.stroke();
+    x.strokeStyle = strapColor; x.lineWidth = 3;
+    x.beginPath(); x.moveTo(32, 33); x.lineTo(32, 64); x.stroke();
+    x.fillStyle = strapColor; x.fillRect(15, 58, 34, 6);
+    x.fillStyle = shadeColor(inner, 0); x.beginPath(); x.roundRect(28, 58, 8, 6, 2); x.fill();
+    x.fillStyle = shadeColor(outer, -0.15);
+    x.beginPath(); x.roundRect(8, 32, 14, 10, 5); x.fill();
+    x.beginPath(); x.roundRect(42, 32, 14, 10, 5); x.fill();
+    x.strokeStyle = headLight; x.lineWidth = 2.4; x.lineCap = 'round';
+    x.beginPath(); x.moveTo(22, 44); x.lineTo(28, 39); x.lineTo(34, 44); x.stroke();
+    x.globalAlpha = 0.18; x.fillStyle = '#fff';
+    x.beginPath(); x.roundRect(17, 32, 30, 8, 6); x.fill(); x.globalAlpha = 1;
+
+    // helmet dome
+    let hg = x.createRadialGradient(26, 15, 3, 32, 20, 18);
+    hg.addColorStop(0, headLight); hg.addColorStop(0.6, inner); hg.addColorStop(1, headDark);
+    x.fillStyle = hg;
+    x.beginPath(); x.roundRect(18, 6, 28, 26, 12); x.fill();
+    x.strokeStyle = 'rgba(0,0,0,0.35)'; x.lineWidth = 1.5;
+    x.beginPath(); x.roundRect(18, 6, 28, 26, 12); x.stroke();
+    // side vents
+    x.fillStyle = headDark;
+    x.beginPath(); x.roundRect(17, 20, 3, 8, 1.5); x.fill();
+    x.beginPath(); x.roundRect(44, 20, 3, 8, 1.5); x.fill();
+    // brow ridge band
+    x.fillStyle = headDark; x.fillRect(18, 16, 28, 5);
+    x.globalAlpha = 0.25; x.fillStyle = '#fff'; x.fillRect(18, 16, 28, 1.5); x.globalAlpha = 1;
+
+    // visor frame (rounded trapezoid, angled toward center for a focused look)
+    let vg = x.createLinearGradient(19, 18, 45, 27);
+    vg.addColorStop(0, '#0b1120'); vg.addColorStop(0.5, '#1e293b'); vg.addColorStop(1, '#0b1120');
+    x.fillStyle = vg;
+    x.beginPath(); x.roundRect(19, 18, 26, 9, 4); x.fill();
+    x.strokeStyle = 'rgba(0,0,0,0.5)'; x.lineWidth = 1;
+    x.beginPath(); x.roundRect(19, 18, 26, 9, 4); x.stroke();
+    // brow shadow above visor (gives a focused/determined expression)
+    x.fillStyle = 'rgba(0,0,0,0.3)';
+    x.beginPath(); x.moveTo(20, 19); x.quadraticCurveTo(32, 16, 44, 19); x.lineTo(44, 21); x.quadraticCurveTo(32, 18.5, 20, 21); x.closePath(); x.fill();
+
+    // almond-shaped glowing eyes (angled slightly inward/down for focus)
+    function drawVisorEye(ex0) {
+        x.save();
+        x.translate(ex0, 22.5);
+        let eg = x.createRadialGradient(0, 0, 0.4, 0, 0, 5);
+        eg.addColorStop(0, '#fff'); eg.addColorStop(0.35, '#7dd3fc'); eg.addColorStop(1, 'rgba(56,189,248,0)');
+        x.fillStyle = eg; x.beginPath(); x.ellipse(0, 0, 5, 3.6, 0, 0, Math.PI * 2); x.fill();
+        x.fillStyle = '#38bdf8'; x.beginPath(); x.ellipse(0, 0, 2.6, 1.9, 0, 0, Math.PI * 2); x.fill();
+        x.fillStyle = '#e0f2fe'; x.beginPath(); x.arc(-0.8, -0.6, 0.9, 0, Math.PI * 2); x.fill();
+        x.restore();
+    }
+    drawVisorEye(27); drawVisorEye(37);
+    // nose bridge vent between eyes
+    x.fillStyle = 'rgba(0,0,0,0.4)'; x.beginPath(); x.roundRect(31, 21, 2, 4, 1); x.fill();
+    // visor glass reflection streak
+    x.globalAlpha = 0.22; x.fillStyle = '#fff';
+    x.beginPath(); x.moveTo(21, 19.5); x.lineTo(26, 19); x.lineTo(24, 25); x.lineTo(20, 25.5); x.closePath(); x.fill();
+    x.globalAlpha = 1;
+    // lower jaw / mouth grille
+    x.fillStyle = headDark; x.beginPath(); x.roundRect(26, 28.5, 12, 3, 1.5); x.fill();
+    x.strokeStyle = 'rgba(0,0,0,0.4)'; x.lineWidth = 0.6;
+    for (let gx = 28; gx <= 36; gx += 2.5) { x.beginPath(); x.moveTo(gx, 28.7); x.lineTo(gx, 31.1); x.stroke(); }
+    // helmet top highlight sheen
+    x.globalAlpha = 0.3; x.fillStyle = '#fff';
+    x.beginPath(); x.ellipse(26, 12, 6, 3.5, -0.3, 0, Math.PI * 2); x.fill(); x.globalAlpha = 1;
+
+    return tc;
+}
+function drawCharacter(outer, inner, moving, seed) {
+    let anim = getWalkAnim(!!moving, seed || 0, 3);
+    ctx.save();
+    ctx.translate(0, -anim.bob);
+    ctx.rotate(anim.tilt);
+    ctx.scale(1, anim.squash);
+    let tex = getCharacterTexture(outer, inner);
+    ctx.drawImage(tex, -16, -27, 32, 44);
+    ctx.restore();
+}
+const enemyTextureCache = new Map();
+function getEnemyTexture(tier) {
+    let cached = enemyTextureCache.get(tier);
+    if (cached) return cached;
+    let tex = buildEnemyTexture(tier);
+    enemyTextureCache.set(tier, tex);
+    return tex;
+}
+function buildEnemyTexture(tier) {
+    let big = tier === 'mega_boss', boss = tier === 'boss';
+    let W = big ? 72 : boss ? 60 : 48, H = big ? 96 : boss ? 80 : 64;
+    let tc = document.createElement('canvas'); tc.width = W; tc.height = H;
+    let x = tc.getContext('2d');
+    let cx = W / 2;
+
+    let bodyBase = big ? '#3f0d0d' : boss ? '#7c2d12' : '#3f6212';
+    let bodyLight = shadeColor(bodyBase, 0.35), bodyDark = shadeColor(bodyBase, -0.4);
+    let headBase = big ? '#1c1917' : boss ? '#991b1b' : '#365314';
+    let headLight = shadeColor(headBase, 0.3), headDark = shadeColor(headBase, -0.35);
+    let eyeColor = big ? '#f97316' : boss ? '#facc15' : '#ef4444';
+    let hornColor = big ? '#78716c' : boss ? '#57534e' : '#44403c';
+    let spikeColor = shadeColor(bodyBase, -0.5);
+
+    x.fillStyle = 'rgba(0,0,0,0.28)'; x.beginPath(); x.ellipse(cx, H - 4, W * 0.34, H * 0.045, 0, 0, Math.PI * 2); x.fill();
+
+    // legs
+    x.fillStyle = headDark;
+    x.beginPath(); x.roundRect(cx - W * 0.22, H * 0.78, W * 0.16, H * 0.16, 4); x.fill();
+    x.beginPath(); x.roundRect(cx + W * 0.06, H * 0.78, W * 0.16, H * 0.16, 4); x.fill();
+
+    // tail spikes for boss/mega
+    if (boss || big) {
+        x.fillStyle = spikeColor;
+        for (let i = 0; i < 3; i++) {
+            let sx = cx - W * 0.28 - i * (W * 0.05), sy = H * 0.4 + i * (H * 0.03);
+            x.beginPath(); x.moveTo(sx, sy); x.lineTo(sx - W * 0.08, sy - H * 0.02); x.lineTo(sx, sy + H * 0.06); x.closePath(); x.fill();
+        }
+    }
+
+    // body / torso
+    let bg = x.createLinearGradient(0, H * 0.35, 0, H * 0.85);
+    bg.addColorStop(0, bodyLight); bg.addColorStop(0.55, bodyBase); bg.addColorStop(1, bodyDark);
+    x.fillStyle = bg;
+    x.beginPath(); x.roundRect(cx - W * 0.32, H * 0.34, W * 0.64, H * 0.46, W * 0.14); x.fill();
+    x.strokeStyle = 'rgba(0,0,0,0.4)'; x.lineWidth = 1.5;
+    x.beginPath(); x.roundRect(cx - W * 0.32, H * 0.34, W * 0.64, H * 0.46, W * 0.14); x.stroke();
+    // chest cracks / armor plates (boss & mega)
+    if (boss || big) {
+        x.strokeStyle = shadeColor(bodyBase, -0.6); x.lineWidth = 2;
+        x.beginPath(); x.moveTo(cx - W * 0.1, H * 0.4); x.lineTo(cx, H * 0.5); x.lineTo(cx - W * 0.06, H * 0.62); x.stroke();
+        x.beginPath(); x.moveTo(cx + W * 0.14, H * 0.42); x.lineTo(cx + W * 0.05, H * 0.55); x.stroke();
+    }
+    // belly highlight
+    x.globalAlpha = 0.15; x.fillStyle = '#fff';
+    x.beginPath(); x.roundRect(cx - W * 0.28, H * 0.36, W * 0.56, H * 0.08, W * 0.08); x.fill(); x.globalAlpha = 1;
+
+    // arms/claws
+    x.fillStyle = shadeColor(bodyBase, -0.15);
+    x.beginPath(); x.roundRect(cx - W * 0.42, H * 0.4, W * 0.14, H * 0.32, 6); x.fill();
+    x.beginPath(); x.roundRect(cx + W * 0.28, H * 0.4, W * 0.14, H * 0.32, 6); x.fill();
+    x.fillStyle = big ? '#e2e8f0' : '#d6d3d1';
+    for (let s = -1; s <= 1; s++) {
+        x.beginPath(); x.moveTo(cx - W * 0.4 + s * 3, H * 0.72); x.lineTo(cx - W * 0.38 + s * 3, H * 0.8); x.lineTo(cx - W * 0.35 + s * 3, H * 0.72); x.closePath(); x.fill();
+        x.beginPath(); x.moveTo(cx + W * 0.35 + s * 3, H * 0.72); x.lineTo(cx + W * 0.37 + s * 3, H * 0.8); x.lineTo(cx + W * 0.4 + s * 3, H * 0.72); x.closePath(); x.fill();
+    }
+
+    // head
+    let hg = x.createRadialGradient(cx - W * 0.06, H * 0.14, 2, cx, H * 0.2, W * 0.3);
+    hg.addColorStop(0, headLight); hg.addColorStop(0.6, headBase); hg.addColorStop(1, headDark);
+    x.fillStyle = hg;
+    x.beginPath(); x.roundRect(cx - W * 0.28, H * 0.06, W * 0.56, H * 0.32, W * 0.14); x.fill();
+    x.strokeStyle = 'rgba(0,0,0,0.45)'; x.lineWidth = 1.5;
+    x.beginPath(); x.roundRect(cx - W * 0.28, H * 0.06, W * 0.56, H * 0.32, W * 0.14); x.stroke();
+
+    // horns for boss/mega
+    if (boss || big) {
+        x.fillStyle = hornColor;
+        x.beginPath(); x.moveTo(cx - W * 0.22, H * 0.1); x.lineTo(cx - W * 0.34, H * -0.02); x.lineTo(cx - W * 0.14, H * 0.09); x.closePath(); x.fill();
+        x.beginPath(); x.moveTo(cx + W * 0.22, H * 0.1); x.lineTo(cx + W * 0.34, H * -0.02); x.lineTo(cx + W * 0.14, H * 0.09); x.closePath(); x.fill();
+    }
+
+    // sunken eye sockets (shadow) for depth before the glow
+    let ex1 = cx - W * 0.14, ex2 = cx + W * 0.14, ey = H * 0.205, er = W * 0.08;
+    x.fillStyle = 'rgba(0,0,0,0.45)';
+    x.beginPath(); x.ellipse(ex1, ey, er * 1.5, er * 1.2, -0.15, 0, Math.PI * 2); x.fill();
+    x.beginPath(); x.ellipse(ex2, ey, er * 1.5, er * 1.2, 0.15, 0, Math.PI * 2); x.fill();
+
+    // glowing angry almond eyes (narrowed toward the nose = fierce look)
+    function drawMonsterEye(exx, invert) {
+        x.save(); x.translate(exx, ey); x.scale(invert ? -1 : 1, 1);
+        let g = x.createRadialGradient(0, 0, 0.5, 0, 0, er * 2.4);
+        g.addColorStop(0, '#fff'); g.addColorStop(0.35, eyeColor); g.addColorStop(1, 'rgba(0,0,0,0)');
+        x.fillStyle = g; x.beginPath(); x.ellipse(0, 0, er * 1.9, er * 1.3, 0, 0, Math.PI * 2); x.fill();
+        x.fillStyle = eyeColor;
+        x.beginPath(); x.moveTo(-er * 1.1, er * 0.35); x.quadraticCurveTo(0, -er * 0.9, er * 1.1, -er * 0.15); x.quadraticCurveTo(0, er * 0.55, -er * 1.1, er * 0.35); x.closePath(); x.fill();
+        x.fillStyle = '#1c1917'; x.beginPath(); x.arc(er * 0.15, -er * 0.05, er * 0.42, 0, Math.PI * 2); x.fill();
+        x.fillStyle = 'rgba(255,255,255,0.85)'; x.beginPath(); x.arc(er * 0.35, -er * 0.3, er * 0.16, 0, Math.PI * 2); x.fill();
+        x.restore();
+    }
+    drawMonsterEye(ex1, false); drawMonsterEye(ex2, true);
+
+    // furrowed angry brow
+    x.strokeStyle = headDark; x.lineWidth = big ? 3.2 : boss ? 2.8 : 2.2; x.lineCap = 'round';
+    x.beginPath(); x.moveTo(ex1 - er * 1.6, ey - er * 1.9); x.quadraticCurveTo(ex1 - er * 0.2, ey - er * 2.5, ex1 + er * 0.9, ey - er * 1.1); x.stroke();
+    x.beginPath(); x.moveTo(ex2 + er * 1.6, ey - er * 1.9); x.quadraticCurveTo(ex2 + er * 0.2, ey - er * 2.5, ex2 - er * 0.9, ey - er * 1.1); x.stroke();
+
+    // nose / snout ridge with nostrils
+    let nx = cx, ny = ey + er * 1.6;
+    x.fillStyle = headDark;
+    x.beginPath(); x.moveTo(nx - W * 0.03, ny); x.lineTo(nx + W * 0.03, ny); x.lineTo(nx, ny + H * 0.03); x.closePath(); x.fill();
+    x.fillStyle = '#000';
+    x.beginPath(); x.ellipse(nx - W * 0.025, ny + H * 0.028, W * 0.012, H * 0.01, 0.3, 0, Math.PI * 2); x.fill();
+    x.beginPath(); x.ellipse(nx + W * 0.025, ny + H * 0.028, W * 0.012, H * 0.01, -0.3, 0, Math.PI * 2); x.fill();
+
+    // battle scar for boss/mega tiers
+    if (boss || big) {
+        x.strokeStyle = 'rgba(0,0,0,0.4)'; x.lineWidth = 1.4;
+        x.beginPath(); x.moveTo(ex2 + er * 1.3, ey - er * 0.6); x.lineTo(ex2 + er * 0.7, ey + er * 2.2); x.stroke();
+    }
+
+    // snarling mouth with jagged teeth
+    let my = H * 0.31, mw = W * 0.34;
+    x.save(); x.translate(cx, my);
+    // open mouth cavity, slightly curved into a scowl
+    x.fillStyle = '#0c0a09';
+    x.beginPath(); x.moveTo(-mw/2, 0); x.quadraticCurveTo(0, H * 0.03, mw/2, -H*0.01); x.lineTo(mw/2, H * 0.05); x.quadraticCurveTo(0, H * 0.08, -mw/2, H * 0.055); x.closePath(); x.fill();
+    // upper teeth (jagged, alternating length)
+    x.fillStyle = '#f8fafc';
+    let toothCount = big ? 6 : boss ? 5 : 4;
+    for (let t = 0; t < toothCount; t++) {
+        let tx0 = -mw/2 + (mw / (toothCount - 1)) * t;
+        let tlen = (t % 2 === 0) ? H * 0.028 : H * 0.02;
+        x.beginPath(); x.moveTo(tx0 - mw * 0.045, 0); x.lineTo(tx0 + mw * 0.045, 0); x.lineTo(tx0, tlen); x.closePath(); x.fill();
+    }
+    // prominent lower fangs for boss/mega
+    if (boss || big) {
+        x.fillStyle = '#f1f5f9';
+        x.beginPath(); x.moveTo(-mw * 0.32, H * 0.05); x.lineTo(-mw * 0.22, H * 0.05); x.lineTo(-mw * 0.27, -H * 0.03); x.closePath(); x.fill();
+        x.beginPath(); x.moveTo(mw * 0.22, H * 0.05); x.lineTo(mw * 0.32, H * 0.05); x.lineTo(mw * 0.27, -H * 0.03); x.closePath(); x.fill();
+    }
+    x.restore();
+
+    return tc;
+}
+function drawEnemyCube(ex, ey, w, h, tier, moving, seed, hitFlash) {
+    drawGroundShadow(ex + w/2, ey + h + 2, w*0.42, w*0.16);
+    let anim = getWalkAnim(moving !== false, seed || 0, Math.max(2, h * 0.1));
+    let flashT = hitFlash ? Date.now() - hitFlash : 999;
+    let flashAlpha = flashT < 120 ? (1 - flashT / 120) * 0.85 : 0;
+    let img = getEnemyTexture(tier || 'normal');
+    let dw = w * 1.15, dh = h * 1.4;
+    let cx0 = ex + w/2, cy0 = ey + h;
+    ctx.save();
+    ctx.translate(cx0, cy0 - anim.bob);
+    ctx.rotate(anim.tilt);
+    ctx.scale(1, anim.squash);
+    ctx.drawImage(img, -dw/2, -dh, dw, dh);
+    if (flashAlpha > 0) {
+        ctx.globalCompositeOperation = 'source-atop';
+        ctx.fillStyle = `rgba(255,255,255,${flashAlpha})`;
+        ctx.fillRect(-dw/2, -dh, dw, dh);
+        ctx.globalCompositeOperation = 'source-over';
+    }
+    ctx.restore();
+}
+const texChest = createPixelTexture('','','chest');
+const texMoney = createPixelTexture('','','money');
+const texBandage = createPixelTexture('','','bandage');
+const texEnemy = createPixelTexture('','','enemy');
+const texBoss = createPixelTexture('','','boss');
+const texPetDog = createPixelTexture('','','pet_dog');
+const texPetCat = createPixelTexture('','','pet_cat');
+const texPetRobot = createPixelTexture('','','pet_robot');
+function getPetTexture(type) { return type === 'cat' ? texPetCat : type === 'robot' ? texPetRobot : texPetDog; }
+
+const MAP_SIZE = 2048; 
+
+const menuScreenEl = document.getElementById('menu-screen');
+menuScreenEl.style.backgroundImage = `url(${texSand.toDataURL()})`; 
+
+setTimeout(() => { document.getElementById('splash-screen').style.display = 'none'; document.getElementById('menu-screen').style.display = 'block'; updateUsernameDropdown(); }, 5000);
+
+let selectedUser = "";
+function toggleUsername() { const list = document.getElementById('username-list'); list.classList.toggle('show'); if(list.classList.contains('show')) updateUsernameDropdown(); }
+function selectUser(name) { selectedUser = name; document.getElementById('username-btn').innerText = name + " ▼"; document.getElementById('dropdown-username-input').value = name; document.getElementById('username-list').classList.remove('show'); document.getElementById('menu-error').innerText = ""; }
+function showModal(id) { document.getElementById(id).style.display = 'flex'; }
+function hideModal(id) { document.getElementById(id).style.display = 'none'; }
+async function showLeaderboard() { showModal('leaderboard-modal'); const list = document.getElementById('leaderboard-list'); list.innerHTML = '<li>Loading top 5 players...</li>'; const leaderboard = await getGlobalLeaderboard(); const bestPerPlayer = new Map(); for (const entry of leaderboard) { const key = (entry.player_name || '').trim().toLowerCase(); if (!bestPerPlayer.has(key)) bestPerPlayer.set(key, entry); } const uniqueSorted = [...bestPerPlayer.values()].sort((a,b) => b.score - a.score); const top5 = uniqueSorted.slice(0,5); list.innerHTML = ''; if(!top5.length) list.innerHTML = '<li>No scores yet! Be the first!</li>'; else top5.forEach((entry,i) => { const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1); list.innerHTML += `<li><strong>${medal}</strong> ${entry.player_name} - ${entry.score} pts (Kills: ${entry.kills})</li>`; }); }
+
+function startGame() {
+    const dropdownInput = document.getElementById('dropdown-username-input');
+    const dropdownName = dropdownInput.value.trim();
+    if(dropdownName) { selectedUser = dropdownName; addGlobalUsername(dropdownName); document.getElementById('username-btn').innerText = dropdownName + " ▼"; }
+    document.getElementById('menu-error').innerText = ""; document.getElementById('menu-screen').style.display = 'none'; document.getElementById('game-screen').style.display = 'block';
+
+    if (isMultiplayer) {
+        if (!isChannelReady) {
+            mySessionId = selectedUser + '_' + genId();
+
+            // Keeps our Firebase onDisconnect cleanup accurate as teammates join/leave:
+            // - If I'm the last player left in the room, my disconnect wipes the whole room
+            //   (enemies, props, events) so a fresh room greets the next people who join.
+            // - If teammates are still around, my disconnect only removes my own presence data.
+            function refreshDisconnectCleanup() {
+                if (Object.keys(otherPlayers).length === 0) {
+                    db.ref(ROOM_PATH + '/players/' + mySessionId).onDisconnect().cancel();
+                    db.ref(ROOM_PATH + '/enemySync/' + mySessionId).onDisconnect().cancel();
+                    db.ref(ROOM_PATH).onDisconnect().remove();
+                } else {
+                    db.ref(ROOM_PATH).onDisconnect().cancel();
+                    db.ref(ROOM_PATH + '/players/' + mySessionId).onDisconnect().remove();
+                    db.ref(ROOM_PATH + '/enemySync/' + mySessionId).onDisconnect().remove();
+                }
+            }
+
+            fbPlayersRef = db.ref(ROOM_PATH + '/players');
+            fbPlayersRef.on('value', snap => {
+                const val = snap.val() || {};
+                const now = Date.now();
+                const previouslyKnown = Object.keys(otherPlayers);
+                for (let user in val) {
+                    if (user === mySessionId) continue;
+                    let pd = val[user];
+                    if (typeof pd.ts === 'number' && now - pd.ts > 8000) continue;
+                    if (!otherPlayers[user]) { otherPlayers[user] = { ...pd, targetX: pd.x, targetY: pd.y, lastSeen: Date.now(), skinOuter: pd.skinOuter || '#059669', skinInner: pd.skinInner || '#10b981', petType: pd.petType||'dog', gunOuter: pd.gunOuter||'#1f2937', gunInner: pd.gunInner||'#4b5563' }; }
+                    else { otherPlayers[user].targetX = pd.x; otherPlayers[user].targetY = pd.y; otherPlayers[user].hp = pd.hp; otherPlayers[user].maxHp = pd.maxHp; otherPlayers[user].gun = pd.gun; otherPlayers[user].lastSeen = Date.now(); otherPlayers[user].user = pd.user; otherPlayers[user].skinOuter = pd.skinOuter || '#059669'; otherPlayers[user].skinInner = pd.skinInner || '#10b981'; otherPlayers[user].petType = pd.petType||'dog'; otherPlayers[user].gunOuter = pd.gunOuter||'#1f2937'; otherPlayers[user].gunInner = pd.gunInner||'#4b5563'; }
+                }
+                // Anyone who was known before but is missing now has left the room.
+                // Hand their still-alive enemies over to us so they keep chasing whoever remains
+                // (their teammate), instead of freezing or vanishing.
+                for (let leftUser of previouslyKnown) {
+                    if (!val[leftUser]) {
+                        delete otherPlayers[leftUser];
+                        for (let en of enemies) { if (en.owner === leftUser) { en.owner = mySessionId; en.netTargetX = undefined; en.netTargetY = undefined; } }
+                        db.ref(ROOM_PATH + '/enemySync/' + leftUser).remove().catch(() => {});
+                    }
+                }
+                refreshDisconnectCleanup();
+            });
+
+            fbEnemySyncRef = db.ref(ROOM_PATH + '/enemySync');
+            fbEnemySyncRef.on('value', snap => {
+                const val = snap.val() || {};
+                for (let owner in val) {
+                    if (owner === mySessionId) continue;
+                    const entry = val[owner];
+                    (entry.enemies || []).forEach(se => {
+                        const ee = enemies.find(en => en.id === se.id);
+                        if (ee) { ee.netTargetX = se.x; ee.netTargetY = se.y; ee.netSyncTime = Date.now(); if (Math.abs(ee.hp - se.hp) > 10) ee.hp = se.hp; ee.owner = se.owner; }
+                        else { enemies.push({...se, w: se.isBoss ? 80 : 24, h: se.isBoss ? 80 : 24, lastHitPlayer: 0, netTargetX: se.x, netTargetY: se.y, netSyncTime: Date.now()}); }
+                    });
+                }
+            });
+
+            fbEventsRef = db.ref(ROOM_PATH + '/events');
+            fbEventsRef.on('child_added', snap => {
+                const data = snap.val();
+                if (!data || data.sender === mySessionId) { return; }
+                const p = { payload: data.payload };
+                switch (data.event) {
+                    case 'enemy_spawn': if (!enemies.find(en => en.id === p.payload.id)) enemies.push(p.payload); break;
+                    case 'enemy_hit': { let e = enemies.find(en => en.id === p.payload.id); if (e) { e.hp -= p.payload.damage; e.hitFlash = Date.now(); } break; }
+                    case 'enemy_died': { let idx = enemies.findIndex(en => en.id === p.payload.id); if (idx !== -1) enemies.splice(idx, 1); break; }
+                    case 'chest_spawn': if (!chests.find(c => c.id === p.payload.id)) chests.push(p.payload); break;
+                    case 'chest_opened': { let idx = chests.findIndex(c => c.id === p.payload.id); if (idx !== -1) chests.splice(idx, 1); break; }
+                    case 'item_dropped': if (!drops.find(d => d.id === p.payload.id)) drops.push(p.payload); break;
+                    case 'item_collected': { let idx = drops.findIndex(d => d.id === p.payload.id); if (idx !== -1) drops.splice(idx, 1); break; }
+                    case 'prop_spawn': if (!props.find(pr => pr.id === p.payload.id)) props.push(p.payload); break;
+                    case 'prop_destroyed': { let idx = props.findIndex(pr => pr.id === p.payload.id); if (idx !== -1) props.splice(idx, 1); break; }
+                    case 'bomb_thrown': activeBombs.push(p.payload); break;
+                }
+                setTimeout(() => { snap.ref.remove().catch(() => {}); }, 5000);
+            });
+
+            refreshDisconnectCleanup();
+            isChannelReady = true;
+        }
+    } else {
+        if (isChannelReady) {
+            if (fbPlayersRef) fbPlayersRef.off();
+            if (fbEnemySyncRef) fbEnemySyncRef.off();
+            if (fbEventsRef) fbEventsRef.off();
+            if (mySessionId) db.ref(ROOM_PATH + '/players/' + mySessionId).remove().catch(() => {});
+            fbPlayersRef = null; fbEnemySyncRef = null; fbEventsRef = null; isChannelReady = false;
+        }
+        otherPlayers = {};
+    }
+    resize(); loadUISettings(); restartGame(isContinueNext);
+}
+
+function switchShopTab(tab) {
+    const sections = ['guns', 'recovery', 'props'];
+    sections.forEach(s => { document.getElementById('section-' + s).style.display = (s === tab) ? 'block' : 'none'; let tabBtn = document.getElementById('tab-' + s); if (tabBtn) { if (s === tab) tabBtn.classList.add('active-tab'); else tabBtn.classList.remove('active-tab'); } });
+}
+
+let currentSkin = localStorage.getItem('savedSkin') || 'blue';
+let customOuter = localStorage.getItem('customOuter') || '#1d4ed8'; let customInner = localStorage.getItem('customInner') || '#3b82f6';
+let currentPet = localStorage.getItem('savedPet') || 'dog';
+let gunOuter = localStorage.getItem('gunOuter') || '#1f2937'; let gunInner = localStorage.getItem('gunInner') || '#4b5563';
+
+document.getElementById('custom-outer').value = customOuter; document.getElementById('custom-inner').value = customInner;
+document.getElementById('gun-outer').value = gunOuter; document.getElementById('gun-inner').value = gunInner;
+
+function notifySkin(msg) {
+    const msgEl = document.getElementById('skin-menu-message');
+    if(msgEl) { msgEl.innerText = msg; msgEl.style.color = "#16a34a"; setTimeout(() => { msgEl.innerText = ""; }, 2000); }
+}
+
+function equipSkin(colorKey) { currentSkin = colorKey; localStorage.setItem('savedSkin', currentSkin); notifySkin("Equipped " + colorKey.charAt(0).toUpperCase() + colorKey.slice(1) + " Skin!"); }
+function equipCustomSkin() { customOuter = document.getElementById('custom-outer').value; customInner = document.getElementById('custom-inner').value; localStorage.setItem('customOuter', customOuter); localStorage.setItem('customInner', customInner); currentSkin = 'custom'; localStorage.setItem('savedSkin', currentSkin); notifySkin("Equipped Custom Skin!"); }
+function equipPet(type) { currentPet = type; localStorage.setItem('savedPet', type); notifySkin("Equipped " + type.charAt(0).toUpperCase() + type.slice(1) + " Pet!"); }
+function equipCustomGun() { gunOuter = document.getElementById('gun-outer').value; gunInner = document.getElementById('gun-inner').value; localStorage.setItem('gunOuter', gunOuter); localStorage.setItem('gunInner', gunInner); notifySkin("Gun Skin Saved!"); }
+
+let money = 0, bandages = 0, kills = 0, score = 0, timeLived = 0, playerHp = 10, maxHp = 10;
+let currentAmmo = 12, spareMags = 3, isReloading = false, reloadEndTime = 0; 
+let wallsCount = 0, wiresCount = 0, turretsCount = 0, lastTurretPlaceTime = 0;
+let shieldActive = false, shieldEndTime = 0, shieldPrice = 100, armorLevel = 0;
+
+const SKIN_COLORS = { 'blue': { outer: '#1d4ed8', inner: '#3b82f6' }, 'red': { outer: '#b91c1c', inner: '#ef4444' }, 'purple': { outer: '#6d28d9', inner: '#8b5cf6' }, 'orange': { outer: '#c2410c', inner: '#f97316' }, 'green': { outer: '#059669', inner: '#10b981' } };
+let currentGun = 'Pistol', gunDamage = 5, moneyMultiplier = 1, moneyBoostTimer = 0, potionTimer = 0, potionActive = false, bombPrice = 100, enemyTier = 1, minimapRadius = 400;
+
+let gunStats = {
+    'Pistol': {owned: true, level: 0, baseDamage: 9, baseCost: 0, fireRate: 900, magSize: 12, reloadTime: 1000},
+    'D-Eagle': {owned: false, level: 0, baseDamage: 8, baseCost: 100, fireRate: 1200, magSize: 12, reloadTime: 1500},
+    'AK47': {owned: false, level: 0, baseDamage: 12, baseCost: 500, fireRate: 400, magSize: 40, reloadTime: 2000},
+    'Shortgun': {owned: false, level: 0, baseDamage: 18, baseCost: 1000, fireRate: 1200, magSize: 4, reloadTime: 2500},
+    'AWM': {owned: false, level: 0, baseDamage: 30, baseCost: 2000, fireRate: 2500, magSize: 4, reloadTime: 3000},
+    'Machine Gun': {owned: false, level: 0, baseDamage: 8, baseCost: 5000, fireRate: 150, magSize: 100, reloadTime: 3000},
+    'S12K': {owned: false, level: 0, baseDamage: 12, baseCost: 1500, fireRate: 600, magSize: 8, reloadTime: 2000},
+    'M24': {owned: false, level: 0, baseDamage: 50, baseCost: 1800, fireRate: 2000, magSize: 5, reloadTime: 2500},
+    'P90': {owned: false, level: 0, baseDamage: 7, baseCost: 3500, fireRate: 100, magSize: 50, reloadTime: 2500},
+    'MP40': {owned: false, level: 0, baseDamage: 9, baseCost: 2800, fireRate: 180, magSize: 32, reloadTime: 2000},
+    'RPG': {owned: false, level: 0, baseDamage: 100, baseCost: 8000, fireRate: 3000, magSize: 1, reloadTime: 3500},
+    'S1887': {owned: false, level: 0, baseDamage: 25, baseCost: 2500, fireRate: 1500, magSize: 2, reloadTime: 1500}
+};
+
+let isPaused = false, gameLoopId, timeInterval;
+let player = {x: 0, y: 0, w: 24, h: 24, speed: 2.5, petX: 0, petY: 0}, camX = 0, camY = 0;
+let enemies = [], bullets = [], drops = [], chests = [], props = [], keys = {};
+let activeBombs = [], explosions = [];
+let particles = [];
+let damageNumbers = [];
+let playerHitFlashTime = 0;
+let muzzleFlashTime = 0;
+let muzzleSmoked = 0;
+let lastFootstepTime = 0;
+function spawnDamageNumber(x, y, amount, color) {
+    damageNumbers.push({ x, y, amount, color: color || '#fff', life: 40, vy: -1.2 });
+}
+let shakeTime = 0, shakeMag = 0;
+
+function addScreenShake(magnitude, duration) {
+    shakeMag = magnitude;
+    shakeTime = duration;
+}
+
+function spawnParticles(x, y, color, count, speed) {
+    for (let i = 0; i < count; i++) {
+        particles.push({
+            x: x, y: y,
+            vx: (Math.random() - 0.5) * speed,
+            vy: (Math.random() - 0.5) * speed,
+            life: 20 + Math.random() * 20,
+            color: color,
+            size: Math.random() * 3 + 2
+        });
+    }
+}
+
+let joyX = 0, joyY = 0, isDragging = false, lastShot = 0, bossSpawnTimer = 0; let lastEnemySync = 0; 
+const canvas = document.getElementById('gameCanvas'), ctx = canvas.getContext('2d');
+let CW, CH; let minimapPosition = 'top-right', buttonsPosition = 'top-right'; let vignetteGrad = null;
+
+function resize() { CW = window.innerWidth; CH = window.innerHeight; canvas.width = CW; canvas.height = CH; } window.addEventListener('resize', resize); resize();
+
+// DRAG AND DROP HUD EDITING SYSTEM
+function makeElementDraggable(elmm) {
+    if (elmm.dataset.dragInit) return;
+    elmm.dataset.dragInit = "true";
+
+    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    
+    elmm.addEventListener('mousedown', dragMouseDown);
+    elmm.addEventListener('touchstart', dragMouseDown, { passive: false });
+
+    function dragMouseDown(e) {
+        if (!hudEditActive) return;
+        e.preventDefault();
+        
+        let clientX = e.clientX || (e.touches && e.touches[0].clientX);
+        let clientY = e.clientY || (e.touches && e.touches[0].clientY);
+        pos3 = clientX;
+        pos4 = clientY;
+        
+        document.onmouseup = closeDragElement;
+        document.ontouchend = closeDragElement;
+        document.onmousemove = elementDrag;
+        document.ontouchmove = elementDrag;
+
+        if (elmm.style.position !== 'absolute') {
+            let rect = elmm.getBoundingClientRect();
+            
+            // Pop the button out to the main game screen
+            document.getElementById('game-screen').appendChild(elmm);
+            
+            elmm.style.position = 'absolute';
+            elmm.style.left = rect.left + 'px';
+            elmm.style.top = rect.top + 'px';
+            elmm.style.right = 'auto';
+            elmm.style.bottom = 'auto';
+            elmm.style.transform = 'none';
+            elmm.style.margin = '0';
+            elmm.style.zIndex = '100'; 
+        }
+    }
+
+    function elementDrag(e) {
+        e.preventDefault();
+        let clientX = e.clientX || (e.touches && e.touches[0].clientX);
+        let clientY = e.clientY || (e.touches && e.touches[0].clientY);
+        pos1 = pos3 - clientX;
+        pos2 = pos4 - clientY;
+        pos3 = clientX;
+        pos4 = clientY;
+        elmm.style.top = (elmm.offsetTop - pos2) + "px";
+        elmm.style.left = (elmm.offsetLeft - pos1) + "px";
+    }
+
+    function closeDragElement() {
+        document.onmouseup = null; document.ontouchend = null;
+        document.onmousemove = null; document.ontouchmove = null;
+    }
+}
+
+function enterHUDEditMode() {
+    hideModal('settings-modal');
+    isPaused = true; 
+    
+    let saveBtn = document.createElement('button');
+    saveBtn.innerText = '💾 Save HUD Layout';
+    saveBtn.className = 'btn';
+    saveBtn.style.position = 'absolute';
+    saveBtn.style.top = '100px'; 
+    saveBtn.style.left = '50%';
+    saveBtn.style.transform = 'translateX(-50%)';
+    saveBtn.style.zIndex = '1000';
+    saveBtn.style.background = 'linear-gradient(180deg, #4ade80 0%, #16a34a 100%)';
+    document.body.appendChild(saveBtn);
+    
+    hudEditActive = true;
+    
+    const draggables = ['btn-inventory-wrap', 'reload-circle-btn', 'bomb-circle-btn', 'shop-circle-btn', 'settings-circle-btn', 'main-hud-top', 'main-hud-bottom'];
+    
+    draggables.forEach(id => {
+        let el = document.getElementById(id);
+        if(el) {
+            el.style.outline = '3px dashed #facc15'; 
+            makeElementDraggable(el);
+        }
+    });
+
+    saveBtn.onclick = function() {
+        hudEditActive = false;
+        saveBtn.remove();
+        
+        draggables.forEach(id => {
+            let el = document.getElementById(id);
+            if (el) {
+                el.style.outline = 'none';
+                if (el.style.position === 'absolute') {
+                    localStorage.setItem('customHUD_' + id + '_left', el.style.left);
+                    localStorage.setItem('customHUD_' + id + '_top', el.style.top);
+                }
+            }
+        });
+        
+        showModal('settings-modal'); 
+    };
+}
+
+function loadUISettings() {
+    const savedMinimap = localStorage.getItem('minimapPos');
+    const savedButtons = localStorage.getItem('buttonsPos');
+
+    if (savedMinimap) minimapPosition = savedMinimap;
+    if (savedButtons) buttonsPosition = savedButtons;
+
+    document.getElementById('action-buttons-container').className = buttonsPosition;
+    document.getElementById('minimap-pos').value = minimapPosition;
+    document.getElementById('buttons-pos').value = buttonsPosition;
+
+    const draggables = ['btn-inventory-wrap', 'reload-circle-btn', 'bomb-circle-btn', 'shop-circle-btn', 'settings-circle-btn', 'main-hud-top', 'main-hud-bottom'];
+    
+    draggables.forEach(id => {
+        let savedLeft = localStorage.getItem('customHUD_' + id + '_left');
+        let savedTop = localStorage.getItem('customHUD_' + id + '_top');
+        if (savedLeft && savedTop) {
+            let el = document.getElementById(id);
+            if (el) {
+                document.getElementById('game-screen').appendChild(el);
+                
+                el.style.position = 'absolute';
+                el.style.left = savedLeft;
+                el.style.top = savedTop;
+                el.style.right = 'auto';
+                el.style.bottom = 'auto';
+                el.style.transform = 'none';
+                el.style.margin = '0';
+            }
+        }
+    });
+}
+
+function resetHUDLayout() {
+    const draggables = ['btn-inventory-wrap', 'reload-circle-btn', 'bomb-circle-btn', 'shop-circle-btn', 'settings-circle-btn', 'main-hud-top', 'main-hud-bottom'];
+    let container = document.getElementById('action-buttons-container');
+    
+    draggables.forEach(id => {
+        localStorage.removeItem('customHUD_' + id + '_left');
+        localStorage.removeItem('customHUD_' + id + '_top');
+        let el = document.getElementById(id);
+        if (el) {
+            if (id !== 'main-hud-top' && id !== 'main-hud-bottom') {
+                container.appendChild(el);
+            }
+            
+            el.style.position = '';
+            el.style.left = '';
+            el.style.top = '';
+            el.style.right = '';
+            el.style.bottom = '';
+            el.style.transform = '';
+            el.style.margin = '';
+        }
+    });
+    alert('HUD layout reset to default!');
+}
+// END OF HUD SYSTEM
+
+function saveUISettings() {
+    minimapPosition = document.getElementById('minimap-pos').value;
+    buttonsPosition = document.getElementById('buttons-pos').value;
+
+    localStorage.setItem('minimapPos', minimapPosition);
+    localStorage.setItem('buttonsPos', buttonsPosition);
+
+    if (!localStorage.getItem('customHUD_btn-inventory-wrap_left')) {
+        document.getElementById('action-buttons-container').className = buttonsPosition;
+    }
+}
+
+function getEnemyHealthMultiplier() { let totalUpgrades = 0; for (let gun in gunStats) if (gunStats[gun].owned) totalUpgrades += gunStats[gun].level; enemyTier = 1 + Math.floor(totalUpgrades / 2); return 1 + (enemyTier - 1) * 0.3; }
+function getFireRate() { return gunStats[currentGun]?.fireRate || 1200; }
+
+function triggerGameOver() {
+    isPaused = true;
+    document.getElementById('go-player').innerText = selectedUser;
+    document.getElementById('go-score').innerText = score;
+    document.getElementById('go-time').innerText = timeLived;
+    document.getElementById('go-kills').innerText = kills;
+    isNewGlobalHighScore(score).then(isHigh => { 
+        if (isHigh) { addGlobalHighScore(selectedUser, score, timeLived, kills); document.getElementById('go-highscore-msg').innerText = "🏆 NEW GLOBAL HIGH SCORE! 🏆"; } 
+        else document.getElementById('go-highscore-msg').innerText = ""; 
+    });
+    showModal('gameover-modal');
+}
+
+function saveGame() {
+    const gameState = { playerX: player.x, playerY: player.y, money, bandages, kills, score, timeLived, playerHp, maxHp, currentGun, spareMags, currentAmmo, wallsCount, wiresCount, turretsCount, moneyMultiplier, moneyBoostTimer, potionTimer, potionActive, shieldActive, shieldEndTime, shieldPrice, enemyTier, bombPrice, gunStats, armorLevel };
+    localStorage.setItem('defence_save_' + selectedUser, JSON.stringify(gameState)); alert('Game Session Saved Successfully!');
+}
+
+function loadGame() {
+    const saved = localStorage.getItem('defence_save_' + selectedUser);
+    if (saved) {
+        const s = JSON.parse(saved); player.x = s.playerX || 0; player.y = s.playerY || 0; player.petX = player.x; player.petY = player.y; money = s.money || 0; bandages = s.bandages || 0; kills = s.kills || 0; score = s.score || 0; timeLived = s.timeLived || 0; playerHp = s.playerHp || 10; maxHp = s.maxHp || 10; currentGun = s.currentGun || 'Pistol'; spareMags = s.spareMags || 3; currentAmmo = s.currentAmmo || 12; wallsCount = s.wallsCount || 0; wiresCount = s.wiresCount || 0; turretsCount = s.turretsCount || 0; moneyMultiplier = s.moneyMultiplier || 1; moneyBoostTimer = s.moneyBoostTimer || 0; potionTimer = s.potionTimer || 0; potionActive = s.potionActive || false; shieldActive = s.shieldActive || false; shieldEndTime = s.shieldEndTime || 0; shieldPrice = s.shieldPrice || 100; enemyTier = s.enemyTier || 1; bombPrice = s.bombPrice || 100; armorLevel = s.armorLevel || 0; if(s.gunStats) gunStats = s.gunStats;
+        return true;
+    } return false;
+}
+
+let cutsceneActive = false;
+let cutsceneType = 'intro';
+
+function endCutscene() {
+    cutsceneActive = false;
+    document.getElementById('cutscene-overlay').style.display = 'none';
+    document.getElementById('main-hud-top').style.display = 'flex';
+    document.getElementById('main-hud-bottom').style.display = 'flex';
+    
+    const draggables = ['btn-inventory-wrap', 'reload-circle-btn', 'bomb-circle-btn', 'shop-circle-btn', 'settings-circle-btn'];
+    let anyDragged = false;
+    draggables.forEach(id => {
+        let savedLeft = localStorage.getItem('customHUD_' + id + '_left');
+        if (savedLeft) anyDragged = true;
+    });
+
+    if(!anyDragged) {
+        document.getElementById('action-buttons-container').style.display = 'flex';
+    } else {
+        document.getElementById('action-buttons-container').style.display = 'flex';
+        draggables.forEach(id => {
+            let el = document.getElementById(id);
+            if(el) el.style.display = 'flex';
+        });
+    }
+
+    lastShot = Date.now(); lastEnemySync = Date.now();
+    
+    if(cutsceneType === 'intro') {
+        if (gameLoopId) cancelAnimationFrame(gameLoopId);
+        loop();
+    }
+}
+
+function playCutscene() {
+    cutsceneActive = true;
+    cutsceneType = 'intro';
+    const overlay = document.getElementById('cutscene-overlay');
+    const textEl = document.getElementById('cutscene-text');
+    overlay.style.display = 'flex';
+    document.getElementById('main-hud-top').style.display = 'none';
+    document.getElementById('main-hud-bottom').style.display = 'none';
+    document.getElementById('action-buttons-container').style.display = 'none';
+    
+    const draggables = ['btn-inventory-wrap', 'reload-circle-btn', 'bomb-circle-btn', 'shop-circle-btn', 'settings-circle-btn'];
+    draggables.forEach(id => {
+        let el = document.getElementById(id);
+        if(el && el.style.position === 'absolute') el.style.display = 'none';
+    });
+
+    if (gameLoopId) cancelAnimationFrame(gameLoopId);
+    loop();
+    
+    const lines = [ "THE WORLD HAS FALLEN...", "ONLY SURVIVORS REMAIN.", "DEFEND    YOUR    TERRITORY!", "FIGHT    FOR    EVOLUTION!!!" ];
+    let lineIdx = 0;
+    
+    function showLine() {
+        if (!cutsceneActive || cutsceneType !== 'intro') return;
+        if (lineIdx >= lines.length) { endCutscene(); return; }
+        
+        textEl.innerText = "";
+        textEl.classList.remove('text-intense');
+        
+        if (lineIdx >= 2) {
+            textEl.classList.add('text-intense');
+            addScreenShake(10, 20); 
+            playSound('explosion');
+        }
+
+        let txt = lines[lineIdx];
+        let charIdx = 0;
+        let typeInterval = setInterval(() => {
+            if(!cutsceneActive || cutsceneType !== 'intro') { clearInterval(typeInterval); return; }
+            textEl.innerText += txt[charIdx]; charIdx++;
+            if(charIdx >= txt.length) { clearInterval(typeInterval); setTimeout(showLine, 1800); }
+        }, 60); 
+        lineIdx++;
+    }
+    showLine();
+}
+
+function restartGame(isContinue = false) {
+    if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    hideModal('settings-modal'); hideModal('gameover-modal'); hideModal('shop-modal'); hideModal('skins-modal'); hideModal('instructions-modal');
+    
+    let loaded = false; if (isContinue) { loaded = loadGame(); if(!loaded) alert("No saved game found! Starting a new game instead."); }
+    if (!loaded) {
+        money = 0; bandages = 0; kills = 0; score = 0; timeLived = 0; maxHp = 10; playerHp = maxHp; currentGun = 'Pistol'; gunDamage = 5; bombPrice = 100; enemyTier = 1; spareMags = 3; currentAmmo = 12; isReloading = false; reloadEndTime = 0; wallsCount = 0; wiresCount = 0; turretsCount = 0; moneyMultiplier = 1; moneyBoostTimer = 0; potionTimer = 0; potionActive = false; shieldActive = false; shieldEndTime = 0; shieldPrice = 100; armorLevel = 0;
+        gunStats = { 'Pistol': {owned: true, level: 0, baseDamage: 9, baseCost: 0, fireRate: 900, magSize: 12, reloadTime: 1000}, 'D-Eagle': {owned: false, level: 0, baseDamage: 8, baseCost: 100, fireRate: 1200, magSize: 12, reloadTime: 1500}, 'AK47': {owned: false, level: 0, baseDamage: 12, baseCost: 500, fireRate: 400, magSize: 40, reloadTime: 2000}, 'Shortgun': {owned: false, level: 0, baseDamage: 18, baseCost: 1000, fireRate: 1200, magSize: 4, reloadTime: 2500}, 'AWM': {owned: false, level: 0, baseDamage: 30, baseCost: 2000, fireRate: 2500, magSize: 4, reloadTime: 3000}, 'Machine Gun': {owned: false, level: 0, baseDamage: 8, baseCost: 5000, fireRate: 150, magSize: 100, reloadTime: 3000}, 'S12K': {owned: false, level: 0, baseDamage: 12, baseCost: 1500, fireRate: 600, magSize: 8, reloadTime: 2000}, 'M24': {owned: false, level: 0, baseDamage: 50, baseCost: 1800, fireRate: 2000, magSize: 5, reloadTime: 2500}, 'P90': {owned: false, level: 0, baseDamage: 7, baseCost: 3500, fireRate: 100, magSize: 50, reloadTime: 2500}, 'MP40': {owned: false, level: 0, baseDamage: 9, baseCost: 2800, fireRate: 180, magSize: 32, reloadTime: 2000}, 'RPG': {owned: false, level: 0, baseDamage: 100, baseCost: 8000, fireRate: 3000, magSize: 1, reloadTime: 3500}, 'S1887': {owned: false, level: 0, baseDamage: 25, baseCost: 2500, fireRate: 1500, magSize: 2, reloadTime: 1500} };
+        player.x = 0; player.y = 0; player.petX = 0; player.petY = 0; player.petOffsetX = undefined; player.petOffsetY = undefined; player.petPrevOwnerX = undefined; player.petPrevOwnerY = undefined; lastTurretPlaceTime = 0;
+    }
+    let currentGunData = gunStats[currentGun]; gunDamage = currentGunData.baseDamage + (currentGunData.level * 3);
+    updateShopUI(); updateHUD(); document.getElementById('shield-cost-display').innerText = shieldPrice;
+    camX = 0; camY = 0; enemies = []; bullets = []; drops = []; chests = []; props = []; activeBombs = []; explosions = []; particles = []; isPaused = false; bossSpawnTimer = 0; 
+    
+    clearInterval(timeInterval); 
+    timeInterval = setInterval(() => { 
+        if (!isPaused && !cutsceneActive) { 
+            timeLived++; 
+
+            if (moneyBoostTimer > 0) { moneyBoostTimer--; if (moneyBoostTimer <= 0) moneyMultiplier = 1; } 
+            if (potionTimer > 0) { potionTimer--; if (potionTimer <= 0) { potionActive = false; if (playerHp > maxHp) playerHp = maxHp; } } 
+            updateHUD(); 
+        } 
+    }, 1000);
+    
+    if (!isContinue) {
+        playCutscene();
+    } else {
+        endCutscene();
+    }
+}
+
+function exitToMenu() {
+    isPaused = true; clearInterval(timeInterval); hideModal('settings-modal'); hideModal('gameover-modal'); hideModal('shop-modal'); document.getElementById('game-screen').style.display = 'none'; document.getElementById('menu-screen').style.display = 'block'; updateUsernameDropdown(); if (gameLoopId) cancelAnimationFrame(gameLoopId); if (document.exitFullscreen) { document.exitFullscreen(); } else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); } else if (document.msExitFullscreen) { document.msExitFullscreen(); }
+    // Actually leave the shared multiplayer room so teammates see us gone immediately
+    // (their enemy-ownership handoff and room-cleanup logic depends on this).
+    if (isChannelReady) {
+        if (fbPlayersRef) fbPlayersRef.off();
+        if (fbEnemySyncRef) fbEnemySyncRef.off();
+        if (fbEventsRef) fbEventsRef.off();
+        if (mySessionId) {
+            db.ref(ROOM_PATH + '/players/' + mySessionId).remove().catch(() => {});
+            db.ref(ROOM_PATH + '/enemySync/' + mySessionId).remove().catch(() => {});
+            db.ref(ROOM_PATH + '/players/' + mySessionId).onDisconnect().cancel();
+            db.ref(ROOM_PATH + '/enemySync/' + mySessionId).onDisconnect().cancel();
+            db.ref(ROOM_PATH).onDisconnect().cancel();
+        }
+        fbPlayersRef = null; fbEnemySyncRef = null; fbEventsRef = null; isChannelReady = false;
+    }
+    otherPlayers = {};
+}
+function updateBombButton() { document.getElementById('bomb-price-badge').innerText = '$' + bombPrice; let btn = document.getElementById('bomb-circle-btn'); btn.disabled = (money < bombPrice); btn.style.opacity = (money < bombPrice) ? '0.6' : '1'; }
+function updateHUD() { 
+    document.getElementById('ui-money').innerText = money; document.getElementById('ui-score').innerText = score; document.getElementById('ui-time').innerText = timeLived; 
+    document.getElementById('ui-hp-display').innerText = playerHp + '/' + (potionActive ? maxHp+10 : maxHp);
+
+    let dropHeal = document.getElementById('drop-heal-count'); if(dropHeal) dropHeal.innerText = bandages; let dropWall = document.getElementById('drop-wall-count'); if(dropWall) dropWall.innerText = wallsCount; 
+    let dropWire = document.getElementById('drop-wire-count'); if(dropWire) dropWire.innerText = wiresCount; let dropTurret = document.getElementById('drop-turret-count'); if(dropTurret) dropTurret.innerText = turretsCount;
+    let gunText = currentGun; if (currentGun === 'Pistol') gunText += " (∞)"; else if (isReloading) gunText += " (RELOADING...)"; else if (currentAmmo === 0 && spareMags === 0) gunText += " (EMPTY!)"; else gunText += " (" + currentAmmo + "/" + gunStats[currentGun].magSize + ")"; document.getElementById('ui-gun').innerText = gunText; 
+    let magEl = document.getElementById('ui-mags'); if(magEl) magEl.innerText = spareMags;
+    let displayShieldTimer = shieldActive ? Math.ceil((shieldEndTime - Date.now()) / 1000) : 0;
+    let powerupText = ''; if (moneyBoostTimer > 0) powerupText += '💰2x ' + moneyBoostTimer + 's '; if (potionActive) powerupText += '🧪+ ' + potionTimer + 's '; if (shieldActive && displayShieldTimer > 0) powerupText += '🛡️ ' + displayShieldTimer + 's '; document.getElementById('ui-powerups').innerText = powerupText; updateBombButton(); document.getElementById('shield-cost-display').innerText = shieldPrice; let shieldBtn = document.getElementById('btn-buy-shield'); if (shieldBtn) { shieldBtn.disabled = (money < shieldPrice || shieldActive); shieldBtn.style.opacity = (money < shieldPrice || shieldActive) ? '0.6' : '1'; } 
+}
+
+function buyMagazine() { if (money >= 70) { money -= 70; spareMags++; updateHUD(); playSound('coin'); document.getElementById('shop-message').innerText = "Purchased Spare Magazine!"; document.getElementById('shop-message').style.color = "#16a34a"; } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } } function buyBandages() { if (money >= 150) { money -= 150; bandages += 3; updateHUD(); playSound('coin'); document.getElementById('shop-message').innerText = "Purchased 3 Bandages!"; document.getElementById('shop-message').style.color = "#16a34a"; } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } } function buyPotion() { if (money >= 500) { money -= 500; potionActive = true; potionTimer = 90; playerHp = maxHp + 10; playSound('coin'); document.getElementById('shop-message').innerText = "Fully healed! +10 HP for 90s!"; document.getElementById('shop-message').style.color = "#16a34a"; updateHUD(); } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } } 
+function buyArmor() { if (armorLevel >= 5) return; let cost = 200 * (armorLevel + 1); if (money >= cost) { money -= cost; armorLevel++; maxHp += 3; playerHp += 3; playSound('coin'); document.getElementById('shop-message').innerText = "Armor upgraded to Lvl " + armorLevel + "! +3 Max HP"; document.getElementById('shop-message').style.color = "#16a34a"; updateHUD(); updateShopUI(); } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } }
+function armorReduce(dmg) { return dmg * (1 - Math.min(armorLevel * 0.1, 0.5)); }
+function buyShield() { if (money >= shieldPrice && !shieldActive) { money -= shieldPrice; shieldActive = true; shieldEndTime = Date.now() + 10000; shieldPrice = Math.min(shieldPrice * 2, 1600); playSound('coin'); document.getElementById('shop-message').innerText = "Shield activated! 10s invincibility."; document.getElementById('shop-message').style.color = "#16a34a"; updateHUD(); } else if (shieldActive) { document.getElementById('shop-message').innerText = "Shield already active!"; document.getElementById('shop-message').style.color = "#dc2626"; } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } } 
+function buyMoneyBoost() { if (money >= 1000) { money -= 1000; moneyMultiplier = 2; moneyBoostTimer = 90; playSound('coin'); document.getElementById('shop-message').innerText = "2x Money for 90s!"; document.getElementById('shop-message').style.color = "#16a34a"; updateHUD(); } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } } function useBandage() { if (bandages > 0 && playerHp < maxHp) { bandages--; playerHp = Math.min(maxHp, playerHp + 2); updateHUD(); } } function buyWall() { if (money >= 11) { money -= 11; wallsCount++; updateHUD(); playSound('coin'); document.getElementById('shop-message').innerText = "Purchased Wall!"; document.getElementById('shop-message').style.color = "#16a34a"; } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } } function buyWire() { if (money >= 11) { money -= 11; wiresCount++; updateHUD(); playSound('coin'); document.getElementById('shop-message').innerText = "Purchased Barbed Wire!"; document.getElementById('shop-message').style.color = "#16a34a"; } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } }
+function buyTurret() { if (money >= 10000) { money -= 10000; turretsCount++; updateHUD(); playSound('coin'); document.getElementById('shop-message').innerText = "Purchased Auto-Turret!"; document.getElementById('shop-message').style.color = "#16a34a"; } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } }
+
+function buyBossKey() {
+    if (money >= 20000) {
+        money -= 20000;
+        spawnBoss(null, true);
+        playSound('boss');
+        document.getElementById('shop-message').innerText = "BOSS KEY ACTIVATED! PREPARE YOURSELF!";
+        document.getElementById('shop-message').style.color = "#16a34a";
+        updateHUD();
+        resumeGame('shop-modal');
+    } else {
+        document.getElementById('shop-message').innerText = "Not enough money!";
+        document.getElementById('shop-message').style.color = "#dc2626";
+    }
+}
+
+function placeProp(type) { 
+    let now = Date.now();
+    if (type === 'wall' && wallsCount > 0) { wallsCount--; } 
+    else if (type === 'wire' && wiresCount > 0) { wiresCount--; } 
+    else if (type === 'turret' && turretsCount > 0) {
+        if (now - lastTurretPlaceTime < 15000) {
+            let wait = Math.ceil((15000 - (now - lastTurretPlaceTime)) / 1000);
+            return;
+        }
+        turretsCount--; lastTurretPlaceTime = now;
+    } else return; 
+    
+    let p = { id: genId(), type: type, x: player.x, y: player.y, w: 32, h: 32, hp: 100, maxHp: 100, lastHit: 0 }; 
+    if (type === 'turret') { p.hp = 999999; p.maxHp = 999999; p.isInvincible = true; p.lastShot = 0; }
+    props.push(p); sendBroadcast('prop_spawn', p); updateHUD(); 
+}
+
+
+function buyGun(name) { let gun = gunStats[name]; if (gun.owned) { currentGun = name; gunDamage = gun.baseDamage + (gun.level * 3); currentAmmo = gun.magSize; isReloading = false; document.getElementById('shop-message').innerText = "Equipped " + name; document.getElementById('shop-message').style.color = "#16a34a"; updateShopUI(); updateHUD(); } else if (money >= gun.baseCost) { money -= gun.baseCost; gun.owned = true; currentGun = name; gunDamage = gun.baseDamage + (gun.level * 3); currentAmmo = gun.magSize; isReloading = false; updateHUD(); updateShopUI(); document.getElementById('shop-message').innerText = "Purchased " + name; document.getElementById('shop-message').style.color = "#16a34a"; playSound('coin'); } else { document.getElementById('shop-message').innerText = "Not enough money!"; document.getElementById('shop-message').style.color = "#dc2626"; } }
+function upgradeGun(name) { let gun = gunStats[name]; if (!gun.owned || gun.level >= 3) return; let cost = gun.baseCost * (gun.level + 1); if (money >= cost) { money -= cost; gun.level++; gunDamage = gun.baseDamage + (gun.level * 3); updateHUD(); updateShopUI(); document.getElementById('shop-message').innerText = name + " upgraded to Lvl " + gun.level + "!"; document.getElementById('shop-message').style.color = "#16a34a"; playSound('coin'); } }
+function updateShopUI() { ['D-Eagle', 'AK47', 'Shortgun', 'AWM', 'Machine Gun', 'S12K', 'M24', 'P90', 'MP40', 'RPG', 'S1887'].forEach(name => { let gun = gunStats[name], key = name.toLowerCase().replace(' ', ''); if (key === 'd-eagle') key = 'deagle'; document.getElementById(key + '-lvl').innerText = gun.level; let buyBtn = document.getElementById('btn-buy-' + key), upgBtn = document.getElementById('btn-upgrade-' + key); if (!buyBtn) return; if (gun.owned) { buyBtn.innerText = (currentGun === name) ? 'EQUIPPED' : 'EQUIP'; document.getElementById(key + '-cost').innerText = 'Owned'; upgBtn.style.display = 'inline-block'; if (gun.level >= 3) { upgBtn.innerText = 'MAX'; upgBtn.disabled = true; } else { upgBtn.innerText = 'UPGRADE ($' + gun.baseCost * (gun.level + 1) + ')'; upgBtn.disabled = false; } } else { buyBtn.innerText = 'BUY'; upgBtn.style.display = 'none'; document.getElementById(key + '-cost').innerText = gun.baseCost; } });
+    let armorLvlEl = document.getElementById('armor-lvl'), armorCostEl = document.getElementById('armor-cost'), armorBtn = document.getElementById('btn-buy-armor');
+    if (armorLvlEl) { armorLvlEl.innerText = armorLevel; if (armorLevel >= 5) { armorCostEl.innerText = 'MAX'; armorBtn.innerText = 'MAX'; armorBtn.disabled = true; } else { let cost = 200 * (armorLevel + 1); armorCostEl.innerText = cost; armorBtn.innerText = 'BUY'; armorBtn.disabled = false; } }
+}
+
+window.addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; if (e.key.toLowerCase() === 'r') reloadGun(); });
+window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+const joyZone = document.getElementById('joystick-zone'), joyKnob = document.getElementById('joystick-knob'); let joystickTouchId = null;
+joyZone.addEventListener('touchstart', e => { e.preventDefault(); for(let i=0; i < e.changedTouches.length; i++) { if(joystickTouchId === null) { joystickTouchId = e.changedTouches[i].identifier; isDragging = true; handleJoy(e.changedTouches[i]); } } }, { passive: false });
+joyZone.addEventListener('touchmove', e => { e.preventDefault(); if (isDragging) { for(let i=0; i < e.changedTouches.length; i++) { if(e.changedTouches[i].identifier === joystickTouchId) { handleJoy(e.changedTouches[i]); } } } }, { passive: false });
+function endJoystickTouch(e) { e.preventDefault(); for(let i=0; i < e.changedTouches.length; i++) { if(e.changedTouches[i].identifier === joystickTouchId) { isDragging = false; joystickTouchId = null; joyX = 0; joyY = 0; joyKnob.style.transform = 'translate(-50%,-50%)'; } } }
+joyZone.addEventListener('touchend', endJoystickTouch, { passive: false }); joyZone.addEventListener('touchcancel', endJoystickTouch, { passive: false });
+let joyMouseDown = false;
+joyZone.addEventListener('mousedown', e => { e.preventDefault(); joyMouseDown = true; isDragging = true; handleJoy(e); });
+window.addEventListener('mousemove', e => { if (joyMouseDown && isDragging) handleJoy(e); });
+window.addEventListener('mouseup', e => { if (joyMouseDown) { joyMouseDown = false; isDragging = false; joyX = 0; joyY = 0; joyKnob.style.transform = 'translate(-50%,-50%)'; } });
+function handleJoy(t) { let r = joyZone.getBoundingClientRect(), cx = r.left + r.width/2, cy = r.top + r.height/2; let dx = t.clientX - cx, dy = t.clientY - cy, d = Math.hypot(dx, dy), maxR = 40; if (d > maxR) { dx = (dx / d) * maxR; dy = (dy / d) * maxR; } joyKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`; joyX = dx / maxR; joyY = dy / maxR; }
+
+function spawnEnemy(syncData = null) { 
+    let newEnemy;
+    if (syncData) { 
+        newEnemy = { ...syncData, w: 24, h: 24, lastHitPlayer: 0 }; 
+    } else {
+        let a = Math.random() * Math.PI * 2, d = Math.max(CW, CH) * 0.6; 
+        let hmult = getEnemyHealthMultiplier(); 
+        let baseHp = Math.floor(35 * hmult); 
+        newEnemy = {
+            id: genId(), owner: mySessionId, x: player.x + Math.cos(a) * d, y: player.y + Math.sin(a) * d, 
+            w: 24, h: 24, hp: baseHp, maxHp: baseHp, speed: (0.6 + Math.random() * 0.3), 
+            lastHitPlayer: 0, isBoss: false, eType: 'normal'
+        };
+    }
+    if (!enemies.find(en => en.id === newEnemy.id)) { enemies.push(newEnemy); if (!syncData) sendBroadcast('enemy_spawn', newEnemy); } return newEnemy;
+}
+
+function spawnBoss(syncData = null, isMega = false) { 
+    let newBoss;
+    if (syncData) { newBoss = { ...syncData, w: syncData.eType === 'mega_boss' ? 80 : 40, h: syncData.eType === 'mega_boss' ? 80 : 40, lastHitPlayer: 0 }; }
+    else { 
+        let a = Math.random() * Math.PI * 2, d = Math.max(CW, CH) * 0.6; let hmult = getEnemyHealthMultiplier(); 
+        let baseHp = Math.floor((isMega ? 1500 : 90) * hmult); 
+        newBoss = {
+            id: genId(), owner: mySessionId, x: player.x + Math.cos(a) * d, y: player.y + Math.sin(a) * d, 
+            w: isMega ? 80 : 40, h: isMega ? 80 : 40, hp: baseHp, maxHp: baseHp, speed: isMega ? 0.9 : 0.6, 
+            lastHitPlayer: 0, isBoss: true, eType: isMega ? 'mega_boss' : 'boss'
+        }; 
+    }
+    if (!enemies.find(en => en.id === newBoss.id)) { enemies.push(newBoss); if (!syncData) sendBroadcast('enemy_spawn', newBoss); } return newBoss;
+}
+function spawnChest() { let a = Math.random() * Math.PI * 2, d = Math.random() * 500 + 200; let chest = {id: genId(), x: player.x + Math.cos(a) * d, y: player.y + Math.sin(a) * d, w: 32, h: 32}; chests.push(chest); sendBroadcast('chest_spawn', chest); }
+function separateEnemies() { for (let i = 0; i < enemies.length; i++) { for (let j = i + 1; j < enemies.length; j++) { let e1 = enemies[i], e2 = enemies[j]; let dx = e2.x - e1.x, dy = e2.y - e1.y; if (Math.abs(dx) > 60 || Math.abs(dy) > 60) continue; let d = Math.hypot(dx, dy); let min = (e1.w + e2.w) / 2; if (d < min && d > 0) { let o = min - d; e1.x -= (dx / d) * o * 0.5; e1.y -= (dy / d) * o * 0.5; e2.x += (dx / d) * o * 0.5; e2.y += (dy / d) * o * 0.5; } } } }
+
+function drawMinimap() {
+    const mapW = 120, mapH = 120, padding = 10; let mapX, mapY;
+    switch (minimapPosition) { case 'top-right': mapX = CW - mapW - padding; mapY = padding + 40; break; case 'top-left': mapX = padding; mapY = padding + 40; break; case 'bottom-right': mapX = CW - mapW - padding; mapY = CH - mapH - padding - 40; break; case 'bottom-left': mapX = padding; mapY = CH - mapH - padding - 40; break; default: mapX = CW - mapW - padding; mapY = padding + 40; }
+    const scale = mapW / (minimapRadius * 2); const centerX = mapX + mapW/2, centerY = mapY + mapH/2;
+    const r = 10;
+    ctx.save();
+    // rounded radar panel with soft drop shadow
+    ctx.beginPath(); ctx.roundRect(mapX - 2, mapY - 2, mapW + 4, mapH + 4, r);
+    ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 10; ctx.fill(); ctx.shadowBlur = 0;
+    ctx.save();
+    ctx.beginPath(); ctx.roundRect(mapX, mapY, mapW, mapH, r - 2); ctx.clip();
+    let bgGrad = ctx.createRadialGradient(centerX, centerY, 4, centerX, centerY, mapW * 0.7);
+    bgGrad.addColorStop(0, 'rgba(20,30,18,0.72)'); bgGrad.addColorStop(1, 'rgba(4,8,4,0.88)');
+    ctx.fillStyle = bgGrad; ctx.fillRect(mapX, mapY, mapW, mapH);
+    // faint scan grid
+    ctx.strokeStyle = 'rgba(74,222,128,0.12)'; ctx.lineWidth = 1;
+    for (let gx = mapX + 20; gx < mapX + mapW; gx += 20) { ctx.beginPath(); ctx.moveTo(gx, mapY); ctx.lineTo(gx, mapY + mapH); ctx.stroke(); }
+    for (let gy = mapY + 20; gy < mapY + mapH; gy += 20) { ctx.beginPath(); ctx.moveTo(mapX, gy); ctx.lineTo(mapX + mapW, gy); ctx.stroke(); }
+    // sweeping radar pulse ring
+    let sweepT = (Date.now() / 1400) % 1;
+    ctx.strokeStyle = `rgba(74,222,128,${0.35 * (1 - sweepT)})`; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(centerX, centerY, sweepT * mapW * 0.55, 0, Math.PI * 2); ctx.stroke();
+    ctx.restore();
+    ctx.beginPath(); ctx.roundRect(mapX - 2, mapY - 2, mapW + 4, mapH + 4, r);
+    ctx.strokeStyle = '#facc15'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.roundRect(mapX, mapY, mapW, mapH, r - 2); ctx.stroke();
+
+    function worldToMap(wx, wy) { return { x: centerX + (wx - player.x) * scale, y: centerY + (wy - player.y) * scale }; }
+    function blip(p, color, size, glow) {
+        ctx.save();
+        ctx.shadowColor = color; ctx.shadowBlur = glow || 5;
+        ctx.fillStyle = color; ctx.beginPath(); ctx.arc(p.x, p.y, size, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+    }
+    let radSq = minimapRadius * minimapRadius;
+    enemies.forEach(e => { let dx = e.x - player.x, dy = e.y - player.y; if (dx*dx + dy*dy <= radSq) blip(worldToMap(e.x, e.y), e.isBoss ? '#f97316' : '#ef4444', e.isBoss ? 3 : 2, 7); });
+    chests.forEach(c => { let dx = c.x - player.x, dy = c.y - player.y; if (dx*dx + dy*dy <= radSq) blip(worldToMap(c.x, c.y), '#facc15', 2.6, 6); });
+    drops.forEach(d => { let dx = d.x - player.x, dy = d.y - player.y; if (dx*dx + dy*dy <= radSq) blip(worldToMap(d.x, d.y), '#4ade80', 1.6, 4); });
+
+    if (isMultiplayer) {
+        for (let user in otherPlayers) {
+            let op = otherPlayers[user]; let dx = op.x - player.x, dy = op.y - player.y;
+            if (dx*dx + dy*dy <= radSq) blip(worldToMap(op.x, op.y), '#22d3ee', 2.6, 6);
+        }
+    }
+    // player marker with facing direction wedge
+    let pp = worldToMap(player.x, player.y);
+    let facingAng = (player.lastDirX || player.lastDirY) ? Math.atan2(player.lastDirY, player.lastDirX) : -Math.PI/2;
+    ctx.save();
+    ctx.translate(pp.x, pp.y); ctx.rotate(facingAng);
+    ctx.shadowColor = '#60a5fa'; ctx.shadowBlur = 8;
+    ctx.fillStyle = '#3b82f6';
+    ctx.beginPath(); ctx.moveTo(6, 0); ctx.lineTo(-4, 4); ctx.lineTo(-4, -4); ctx.closePath(); ctx.fill();
+    ctx.shadowBlur = 0; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke();
+    ctx.restore();
+    ctx.restore();
+}
+
+function loop() {
+    if (isPaused) { gameLoopId = requestAnimationFrame(loop); return; }
+    let now = Date.now(); 
+
+    if (cutsceneActive) {
+        if(cutsceneType === 'intro') {
+            player.x += player.speed * 1.5; 
+            player.y += Math.sin(now / 100) * 2; 
+            player.moving = true;
+        }
+        
+        camX = player.x - CW/3;
+        camY = player.y - CH/2;
+
+        if (Math.random() < 0.08) {
+            let exX = player.x + (Math.random() * CW);
+            let exY = player.y + (Math.random() * CH - CH/2);
+            explosions.push({x: exX, y: exY, r: 0, maxR: 50 + Math.random()*100, life: 20});
+            spawnParticles(exX, exY, '#f59e0b', 15, 8);
+            if(cutsceneType === 'intro') addScreenShake(8, 5);
+        }
+    } else {
+        camX = player.x - CW/2; 
+        camY = player.y - CH/2;
+
+        let currentDx = 0, currentDy = 0;
+        if (keys['w']) currentDy -= 1; if (keys['s']) currentDy += 1; if (keys['a']) currentDx -= 1; if (keys['d']) currentDx += 1;
+        if (isDragging) { currentDx = joyX; currentDy = joyY; }
+        let md = Math.hypot(currentDx, currentDy); 
+        
+        player.moving = md > 0;
+        if (md > 0) { 
+            currentDx /= md; currentDy /= md; 
+            player.x += currentDx * player.speed; 
+            player.y += currentDy * player.speed; 
+            player.lastDirX = currentDx; player.lastDirY = currentDy;
+        }
+    }
+    
+    if (shakeTime > 0) {
+        camX += (Math.random() - 0.5) * shakeMag;
+        camY += (Math.random() - 0.5) * shakeMag;
+        shakeTime--;
+    }
+
+    if (shieldActive && now > shieldEndTime) { shieldActive = false; updateHUD(); }
+    if (isReloading && now >= reloadEndTime) { isReloading = false; currentAmmo = gunStats[currentGun].magSize; updateHUD(); }
+    
+    // RENDER FIX
+    ctx.clearRect(0, 0, CW, CH);
+    let tileSize = 32;
+    let offsetX = -camX % tileSize;
+    let offsetY = -camY % tileSize;
+    
+    for(let x = offsetX - tileSize; x < CW + tileSize; x += tileSize) {
+        for(let y = offsetY - tileSize; y < CH + tileSize; y += tileSize) {
+            let worldTileX = Math.round((x + camX) / tileSize), worldTileY = Math.round((y + camY) / tileSize);
+            ctx.drawImage(pickGroundTile(worldTileX, worldTileY), x, y, tileSize, tileSize);
+        }
+    }
+    
+    let currentMaxHp = potionActive ? maxHp + 10 : maxHp;
+    let mySkin = (currentSkin === 'custom') ? { outer: customOuter, inner: customInner } : (SKIN_COLORS[currentSkin] || SKIN_COLORS['blue']);
+    
+    if (isMultiplayer && selectedUser && now - lastBroadcastTime > 30) {
+        sendBroadcast('player_sync', { user: selectedUser, x: player.x, y: player.y, hp: playerHp, maxHp: currentMaxHp, gun: currentGun, skinOuter: mySkin.outer, skinInner: mySkin.inner, petType: currentPet, gunOuter: gunOuter, gunInner: gunInner });
+        lastBroadcastTime = now;
+    }
+    
+    if (!cutsceneActive && isSpawnAuthority()) {
+        if (Math.random() < 0.016) spawnEnemy(); 
+        if (Math.random() < 0.001 && chests.length < 5) spawnChest();
+        bossSpawnTimer++; if (bossSpawnTimer >= 1800) { spawnBoss(); bossSpawnTimer = 0; }
+    }
+
+    if (now - lastEnemySync > 50) {
+        const myEnemies = enemies.filter(e => e.owner === mySessionId);
+        if (myEnemies.length > 0) { const enemyData = myEnemies.map(e => ({ id: e.id, x: e.x, y: e.y, hp: e.hp, maxHp: e.maxHp, speed: e.speed, isBoss: e.isBoss, owner: e.owner, eType: e.eType })); sendBroadcast('all_enemies_sync', { enemies: enemyData }); }
+        lastEnemySync = now;
+    }
+    
+    for (let i = activeBombs.length - 1; i >= 0; i--) {
+        let b = activeBombs[i];
+        b.x += b.vx; b.y += b.vy; b.vx *= 0.95; b.vy *= 0.95; b.timer--;
+        
+        ctx.beginPath(); ctx.arc(b.x - camX, b.y - camY, 200, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(239, 68, 68, 0.1)'; ctx.fill();
+        ctx.strokeStyle = 'rgba(239, 68, 68, 0.5)'; ctx.setLineDash([5, 5]); ctx.stroke(); ctx.setLineDash([]);
+        
+        let bxs = b.x - camX, bys = b.y - camY, bombHot = (b.timer % 10 < 5);
+        ctx.save();
+        ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.ellipse(bxs, bys + 7, 7, 2.2, 0, 0, Math.PI*2); ctx.fill();
+        let bombGrad = ctx.createRadialGradient(bxs - 2, bys - 2, 1, bxs, bys, 7);
+        bombGrad.addColorStop(0, bombHot ? '#fca5a5' : '#52525b'); bombGrad.addColorStop(0.6, bombHot ? '#dc2626' : '#18181b'); bombGrad.addColorStop(1, '#000');
+        ctx.fillStyle = bombGrad; ctx.beginPath(); ctx.arc(bxs, bys, 6, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke();
+        ctx.strokeStyle = '#78350f'; ctx.lineWidth = 1.4; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(bxs + 3, bys - 5); ctx.quadraticCurveTo(bxs + 7, bys - 8, bxs + 5, bys - 11); ctx.stroke();
+        ctx.shadowColor = '#fde047'; ctx.shadowBlur = bombHot ? 8 : 4;
+        ctx.fillStyle = '#fde047'; ctx.beginPath(); ctx.arc(bxs + 5, bys - 11, bombHot ? 2.2 : 1.5, 0, Math.PI*2); ctx.fill();
+        ctx.restore();
+        
+        if (b.timer <= 0) {
+            let bombScore = 0;
+            playSound('explosion');
+            spawnParticles(b.x, b.y, '#f59e0b', 40, 10);
+            addScreenShake(12, 15);
+            for (let j = enemies.length - 1; j >= 0; j--) {
+                let e = enemies[j];
+                if (Math.hypot(b.x - e.x, b.y - e.y) <= 200) {
+                    let bombDmg = 400; 
+                    if (e.hp <= bombDmg) {
+                        bombScore += e.isBoss ? 200 : 50; e.hp = 0; kills++;
+                        let val = (e.isBoss ? 200 : 25) * moneyMultiplier; let d1 = {id: genId(), x: e.x, y: e.y, type: 'money', val: val}; drops.push(d1); sendBroadcast('enemy_died', { id: e.id }); sendBroadcast('item_dropped', d1);
+                        if (e.isBoss || Math.random() > 0.8) { drops.push({id: genId(), x: e.x + 10, y: e.y, type: 'bandage'}); }
+                        if (e.eType === 'mega_boss' || e.eType === 'boss') { spawnParticles(e.x + e.w/2, e.y + e.h/2, '#facc15', 30, 10); addScreenShake(10, 20); playSound('boss'); }
+                        enemies.splice(j, 1);
+                    } else {
+                        e.hp -= bombDmg; e.hitFlash = now; spawnDamageNumber(e.x + e.w/2, e.y, Math.round(bombDmg), '#fb923c');
+                        sendBroadcast('enemy_hit', { id: e.id, damage: bombDmg });
+                    }
+                }
+            }
+            score += bombScore; updateHUD();
+            explosions.push({x: b.x, y: b.y, r: 0, maxR: 200, life: 20});
+            activeBombs.splice(i, 1);
+        }
+    }
+
+    let wc = ['#b45309', '#d97706', '#78350f'];
+
+    for (let p of props) {
+        let px = p.x - camX, py = p.y - camY;
+        if (p.type === 'turret') {
+            ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.ellipse(px+p.w/2, py+p.h+3, p.w*0.44, 5, 0, 0, Math.PI*2); ctx.fill();
+            let turretBaseGrad = ctx.createLinearGradient(px, py, px, py+p.h);
+            turretBaseGrad.addColorStop(0, '#1e293b'); turretBaseGrad.addColorStop(1, '#0f172a');
+            ctx.fillStyle = turretBaseGrad; ctx.fillRect(px, py, p.w, p.h);
+            ctx.fillStyle = '#1e293b'; ctx.fillRect(px+2, py+2, p.w-4, p.h-4);
+            ctx.strokeStyle = '#38bdf8'; ctx.lineWidth=1; ctx.strokeRect(px+4, py+4, p.w-8, p.h-8);
+            ctx.fillStyle = '#475569';
+            [[px+4,py+4],[px+p.w-4,py+4],[px+4,py+p.h-4],[px+p.w-4,py+p.h-4]].forEach(rp => { ctx.beginPath(); ctx.arc(rp[0], rp[1], 1.3, 0, Math.PI*2); ctx.fill(); });
+            let tPulse = 0.55 + Math.sin(now/300)*0.25;
+            let coreGlow = ctx.createRadialGradient(px+p.w/2, py+p.h/2, 0, px+p.w/2, py+p.h/2, 9);
+            coreGlow.addColorStop(0, `rgba(56,189,248,${0.65*tPulse})`); coreGlow.addColorStop(1, 'rgba(56,189,248,0)');
+            ctx.fillStyle = coreGlow; ctx.beginPath(); ctx.arc(px+p.w/2, py+p.h/2, 9, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#334155'; ctx.beginPath(); ctx.arc(px+p.w/2, py+p.h/2, 6, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle = '#64748b'; ctx.lineWidth=1; ctx.beginPath(); ctx.arc(px+p.w/2, py+p.h/2, 6, 0, Math.PI*2); ctx.stroke();
+            let nearestE = null, minDistE = 300;
+            for (let e of enemies) { let d = Math.hypot((p.x+16) - e.x, (p.y+16) - e.y); if (d < minDistE) { minDistE = d; nearestE = e; } }
+            if (nearestE && now - (p.lastShot || 0) >= 100 && !cutsceneActive) {
+                p.lastShot = now;
+                playSound('shoot');
+                let angle = Math.atan2(nearestE.y - (p.y+16), nearestE.x - (p.x+16));
+                bullets.push({x: p.x+16, y: p.y+16, vx: Math.cos(angle)*12, vy: Math.sin(angle)*12, r: 2, damage: 10, hitEnemies: [], isRPG: false});
+            }
+            ctx.save(); ctx.translate(px+16, py+16);
+            if (nearestE && !cutsceneActive) ctx.rotate(Math.atan2(nearestE.y - (p.y+16), nearestE.x - (p.x+16)));
+            let barrelGrad = ctx.createLinearGradient(0, -3, 0, 3);
+            barrelGrad.addColorStop(0, '#94a3b8'); barrelGrad.addColorStop(0.5, '#64748b'); barrelGrad.addColorStop(1, '#334155');
+            ctx.fillStyle = barrelGrad; ctx.fillRect(0, -3, 22, 6);
+            ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.fillRect(2, -2.5, 18, 1);
+            ctx.fillStyle = '#1e293b'; ctx.fillRect(19, -3.5, 3, 7);
+            ctx.restore();
+            ctx.beginPath(); ctx.arc(px+16, py+16, 300, 0, Math.PI*2); ctx.strokeStyle = 'rgba(56, 189, 248, 0.12)'; ctx.stroke();
+        } else if (p.type === 'wall') { 
+            ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.beginPath(); ctx.ellipse(px+p.w/2, py+p.h+2, p.w*0.48, 4, 0, 0, Math.PI*2); ctx.fill();
+            let wallGrad = ctx.createLinearGradient(0, py, 0, py+p.h);
+            wallGrad.addColorStop(0, shadeColor(wc[1], 0.18)); wallGrad.addColorStop(0.55, wc[1]); wallGrad.addColorStop(1, shadeColor(wc[1], -0.2));
+            ctx.fillStyle = wc[0]; ctx.fillRect(px, py, p.w, p.h); ctx.fillStyle = wallGrad; ctx.fillRect(px+2, py+2, p.w-4, p.h-4); ctx.fillStyle = wc[2]; 
+            for(let by=4; by<p.h-2; by+=8) { ctx.fillRect(px+2, py+by, p.w-4, 2); let offset = (by/8)%2 === 0 ? 0 : 8; for(let bx=4+offset; bx<p.w-2; bx+=16) { ctx.fillRect(px+bx, py+by-6, 2, 8); } } 
+            ctx.fillStyle = 'rgba(255,255,255,0.15)'; ctx.fillRect(px+2, py+2, p.w-4, 1.5);
+            ctx.strokeStyle = 'rgba(0,0,0,0.35)'; ctx.lineWidth = 1; ctx.strokeRect(px, py, p.w, p.h);
+        } else { 
+            ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.beginPath(); ctx.ellipse(px+p.w/2, py+p.h/2+6, p.w*0.46, 3, 0, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle = '#52525b'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(px, py+p.h/2); ctx.lineTo(px+p.w, py+p.h/2); ctx.stroke();
+            ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 0.8; ctx.beginPath(); ctx.moveTo(px, py+p.h/2-1); ctx.lineTo(px+p.w, py+p.h/2-1); ctx.stroke();
+            ctx.strokeStyle = '#3f3f46'; ctx.lineWidth = 1;
+            for(let i=0; i<5; i++) { let sx = px + i*(p.w/4); let sy = py + p.h/2; ctx.save(); ctx.translate(sx, sy); ctx.fillStyle = '#78716c'; ctx.fillRect(-1.5, -8, 3, 16); ctx.rotate(Math.PI/4); ctx.fillStyle = '#a1a1aa'; ctx.fillRect(-1, -6, 2, 12); ctx.fillRect(-6, -1, 12, 2); ctx.strokeRect(-1, -6, 2, 12); ctx.strokeRect(-6, -1, 12, 2); ctx.restore(); }
+        }
+        if (!p.isInvincible) {
+            let bw = 24, bh = 4, bx = px + p.w/2 - bw/2, by = py - 6, php = p.hp/p.maxHp;
+            let pbGrad = ctx.createLinearGradient(0, by, 0, by+bh);
+            pbGrad.addColorStop(0, '#60a5fa'); pbGrad.addColorStop(1, '#2563eb');
+            ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(bx, by, bw, bh); ctx.fillStyle = pbGrad; ctx.fillRect(bx, by, Math.max(0, bw * php), bh);
+        }
+    }
+    
+    let nearestLocal = null, minLocalDist = Infinity;
+    for (let i = enemies.length - 1; i >= 0; i--) {
+        let e = enemies[i]; let distToLocal = Math.hypot(player.x - e.x, player.y - e.y); if (distToLocal < minLocalDist) { minLocalDist = distToLocal; nearestLocal = e; }
+        
+        let playerTargetX = player.x, playerTargetY = player.y, minDist = distToLocal;
+        if (isMultiplayer) { for (let user in otherPlayers) { let op = otherPlayers[user]; let od = Math.hypot(op.x - e.x, op.y - e.y); if (od < minDist) { minDist = od; playerTargetX = op.x; playerTargetY = op.y; } } }
+        let edx = playerTargetX - e.x, edy = playerTargetY - e.y;
+        let collidedProp = null;
+        for (let p of props) { if (e.x < p.x + p.w && e.x + e.w > p.x && e.y < p.y + p.h && e.y + e.h > p.y) { collidedProp = p; break; } }
+        if (collidedProp) {
+            // Slide along the obstacle instead of retreating straight back (which caused a
+            // forward/backward oscillation loop with zero net movement — the freeze bug).
+            if (e.slideDir === undefined) e.slideDir = (Math.random() < 0.5 ? 1 : -1);
+            let perpX = -edy / minDist, perpY = edx / minDist;
+            e.x += perpX * e.slideDir * e.speed;
+            e.y += perpY * e.slideDir * e.speed;
+            if (!collidedProp.isInvincible && now - (collidedProp.lastHit || 0) > 500 && !cutsceneActive) {
+                collidedProp.hp -= 10; collidedProp.lastHit = now;
+                if (collidedProp.type === 'wire') {
+                    e.hp -= 2; e.hitFlash = now;
+                    playSound('hit');
+                    if (e.hp <= 0) { 
+                        score += 50; kills++; let val = (e.isBoss ? 200 : 25) * moneyMultiplier; let d1 = {id: genId(), x: e.x, y: e.y, type: 'money', val: val}; drops.push(d1); sendBroadcast('enemy_died', { id: e.id }); sendBroadcast('item_dropped', d1); 
+                        if (e.isBoss || Math.random() > 0.8) { drops.push({id: genId(), x: e.x + 10, y: e.y, type: 'bandage'}); } 
+                        spawnParticles(e.x + e.w/2, e.y + e.h/2, '#ef4444', 15, 8); addScreenShake(5, 10);
+                        if (e.eType === 'mega_boss' || e.eType === 'boss') { spawnParticles(e.x + e.w/2, e.y + e.h/2, '#facc15', 30, 10); addScreenShake(10, 20); playSound('boss'); }
+                        enemies.splice(i, 1); 
+                        if (collidedProp.hp <= 0) { let pIdx = props.findIndex(pr => pr.id === collidedProp.id); if (pIdx !== -1) { props.splice(pIdx, 1); sendBroadcast('prop_destroyed', { id: collidedProp.id }); } } 
+                        continue; 
+                    } else { sendBroadcast('enemy_hit', { id: e.id, damage: 2 }); }
+                }
+                if (collidedProp.hp <= 0) { let pIdx = props.findIndex(pr => pr.id === collidedProp.id); if (pIdx !== -1) { props.splice(pIdx, 1); sendBroadcast('prop_destroyed', { id: collidedProp.id }); } }
+            }
+        } else {
+            if (e.netTargetX !== undefined && e.owner !== mySessionId && isMultiplayer && (Date.now() - (e.netSyncTime || 0) < 3000)) { e.x += (e.netTargetX - e.x) * 0.4; e.y += (e.netTargetY - e.y) * 0.4; } else if (minDist > 0 && !cutsceneActive) { e.x += (edx / minDist) * e.speed; e.y += (edy / minDist) * e.speed; }
+        }
+        if (distToLocal < (e.isBoss ? (e.eType === 'mega_boss' ? 50 : 30) : 20) && now - e.lastHitPlayer > 1000 && !cutsceneActive) {
+            if (!shieldActive) { playerHp -= armorReduce(e.eType === 'mega_boss' ? 2 : 1); playerHitFlashTime = now; } e.lastHitPlayer = now; updateHUD(); addScreenShake(8, 10); playSound('hit');
+            if (playerHp <= 0) { triggerGameOver(); return; }
+        }
+        
+        let ex = e.x - camX, ey = e.y - camY;
+        let eMoving = !collidedProp; let eSeed = e.x + e.y;
+        if(e.eType === 'mega_boss') drawEnemyCube(ex - 8, ey - 8, e.w, e.h, 'mega_boss', eMoving, eSeed, e.hitFlash);
+        else if(e.isBoss) drawEnemyCube(ex - 8, ey - 8, e.w, e.h, 'boss', eMoving, eSeed, e.hitFlash);
+        else drawEnemyCube(ex, ey, e.w, e.h, 'normal', eMoving, eSeed, e.hitFlash);
+
+        let bw = e.isBoss ? (e.eType === 'mega_boss' ? 70 : 50) : 30, bx = ex + e.w/2 - bw/2, by = ey - 12, ehp = e.hp / e.maxHp;
+        let ebColor = ehp > 0.5 ? '#22c55e' : ehp > 0.25 ? '#eab308' : '#dc2626';
+        let ebGrad = ctx.createLinearGradient(0, by, 0, by + 6);
+        ebGrad.addColorStop(0, shadeColor(ebColor, 0.35)); ebGrad.addColorStop(1, shadeColor(ebColor, -0.2));
+        ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(bx - 1, by - 1, bw + 2, 8);
+        ctx.fillStyle = ebGrad; ctx.fillRect(bx, by, Math.max(0, bw * ehp), 6);
+        if (bw * ehp > 1) { ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.fillRect(bx, by, bw * ehp, 1); }
+        ctx.strokeStyle = e.isBoss ? 'rgba(250,204,21,0.8)' : 'rgba(0,0,0,0.6)'; ctx.lineWidth = e.isBoss ? 1.5 : 1; ctx.strokeRect(bx, by, bw, 6);
+        ctx.fillStyle = '#fff'; ctx.font = '8px "Press Start 2P"'; ctx.textAlign = 'center'; ctx.fillText(Math.ceil(e.hp) + '/' + e.maxHp, bx + bw/2, by + 5);
+    }
+    separateEnemies();
+    
+    let fireRate = getFireRate();
+    if (nearestLocal && now - lastShot >= fireRate && !isReloading && !cutsceneActive) {
+        if (currentAmmo > 0) {
+            playSound('shoot');
+            muzzleFlashTime = now;
+            let bx = nearestLocal.x - player.x, by = nearestLocal.y - player.y, bd = Math.hypot(bx, by);
+            let bulletSpeed = 8, baseAngle = Math.atan2(by, bx);
+            let isRPG = (currentGun === 'RPG');
+            let isShotgun = (currentGun === 'Shortgun' || currentGun === 'S12K' || currentGun === 'S1887');
+            if (isShotgun) {
+                let pelletCount = (currentGun === 'S1887') ? 6 : 5; let spreadAngle = 0.35;
+                for (let p = 0; p < pelletCount; p++) {
+                    let angleOffset = (p - (pelletCount - 1) / 2) * (spreadAngle / (pelletCount - 1)); let angle = baseAngle + angleOffset;
+                    bullets.push({x: player.x + 12, y: player.y + 12, vx: Math.cos(angle) * bulletSpeed, vy: Math.sin(angle) * bulletSpeed, r: 3, damage: Math.floor(gunDamage * 0.6), hitEnemies: [], isRPG: false});
+                }
+            } else { bullets.push({x: player.x + 12, y: player.y + 12, vx: (bx / bd) * bulletSpeed, vy: (by / bd) * bulletSpeed, r: isRPG ? 6 : 4, damage: gunDamage, hitEnemies: [], isRPG: isRPG}); }
+            currentAmmo--; lastShot = now; updateHUD(); if (currentGun === 'Pistol') { currentAmmo = gunStats['Pistol'].magSize; isReloading = false; } else if (currentAmmo === 0) { reloadGun(); }
+        } else { reloadGun(); }
+    }
+    
+    for (let i = bullets.length - 1; i >= 0; i--) {
+        let b = bullets[i]; b.x += b.vx; b.y += b.vy;
+        let bx0 = b.x - camX, by0 = b.y - camY;
+        ctx.save();
+        if (b.isRPG) {
+            ctx.shadowColor = '#f87171'; ctx.shadowBlur = 10;
+            ctx.fillStyle = '#dc2626'; ctx.beginPath(); ctx.arc(bx0 + b.r, by0 + b.r, b.r, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#fca5a5'; ctx.beginPath(); ctx.arc(bx0 + b.r, by0 + b.r, b.r*0.5, 0, Math.PI*2); ctx.fill();
+        } else {
+            let ang = Math.atan2(b.vy, b.vx);
+            ctx.translate(bx0 + b.r, by0 + b.r); ctx.rotate(ang);
+            ctx.shadowColor = '#fde047'; ctx.shadowBlur = 6;
+            ctx.fillStyle = 'rgba(253, 224, 71, 0.5)'; ctx.fillRect(-b.r*3, -1, b.r*3, 2);
+            ctx.fillStyle = '#fef08a'; ctx.beginPath(); ctx.arc(0, 0, b.r, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#facc15'; ctx.beginPath(); ctx.arc(0, 0, b.r*0.5, 0, Math.PI*2); ctx.fill();
+        }
+        ctx.restore();
+        if (b.isRPG) { ctx.beginPath(); ctx.arc(b.x - camX, b.y - camY, 120, 0, Math.PI*2); ctx.fillStyle = 'rgba(239, 68, 68, 0.05)'; ctx.fill(); ctx.strokeStyle = 'rgba(239, 68, 68, 0.2)'; ctx.lineWidth=1; ctx.stroke(); }
+        if (Math.hypot(player.x - b.x, player.y - b.y) > 1500) { bullets.splice(i, 1); continue; }
+        let hitSomething = false;
+        for (let j = enemies.length - 1; j >= 0; j--) {
+            let e = enemies[j];
+            if (!b.hitEnemies.includes(e.id) && b.x > e.x && b.x < e.x + e.w && b.y > e.y && b.y < e.y + e.h) {
+                hitSomething = true;
+                if (b.isRPG) {
+                    playSound('explosion');
+                    explosions.push({x: b.x, y: b.y, r: 0, maxR: 120, life: 15});
+                    spawnParticles(b.x, b.y, '#f59e0b', 30, 8); addScreenShake(8, 12);
+                    for(let k = enemies.length - 1; k>=0; k--) {
+                        let e2 = enemies[k];
+                        if (Math.hypot(b.x - e2.x, b.y - e2.y) <= 120) {
+                            e2.hp -= b.damage; e2.hitFlash = now; spawnDamageNumber(e2.x + e2.w/2, e2.y, Math.round(b.damage), '#f87171');
+                            if(e2.hp <= 0) {
+                                score += 50; kills++; let val = (e2.isBoss ? 200 : 25) * moneyMultiplier; let d1 = {id: genId(), x: e2.x, y: e2.y, type: 'money', val: val}; drops.push(d1); sendBroadcast('enemy_died', { id: e2.id }); sendBroadcast('item_dropped', d1);
+                                if (e2.isBoss || Math.random() > 0.8) { drops.push({id: genId(), x: e2.x + 10, y: e2.y, type: 'bandage'}); } 
+                                spawnParticles(e2.x + e2.w/2, e2.y + e2.h/2, '#ef4444', 15, 8);
+                                if (e2.eType === 'mega_boss' || e2.eType === 'boss') { spawnParticles(e2.x + e2.w/2, e2.y + e2.h/2, '#facc15', 30, 10); addScreenShake(10, 20); playSound('boss'); }
+                                enemies.splice(k, 1);
+                            } else { sendBroadcast('enemy_hit', { id: e2.id, damage: b.damage }); playSound('hit'); }
+                        }
+                    }
+                    b.damage = 0; break;
+                } else {
+                    playSound('hit');
+                    b.hitEnemies.push(e.id); let actualDamage = Math.min(b.damage, e.hp); e.hp -= actualDamage; b.damage -= actualDamage; score += 10; 
+                    e.hitFlash = now; spawnDamageNumber(e.x + e.w/2, e.y, Math.round(actualDamage), '#fde047');
+                    let totalDamage = actualDamage + (b.damage || 0.01); let slowFactor = 1 - (actualDamage / totalDamage) * 0.3; b.vx *= slowFactor; b.vy *= slowFactor; b.r = Math.max(2, b.r - 0.3);
+                    if (e.hp <= 0) { 
+                        score += 50; kills++; let val = (e.isBoss ? 200 : 25) * moneyMultiplier; let d1 = {id: genId(), x: e.x, y: e.y, type: 'money', val: val}; drops.push(d1); sendBroadcast('enemy_died', { id: e.id }); sendBroadcast('item_dropped', d1); 
+                        if (e.isBoss || Math.random() > 0.8) { drops.push({id: genId(), x: e.x + 10, y: e.y, type: 'bandage'}); } 
+                        spawnParticles(e.x + e.w/2, e.y + e.h/2, '#ef4444', 15, 8); addScreenShake(5, 10);
+                        if (e.eType === 'mega_boss' || e.eType === 'boss') { spawnParticles(e.x + e.w/2, e.y + e.h/2, '#facc15', 30, 10); addScreenShake(10, 20); playSound('boss'); }
+                        enemies.splice(j, 1); 
+                    } 
+                    else { sendBroadcast('enemy_hit', { id: e.id, damage: actualDamage }); }
+                    if (b.damage <= 0) break;
+                }
+            }
+        }
+        if (b.damage <= 0) { bullets.splice(i, 1); }
+    }
+    
+    for (let i = explosions.length - 1; i >= 0; i--) {
+        let ex = explosions[i]; ex.r += (ex.maxR - ex.r) * 0.2; ex.life--;
+        let exx = ex.x - camX, exy = ex.y - camY;
+        let lifeT = Math.max(0, ex.life / 20);
+        // outer shockwave ring
+        ctx.save();
+        ctx.globalAlpha = lifeT * 0.6;
+        ctx.strokeStyle = '#fed7aa'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(exx, exy, ex.r * 1.05, 0, Math.PI * 2); ctx.stroke();
+        ctx.restore();
+        // fire core gradient
+        let fg = ctx.createRadialGradient(exx, exy, 0, exx, exy, ex.r);
+        fg.addColorStop(0, `rgba(255,255,255,${lifeT * 0.95})`);
+        fg.addColorStop(0.25, `rgba(254,240,138,${lifeT * 0.9})`);
+        fg.addColorStop(0.55, `rgba(249,115,22,${lifeT * 0.75})`);
+        fg.addColorStop(0.8, `rgba(220,38,38,${lifeT * 0.5})`);
+        fg.addColorStop(1, 'rgba(120,20,20,0)');
+        ctx.fillStyle = fg; ctx.beginPath(); ctx.arc(exx, exy, ex.r, 0, Math.PI * 2); ctx.fill();
+        // rising smoke puffs (spawned once near peak)
+        if (!ex.smoked && ex.life <= 14) {
+            ex.smoked = true;
+            for (let s = 0; s < 4; s++) {
+                particles.push({ x: ex.x + (Math.random()-0.5) * ex.r, y: ex.y + (Math.random()-0.5) * ex.r, vx: (Math.random()-0.5)*0.4, vy: -0.6 - Math.random()*0.5, life: 45 + Math.random()*15, color: 'rgba(80,80,80,0.35)', size: 4 + Math.random()*3 });
+            }
+            for (let s = 0; s < 6; s++) {
+                particles.push({ x: ex.x, y: ex.y, vx: (Math.random()-0.5)*3.5, vy: (Math.random()-0.5)*3.5, life: 18 + Math.random()*10, color: 'rgba(253,186,116,0.9)', size: 1.5 + Math.random() });
+            }
+        }
+        if (ex.life <= 0) explosions.splice(i, 1);
+    }
+    
+    for (let i = drops.length - 1; i >= 0; i--) { 
+        let d = drops[i]; 
+        let drx = d.x - camX, dry = d.y - camY;
+        if (d.type === 'money') { ctx.drawImage(texMoney, drx, dry, 24, 24); }
+        else { ctx.drawImage(texBandage, drx, dry, 24, 24); }
+        
+        if (Math.hypot(player.x - d.x, player.y - d.y) < 60) { 
+            if (d.type === 'money') money += d.val; 
+            else bandages++; 
+            playSound('coin');
+            updateHUD(); sendBroadcast('item_collected', { id: d.id }); drops.splice(i, 1); 
+        } 
+    }
+
+    for (let i = chests.length - 1; i >= 0; i--) { 
+        let c = chests[i]; 
+        let chestBob = Math.sin((Date.now() + c.x * 7) / 400) * 2;
+        drawGroundShadow(c.x - camX + c.w/2, c.y - camY + c.h - 3, c.w*0.4, c.w*0.14);
+        ctx.drawImage(texChest, c.x - camX, c.y - camY + chestBob, c.w, c.h);
+        let glintA = Math.max(0, Math.sin((Date.now() + c.x * 7) / 400 - 1.2));
+        if (glintA > 0.6) {
+            ctx.save(); ctx.globalAlpha = (glintA - 0.6) * 2;
+            ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(c.x - camX + c.w*0.65, c.y - camY + chestBob + c.h*0.35, 3, 0, Math.PI*2); ctx.fill();
+            ctx.restore();
+        }
+        if (Math.hypot(player.x - c.x, player.y - c.y) < 35) { 
+            let d1 = {id: genId(), x: c.x, y: c.y, type: 'money', val: 100 * moneyMultiplier}; drops.push(d1); 
+            if(Math.random() > 0.4) { drops.push({id: genId(), x: c.x - 15, y: c.y, type: 'bandage'}); }
+            playSound('coin');
+            sendBroadcast('chest_opened', { id: c.id }); sendBroadcast('item_dropped', d1); chests.splice(i, 1); 
+        } 
+    }
+    
+    for (let user in otherPlayers) {
+        let op = otherPlayers[user]; if (now - op.lastSeen > 3000) { delete otherPlayers[user]; continue; }
+        let displayName = op.user || user;
+        op.moving = Math.hypot(op.targetX - op.x, op.targetY - op.y) > 1;
+        op.x += (op.targetX - op.x) * 0.4; op.y += (op.targetY - op.y) * 0.4;
+        let px = op.x - camX, py = op.y - camY;
+        if (px < -20 || px > CW+20 || py < -20 || py > CH+20) {
+            let angle = Math.atan2(op.y - player.y, op.x - player.x); let ptrDist = Math.min(CW, CH) / 2 - 30; let ptrX = CW/2 + Math.cos(angle)*ptrDist; let ptrY = CH/2 + Math.sin(angle)*ptrDist;
+            ctx.save(); ctx.translate(ptrX, ptrY); ctx.rotate(angle); ctx.fillStyle = '#06b6d4'; ctx.beginPath(); ctx.moveTo(10, 0); ctx.lineTo(-10, 10); ctx.lineTo(-10, -10); ctx.fill(); ctx.restore(); ctx.fillStyle = '#fff'; ctx.font = '8px "Press Start 2P"'; ctx.textAlign = 'center'; ctx.fillText(displayName, ptrX - Math.cos(angle)*20, ptrY - Math.sin(angle)*20);
+        }
+        if(!op.petX) op.petX = op.x; if(!op.petY) op.petY = op.y;
+        let opPetState = updatePet(op, op.x, op.y);
+        drawPet(opPetState.x - camX, opPetState.y - camY, op.petType || 'dog', opPetState.moving, op.x + op.y, opPetState.facingLeft);
+        
+        let opRankInfo = getPlayerRankInfo(displayName);
+        drawAura(px + 12, py + 12, opRankInfo.text);
+        drawGroundShadow(px + 12, py + 15, 13, 4.5);
+        ctx.save(); ctx.translate(px + 12, py + 12); 
+        drawGunSprite(op.gunOuter || '#451a03', 0);
+        drawCharacter(op.skinOuter || '#1d4ed8', op.skinInner || '#3b82f6', op.moving, op.x + op.y);
+        ctx.restore();
+        
+        ctx.fillStyle = opRankInfo.color; ctx.font = '12px "Press Start 2P"'; ctx.textAlign = 'center'; ctx.fillText(opRankInfo.text, px + 12, py - 36); ctx.fillStyle = '#fff'; ctx.font = '10px "Press Start 2P"'; ctx.textAlign = 'center'; ctx.fillText(displayName, px + 12, py - 22);
+        if (op.speaking) { ctx.save(); ctx.font = '12px "Press Start 2P"'; ctx.textAlign = 'center'; ctx.fillStyle = '#4ade80'; ctx.shadowColor = '#4ade80'; ctx.shadowBlur = 8; ctx.fillText('🎤', px + 12 + ctx.measureText(displayName).width / 2 + 14, py - 22); ctx.restore(); }
+        let obw = 30, obh = 6, obx = px - 3, oby = py - 12, ohp = op.hp / op.maxHp;
+        let obColor = ohp > 0.5 ? '#22c55e' : ohp > 0.25 ? '#eab308' : '#dc2626';
+        let obGrad = ctx.createLinearGradient(0, oby, 0, oby + obh);
+        obGrad.addColorStop(0, shadeColor(obColor, 0.35)); obGrad.addColorStop(1, shadeColor(obColor, -0.2));
+        ctx.fillStyle = '#422006'; ctx.fillRect(obx, oby, obw, obh);
+        ctx.fillStyle = obGrad; ctx.fillRect(obx, oby, Math.max(0, obw * ohp), obh);
+        ctx.strokeStyle = 'rgba(0,0,0,0.7)'; ctx.lineWidth = 1; ctx.strokeRect(obx, oby, obw, obh);
+    }
+    
+    let petState = updatePet(player, player.x, player.y);
+    drawPet(petState.x - camX, petState.y - camY, currentPet, petState.moving, 0, petState.facingLeft);
+
+    let psx = player.x + 12 - camX, psy = player.y + 12 - camY;
+    let myRankInfo = getPlayerRankInfo(selectedUser);
+    drawAura(psx, psy, myRankInfo.text);
+    drawGroundShadow(psx, psy + 15, 13, 4.5);
+    let recoilT = now - muzzleFlashTime;
+    let recoilKick = recoilT < 100 ? (1 - recoilT / 100) * 5 : 0;
+    ctx.save(); ctx.translate(psx, psy); if (nearestLocal && !cutsceneActive) ctx.rotate(Math.atan2(nearestLocal.y - player.y, nearestLocal.x - player.x));
+    drawGunSprite(gunOuter || '#451a03', recoilKick);
+    if (recoilT < 80) {
+        ctx.globalAlpha = 1 - recoilT / 80;
+        let fg = ctx.createRadialGradient(26 - recoilKick, 0, 0, 26 - recoilKick, 0, 10);
+        fg.addColorStop(0, '#fff'); fg.addColorStop(0.4, '#fde047'); fg.addColorStop(1, 'rgba(253,224,71,0)');
+        ctx.fillStyle = fg; ctx.beginPath(); ctx.arc(26 - recoilKick, 0, 10, 0, Math.PI*2); ctx.fill();
+        // star-burst spikes for a punchier flash
+        ctx.save(); ctx.translate(26 - recoilKick, 0);
+        ctx.fillStyle = 'rgba(255,255,255,0.9)';
+        for (let sp = 0; sp < 4; sp++) {
+            let ang = (sp * Math.PI / 2) + (recoilT * 0.05);
+            let len = 13 - recoilT * 0.08;
+            ctx.save(); ctx.rotate(ang);
+            ctx.beginPath(); ctx.moveTo(-1.2, 0); ctx.lineTo(0, -len); ctx.lineTo(1.2, 0); ctx.closePath(); ctx.fill();
+            ctx.restore();
+        }
+        ctx.restore();
+        ctx.globalAlpha = 1;
+        if (!muzzleSmoked || now - muzzleSmoked > 90) {
+            muzzleSmoked = now;
+            particles.push({ x: player.x + 12 + Math.cos(Math.atan2(nearestLocal ? nearestLocal.y - player.y : 0, nearestLocal ? nearestLocal.x - player.x : 1)) * 26, y: player.y + 12, vx: (Math.random()-0.5)*0.3, vy: -0.35, life: 20, color: 'rgba(200,200,200,0.4)', size: 2 });
+        }
+    }
+    ctx.restore();
+    ctx.save(); ctx.translate(psx, psy);
+    let facingLeft = nearestLocal && !cutsceneActive && (nearestLocal.x < player.x);
+    if (facingLeft) ctx.scale(-1, 1);
+    drawCharacter(mySkin.outer, mySkin.inner, player.moving, 0);
+    ctx.restore();
+
+    // Footstep dust while walking
+    if (player.moving && !cutsceneActive && now - lastFootstepTime > 220) {
+        lastFootstepTime = now;
+        particles.push({ x: player.x + 12 + (Math.random()-0.5)*8, y: player.y + 22, vx: (Math.random()-0.5)*0.3, vy: -0.2, life: 18, color: 'rgba(200,180,120,0.5)', size: 2.5 });
+    }
+    
+    if (shieldActive) { let timeLeft = shieldEndTime - now; let r = 16 + (timeLeft / 10000) * 40; ctx.beginPath(); ctx.arc(psx, psy, r, 0, Math.PI*2); ctx.fillStyle = 'rgba(56, 189, 248, 0.3)'; ctx.fill(); ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2; ctx.stroke(); }
+    let bw = 30, bh = 6, bx = psx - bw/2, by = psy - 25, hp = playerHp / currentMaxHp;
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(bx - 1, by - 1, bw + 2, bh + 2);
+    ctx.fillStyle = '#422006'; ctx.fillRect(bx, by, bw, bh);
+    let hpColor = hp > 0.5 ? '#22c55e' : hp > 0.25 ? '#eab308' : '#dc2626';
+    let hpGrad = ctx.createLinearGradient(0, by, 0, by + bh);
+    hpGrad.addColorStop(0, shadeColor(hpColor, 0.4)); hpGrad.addColorStop(1, shadeColor(hpColor, -0.25));
+    if (hp <= 0.25) { ctx.shadowColor = '#dc2626'; ctx.shadowBlur = 6 + Math.sin(now/120)*3; }
+    ctx.fillStyle = hpGrad; ctx.fillRect(bx, by, Math.max(0, bw * hp), bh);
+    ctx.shadowBlur = 0;
+    if (bw * hp > 1.5) { ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.fillRect(bx, by, bw * hp, 1.5); }
+    ctx.strokeStyle = 'rgba(0,0,0,0.7)'; ctx.lineWidth = 1; ctx.strokeRect(bx, by, bw, bh);
+    ctx.restore();
+    ctx.fillStyle = '#fff'; ctx.font = '8px "Press Start 2P"'; ctx.textAlign = 'center'; ctx.fillText(playerHp + '/' + currentMaxHp, psx, by - 2); ctx.font = '10px "Press Start 2P"'; ctx.fillText(selectedUser || 'Player', psx, by - 16); ctx.fillStyle = myRankInfo.color; ctx.font = '12px "Press Start 2P"'; ctx.textAlign = 'center'; ctx.fillText(myRankInfo.text, psx, by - 32);
+    
+    // Render Particles
+    for (let i = particles.length - 1; i >= 0; i--) {
+        let p = particles[i];
+        p.x += p.vx; p.y += p.vy; p.life--;
+        let alpha = Math.max(0, p.life / 40);
+        ctx.globalAlpha = alpha;
+        let px0 = p.x - camX, py0 = p.y - camY;
+        let pg = ctx.createRadialGradient(px0, py0, 0, px0, py0, p.size * 1.6);
+        pg.addColorStop(0, '#fff'); pg.addColorStop(0.35, p.color); pg.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = pg;
+        ctx.beginPath(); ctx.arc(px0, py0, p.size * 1.6, 0, Math.PI*2); ctx.fill();
+        if (p.life <= 0) particles.splice(i, 1);
+    }
+    ctx.globalAlpha = 1.0; 
+
+    // Render floating damage numbers
+    ctx.font = '10px "Press Start 2P"'; ctx.textAlign = 'center';
+    for (let i = damageNumbers.length - 1; i >= 0; i--) {
+        let dn = damageNumbers[i];
+        dn.y += dn.vy; dn.life--;
+        if (dn.age === undefined) dn.age = 0; dn.age++;
+        let popScale = dn.age < 6 ? 1 + (6 - dn.age) * 0.09 : 1;
+        ctx.globalAlpha = Math.max(0, dn.life / 40);
+        let ddx = dn.x - camX, ddy = dn.y - camY;
+        ctx.save();
+        ctx.translate(ddx, ddy); ctx.scale(popScale, popScale);
+        ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,0.8)'; ctx.lineJoin = 'round';
+        ctx.strokeText(dn.amount, 0, 0);
+        ctx.fillStyle = dn.color; ctx.fillText(dn.amount, 0, 0);
+        ctx.restore();
+        if (dn.life <= 0) damageNumbers.splice(i, 1);
+    }
+    ctx.globalAlpha = 1.0;
+
+    if (!cutsceneActive) drawMinimap(); 
+
+    if (!vignetteGrad || vignetteGrad._w !== CW || vignetteGrad._h !== CH) {
+        vignetteGrad = ctx.createRadialGradient(CW/2, CH/2, Math.min(CW,CH)*0.35, CW/2, CH/2, Math.max(CW,CH)*0.7);
+        vignetteGrad.addColorStop(0, 'rgba(0,0,0,0)'); vignetteGrad.addColorStop(1, 'rgba(0,0,0,0.45)');
+        vignetteGrad._w = CW; vignetteGrad._h = CH;
+    }
+    ctx.fillStyle = vignetteGrad; ctx.fillRect(0, 0, CW, CH);
+
+    // Red damage flash when the player is hit
+    let hitFlashT = now - playerHitFlashTime;
+    if (hitFlashT < 300) {
+        ctx.fillStyle = `rgba(220, 38, 38, ${(1 - hitFlashT / 300) * 0.35})`;
+        ctx.fillRect(0, 0, CW, CH);
+    }
+    
+    gameLoopId = requestAnimationFrame(loop);
+}
+
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.dropdown') && !e.target.closest('.game-action-dropdown')) { let userList = document.getElementById('username-list'); if (userList) userList.classList.remove('show'); const input = document.getElementById('dropdown-username-input'); if (input) { const name = input.value.trim(); if (name) { selectedUser = name; document.getElementById('username-btn').innerText = name + " ▼"; } else if (selectedUser) document.getElementById('username-btn').innerText = selectedUser + " ▼"; } }
+    if (!e.target.closest('.game-action-dropdown')) { let invDrop = document.getElementById('inventory-dropdown'); if (invDrop) invDrop.classList.remove('show'); }
+});
+</script>
+</body>
+</html>#111; display: flex; justify-content: center; align-items: center; width: 100vw; height: 100vh; overflow: hidden; touch-action: none; position: fixed; }
         .yellow-ui { background: linear-gradient(180deg, #fef08a 0%, #eab308 100%); border: clamp(2px, 1vw, 4px) solid #854d0e; color: #422006; box-shadow: inset -4px -4px 0px rgba(0,0,0,0.2), inset 4px 4px 0px rgba(255,255,255,0.4), 4px 4px 0px rgba(0,0,0,0.5); text-shadow: 1px 1px 0px rgba(255,255,255,0.5); }
         .btn { background: linear-gradient(180deg, #fcd34d 0%, #d97706 100%); border: clamp(2px, 0.5vw, 4px) solid #78350f; color: #fff; padding: clamp(8px, 2vw, 12px) clamp(10px, 3vw, 20px); cursor: pointer; text-transform: uppercase; font-size: clamp(8px, 2.5vw, 12px); box-shadow: inset -3px -3px 0px rgba(0,0,0,0.3), inset 3px 3px 0px rgba(255,255,255,0.4); text-shadow: 2px 2px 0px #451a03; transition: all 0.12s ease-out; }
         .btn:hover:not(:disabled) { filter: brightness(1.12); transform: translateY(-2px); box-shadow: inset -3px -3px 0px rgba(0,0,0,0.3), inset 3px 3px 0px rgba(255,255,255,0.4), 0 6px 14px rgba(0,0,0,0.35), 0 0 12px rgba(252,211,77,0.5); }
