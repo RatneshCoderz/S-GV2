@@ -603,39 +603,54 @@ function selectSPLevel(id) {
 }
 
 let myVote = null;
-let voteListenerRef = null, currentLevelListenerRef = null;
+let voteTally = {};      // sender -> levelId, built locally from broadcast events
+let eventsListenerRef = null;
+let mpGameStarted = false;
+
 function chooseMultiplayer() {
     hideModal('mode-select-modal');
     isMultiplayer = true;
     myVote = null;
-    renderLevelGrid('mp-level-grid', {});
+    voteTally = {};
+    mpGameStarted = false;
+    if (!mySessionId) mySessionId = genId();
+    renderLevelGrid('mp-level-grid', voteTally);
     showModal('mp-vote-modal');
 
-    voteListenerRef = db.ref(ROOM_PATH + '/levelVotes');
-    voteListenerRef.on('value', snap => { renderLevelGrid('mp-level-grid', snap.val() || {}); });
-
-    // If another player already started the room's game, follow them in automatically.
-    currentLevelListenerRef = db.ref(ROOM_PATH + '/currentLevel');
-    currentLevelListenerRef.on('value', snap => {
-        const lvl = snap.val();
-        if (lvl && document.getElementById('mp-vote-modal').style.display === 'flex') {
-            selectedTerrain = lvl;
-            detachVoteListeners();
-            hideModal('mp-vote-modal');
-            startGame();
+    // Reuse the same /events broadcast channel the rest of multiplayer sync already
+    // uses successfully (player_sync/enemySync have their own paths, everything else
+    // goes through /events) — this avoids writing to a path your DB rules don't know about.
+    eventsListenerRef = db.ref(ROOM_PATH + '/events').limitToLast(300);
+    eventsListenerRef.on('child_added', snap => {
+        const e = snap.val();
+        if (!e || !e.sender || !e.payload) return;
+        if (e.event === 'level_vote' && e.payload.level) {
+            voteTally[e.sender] = e.payload.level;
+            renderLevelGrid('mp-level-grid', voteTally);
+        } else if (e.event === 'level_start' && e.payload.level && !mpGameStarted) {
+            if (document.getElementById('mp-vote-modal').style.display === 'flex') {
+                mpGameStarted = true;
+                selectedTerrain = e.payload.level;
+                detachVoteListeners();
+                hideModal('mp-vote-modal');
+                startGame();
+            }
         }
     });
+    eventsListenerRef.on('cancel', err => console.error('Vote listener denied:', err));
 }
 
 function castVote(id) {
     myVote = id;
     if (!mySessionId) mySessionId = genId();
-    db.ref(ROOM_PATH + '/levelVotes/' + mySessionId).set(id);
+    voteTally[mySessionId] = id; // show my own vote instantly, don't wait on the network
+    renderLevelGrid('mp-level-grid', voteTally);
+    db.ref(ROOM_PATH + '/events').push({ event: 'level_vote', payload: { level: id }, sender: mySessionId, ts: firebase.database.ServerValue.TIMESTAMP })
+        .catch(err => console.error('Vote failed to sync to other players:', err));
 }
 
 function detachVoteListeners() {
-    if (voteListenerRef) { voteListenerRef.off(); voteListenerRef = null; }
-    if (currentLevelListenerRef) { currentLevelListenerRef.off(); currentLevelListenerRef = null; }
+    if (eventsListenerRef) { eventsListenerRef.off(); eventsListenerRef = null; }
 }
 
 function leaveVoteModal() {
@@ -645,19 +660,18 @@ function leaveVoteModal() {
 }
 
 function startMultiplayerGame() {
-    db.ref(ROOM_PATH + '/levelVotes').once('value').then(snap => {
-        const votes = snap.val() || {};
-        const tally = {};
-        LEVELS.forEach(l => tally[l.id] = 0);
-        Object.values(votes).forEach(v => { if (tally[v] !== undefined) tally[v]++; });
-        let winner = myVote || 'desert', best = -1;
-        LEVELS.forEach(l => { if (tally[l.id] > best) { best = tally[l.id]; winner = l.id; } });
-        selectedTerrain = winner;
-        db.ref(ROOM_PATH + '/currentLevel').set(winner);
-        detachVoteListeners();
-        hideModal('mp-vote-modal');
-        startGame();
-    });
+    if (mpGameStarted) return;
+    mpGameStarted = true;
+    const tally = {};
+    LEVELS.forEach(l => tally[l.id] = 0);
+    Object.values(voteTally).forEach(v => { if (tally[v] !== undefined) tally[v]++; });
+    let winner = myVote || 'desert', best = -1;
+    LEVELS.forEach(l => { if (tally[l.id] > best) { best = tally[l.id]; winner = l.id; } });
+    selectedTerrain = winner;
+    db.ref(ROOM_PATH + '/events').push({ event: 'level_start', payload: { level: winner }, sender: mySessionId, ts: firebase.database.ServerValue.TIMESTAMP });
+    detachVoteListeners();
+    hideModal('mp-vote-modal');
+    startGame();
 }
 
 let gameChannel = null; let isChannelReady = false; let otherPlayers = {}; let lastBroadcastTime = 0;
@@ -1697,7 +1711,7 @@ function equipPet(type) { currentPet = type; localStorage.setItem('savedPet', ty
 function equipCustomGun() { gunOuter = document.getElementById('gun-outer').value; gunInner = document.getElementById('gun-inner').value; localStorage.setItem('gunOuter', gunOuter); localStorage.setItem('gunInner', gunInner); notifySkin("Gun Skin Saved!"); }
 
 // ---- DEV/DEBUG TOGGLE ---- set to false before sharing/shipping this build
-const DEBUG_MODE = true;
+const DEBUG_MODE = false;
 const DEBUG_INF_MONEY_AMOUNT = 999999;
 if (DEBUG_MODE) {
     let dbg = document.createElement('div');
@@ -2087,7 +2101,7 @@ function restartGame(isContinue = false) {
 
 function exitToMenu() {
     isPaused = true; clearInterval(timeInterval); hideModal('settings-modal'); hideModal('gameover-modal'); hideModal('shop-modal'); document.getElementById('game-screen').style.display = 'none'; document.getElementById('menu-screen').style.display = 'block'; updateUsernameDropdown(); if (gameLoopId) cancelAnimationFrame(gameLoopId); if (document.exitFullscreen) { document.exitFullscreen(); } else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); } else if (document.msExitFullscreen) { document.msExitFullscreen(); }
-    detachVoteListeners(); if (mySessionId) db.ref(ROOM_PATH + '/levelVotes/' + mySessionId).remove();
+    detachVoteListeners();
     // Actually leave the shared multiplayer room so teammates see us gone immediately
     // (their enemy-ownership handoff and room-cleanup logic depends on this).
     if (isChannelReady) {
