@@ -407,8 +407,9 @@
         <div id="section-props" style="display:none;">
             <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>🧱 Wall</strong><br>Cost: $11</div><div class="shop-item-buttons"><button class="btn" onclick="buyWall()">BUY</button></div></div>
             <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>🪢 Barbed Wire</strong><br>Cost: $11</div><div class="shop-item-buttons"><button class="btn" onclick="buyWire()">BUY</button></div></div>
-            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>🔫 Auto-Turret</strong><br>Invincible, 10 rds/sec<br>15s Placed Cooldown<br>Cost: $10000</div><div class="shop-item-buttons"><button class="btn" onclick="buyTurret()">BUY</button></div></div>
+            <div class="shop-item yellow-ui"><div class="shop-item-details"><strong>🔫 Auto-Turret</strong><br>Invincible, 10 rds/sec<br>Cost: $10000</div><div class="shop-item-buttons"><button class="btn" onclick="buyTurret()">BUY</button></div></div>
             <div class="shop-item yellow-ui" style="border: 4px solid #a855f7; box-shadow: 0 0 10px #a855f7 inset;"><div class="shop-item-details"><strong style="color: #a855f7;">🗝️ Boss Key</strong><br>Cost: $20000<br>Summons the Mega Boss!</div><div class="shop-item-buttons"><button class="btn" style="background: linear-gradient(180deg, #c084fc 0%, #7e22ce 100%);" onclick="buyBossKey()">BUY</button></div></div>
+            <div class="shop-item yellow-ui" style="border: 4px solid #f472b6; box-shadow: 0 0 10px #f472b6 inset;"><div class="shop-item-details"><strong style="color: #f472b6;">🗝️ Super Boss Key</strong><br>Cost: $100000<br>Summons the Super Boss! (10,000,000 HP)</div><div class="shop-item-buttons"><button class="btn" style="background: linear-gradient(180deg, #f9a8d4 0%, #be185d 100%);" onclick="buySuperBossKey()">BUY</button></div></div>
         </div>
     </div>
 </div>
@@ -1393,18 +1394,18 @@ function getEnemyTexture(tier) {
     return tex;
 }
 function buildEnemyTexture(tier) {
-    let big = tier === 'mega_boss', boss = tier === 'boss';
-    let W = big ? 72 : boss ? 60 : 48, H = big ? 96 : boss ? 80 : 64;
+    let super_ = tier === 'super_boss', big = tier === 'mega_boss' || super_, boss = tier === 'boss';
+    let W = super_ ? 90 : big ? 72 : boss ? 60 : 48, H = super_ ? 120 : big ? 96 : boss ? 80 : 64;
     let tc = document.createElement('canvas'); tc.width = W; tc.height = H;
     let x = tc.getContext('2d');
     let cx = W / 2;
 
-    let bodyBase = big ? '#3f0d0d' : boss ? '#7c2d12' : '#3f6212';
+    let bodyBase = super_ ? '#1e0a2e' : big ? '#3f0d0d' : boss ? '#7c2d12' : '#3f6212';
     let bodyLight = shadeColor(bodyBase, 0.35), bodyDark = shadeColor(bodyBase, -0.4);
-    let headBase = big ? '#1c1917' : boss ? '#991b1b' : '#365314';
+    let headBase = super_ ? '#0f0620' : big ? '#1c1917' : boss ? '#991b1b' : '#365314';
     let headLight = shadeColor(headBase, 0.3), headDark = shadeColor(headBase, -0.35);
-    let eyeColor = big ? '#f97316' : boss ? '#facc15' : '#ef4444';
-    let hornColor = big ? '#78716c' : boss ? '#57534e' : '#44403c';
+    let eyeColor = super_ ? '#a855f7' : big ? '#f97316' : boss ? '#facc15' : '#ef4444';
+    let hornColor = super_ ? '#e9d5ff' : big ? '#78716c' : boss ? '#57534e' : '#44403c';
     let spikeColor = shadeColor(bodyBase, -0.5);
 
     x.fillStyle = 'rgba(0,0,0,0.28)'; x.beginPath(); x.ellipse(cx, H - 4, W * 0.34, H * 0.045, 0, 0, Math.PI * 2); x.fill();
@@ -2141,15 +2142,26 @@ function buyBossKey() {
     }
 }
 
+function buySuperBossKey() {
+    if (money >= 100000) {
+        money -= 100000;
+        spawnBoss(null, false, true);
+        playSound('boss');
+        document.getElementById('shop-message').innerText = "SUPER BOSS KEY ACTIVATED! GOOD LUCK!";
+        document.getElementById('shop-message').style.color = "#16a34a";
+        updateHUD();
+        resumeGame('shop-modal');
+    } else {
+        document.getElementById('shop-message').innerText = "Not enough money!";
+        document.getElementById('shop-message').style.color = "#dc2626";
+    }
+}
+
 function placeProp(type) { 
     let now = Date.now();
     if (type === 'wall' && wallsCount > 0) { wallsCount--; } 
     else if (type === 'wire' && wiresCount > 0) { wiresCount--; } 
     else if (type === 'turret' && turretsCount > 0) {
-        if (now - lastTurretPlaceTime < 15000) {
-            let wait = Math.ceil((15000 - (now - lastTurretPlaceTime)) / 1000);
-            return;
-        }
         turretsCount--; lastTurretPlaceTime = now;
     } else return; 
     
@@ -2196,16 +2208,16 @@ function spawnEnemy(syncData = null) {
     if (!enemies.find(en => en.id === newEnemy.id)) { enemies.push(newEnemy); if (!syncData) sendBroadcast('enemy_spawn', newEnemy); } return newEnemy;
 }
 
-function spawnBoss(syncData = null, isMega = false) { 
+function spawnBoss(syncData = null, isMega = false, isSuper = false) { 
     let newBoss;
-    if (syncData) { newBoss = { ...syncData, w: syncData.eType === 'mega_boss' ? 80 : 40, h: syncData.eType === 'mega_boss' ? 80 : 40, lastHitPlayer: 0 }; }
+    if (syncData) { newBoss = { ...syncData, w: syncData.eType === 'super_boss' ? 100 : syncData.eType === 'mega_boss' ? 80 : 40, h: syncData.eType === 'super_boss' ? 100 : syncData.eType === 'mega_boss' ? 80 : 40, lastHitPlayer: 0 }; }
     else { 
         let a = Math.random() * Math.PI * 2, d = Math.max(CW, CH) * 0.6; let hmult = getEnemyHealthMultiplier(); 
-        let baseHp = Math.floor((isMega ? 1500 : 90) * hmult); 
+        let baseHp = isSuper ? 10000000 : Math.floor((isMega ? 1500 : 90) * hmult); 
         newBoss = {
             id: genId(), owner: mySessionId, x: player.x + Math.cos(a) * d, y: player.y + Math.sin(a) * d, 
-            w: isMega ? 80 : 40, h: isMega ? 80 : 40, hp: baseHp, maxHp: baseHp, speed: isMega ? 0.9 : 0.6, 
-            lastHitPlayer: 0, isBoss: true, eType: isMega ? 'mega_boss' : 'boss'
+            w: isSuper ? 100 : isMega ? 80 : 40, h: isSuper ? 100 : isMega ? 80 : 40, hp: baseHp, maxHp: baseHp, speed: isSuper ? 0.7 : isMega ? 0.9 : 0.6, 
+            lastHitPlayer: 0, isBoss: true, eType: isSuper ? 'super_boss' : isMega ? 'mega_boss' : 'boss'
         }; 
     }
     if (!enemies.find(en => en.id === newBoss.id)) { enemies.push(newBoss); if (!syncData) sendBroadcast('enemy_spawn', newBoss); } return newBoss;
@@ -2388,7 +2400,7 @@ function loop() {
                         bombScore += e.isBoss ? 200 : 50; e.hp = 0; kills++;
                         let val = (e.isBoss ? 200 : 25) * moneyMultiplier; let d1 = {id: genId(), x: e.x, y: e.y, type: 'money', val: val}; drops.push(d1); sendBroadcast('enemy_died', { id: e.id }); sendBroadcast('item_dropped', d1);
                         if (e.isBoss || Math.random() > 0.8) { drops.push({id: genId(), x: e.x + 10, y: e.y, type: 'bandage'}); }
-                        if (e.eType === 'mega_boss' || e.eType === 'boss') { spawnParticles(e.x + e.w/2, e.y + e.h/2, '#facc15', 30, 10); addScreenShake(10, 20); playSound('boss'); }
+                        if (e.eType === 'mega_boss' || e.eType === 'boss' || e.eType === 'super_boss') { spawnParticles(e.x + e.w/2, e.y + e.h/2, '#facc15', 30, 10); addScreenShake(10, 20); playSound('boss'); }
                         enemies.splice(j, 1);
                     } else {
                         e.hp -= bombDmg; e.hitFlash = now; spawnDamageNumber(e.x + e.w/2, e.y, Math.round(bombDmg), '#fb923c');
@@ -2486,7 +2498,7 @@ function loop() {
                         score += 50; kills++; let val = (e.isBoss ? 200 : 25) * moneyMultiplier; let d1 = {id: genId(), x: e.x, y: e.y, type: 'money', val: val}; drops.push(d1); sendBroadcast('enemy_died', { id: e.id }); sendBroadcast('item_dropped', d1); 
                         if (e.isBoss || Math.random() > 0.8) { drops.push({id: genId(), x: e.x + 10, y: e.y, type: 'bandage'}); } 
                         spawnParticles(e.x + e.w/2, e.y + e.h/2, '#ef4444', 15, 8); addScreenShake(5, 10);
-                        if (e.eType === 'mega_boss' || e.eType === 'boss') { spawnParticles(e.x + e.w/2, e.y + e.h/2, '#facc15', 30, 10); addScreenShake(10, 20); playSound('boss'); }
+                        if (e.eType === 'mega_boss' || e.eType === 'boss' || e.eType === 'super_boss') { spawnParticles(e.x + e.w/2, e.y + e.h/2, '#facc15', 30, 10); addScreenShake(10, 20); playSound('boss'); }
                         enemies.splice(i, 1); 
                         if (collidedProp.hp <= 0) { let pIdx = props.findIndex(pr => pr.id === collidedProp.id); if (pIdx !== -1) { props.splice(pIdx, 1); sendBroadcast('prop_destroyed', { id: collidedProp.id }); } } 
                         continue; 
@@ -2497,18 +2509,19 @@ function loop() {
         } else {
             if (e.netTargetX !== undefined && e.owner !== mySessionId && isMultiplayer && (Date.now() - (e.netSyncTime || 0) < 3000)) { e.x += (e.netTargetX - e.x) * 0.4; e.y += (e.netTargetY - e.y) * 0.4; } else if (minDist > 0 && !cutsceneActive) { e.x += (edx / minDist) * e.speed; e.y += (edy / minDist) * e.speed; }
         }
-        if (distToLocal < (e.isBoss ? (e.eType === 'mega_boss' ? 50 : 30) : 20) && now - e.lastHitPlayer > 1000 && !cutsceneActive) {
-            if (!shieldActive) { playerHp -= armorReduce(e.eType === 'mega_boss' ? 2 : 1); playerHitFlashTime = now; } e.lastHitPlayer = now; updateHUD(); addScreenShake(8, 10); playSound('hit');
+        if (distToLocal < (e.isBoss ? (e.eType === 'super_boss' ? 60 : e.eType === 'mega_boss' ? 50 : 30) : 20) && now - e.lastHitPlayer > 1000 && !cutsceneActive) {
+            if (!shieldActive) { playerHp -= armorReduce(e.eType === 'super_boss' ? 3 : e.eType === 'mega_boss' ? 2 : 1); playerHitFlashTime = now; } e.lastHitPlayer = now; updateHUD(); addScreenShake(8, 10); playSound('hit');
             if (playerHp <= 0) { triggerGameOver(); return; }
         }
         
         let ex = e.x - camX, ey = e.y - camY;
         let eMoving = !collidedProp; let eSeed = e.x + e.y;
-        if(e.eType === 'mega_boss') drawEnemyCube(ex - 8, ey - 8, e.w, e.h, 'mega_boss', eMoving, eSeed, e.hitFlash);
+        if(e.eType === 'super_boss') drawEnemyCube(ex - 8, ey - 8, e.w, e.h, 'super_boss', eMoving, eSeed, e.hitFlash);
+        else if(e.eType === 'mega_boss') drawEnemyCube(ex - 8, ey - 8, e.w, e.h, 'mega_boss', eMoving, eSeed, e.hitFlash);
         else if(e.isBoss) drawEnemyCube(ex - 8, ey - 8, e.w, e.h, 'boss', eMoving, eSeed, e.hitFlash);
         else drawEnemyCube(ex, ey, e.w, e.h, 'normal', eMoving, eSeed, e.hitFlash);
 
-        let bw = e.isBoss ? (e.eType === 'mega_boss' ? 70 : 50) : 30, bx = ex + e.w/2 - bw/2, by = ey - 12, ehp = e.hp / e.maxHp;
+        let bw = e.isBoss ? (e.eType === 'super_boss' ? 90 : e.eType === 'mega_boss' ? 70 : 50) : 30, bx = ex + e.w/2 - bw/2, by = ey - 12, ehp = e.hp / e.maxHp;
         let ebColor = ehp > 0.5 ? '#22c55e' : ehp > 0.25 ? '#eab308' : '#dc2626';
         let ebGrad = ctx.createLinearGradient(0, by, 0, by + 6);
         ebGrad.addColorStop(0, shadeColor(ebColor, 0.35)); ebGrad.addColorStop(1, shadeColor(ebColor, -0.2));
@@ -2576,7 +2589,7 @@ function loop() {
                                 score += 50; kills++; let val = (e2.isBoss ? 200 : 25) * moneyMultiplier; let d1 = {id: genId(), x: e2.x, y: e2.y, type: 'money', val: val}; drops.push(d1); sendBroadcast('enemy_died', { id: e2.id }); sendBroadcast('item_dropped', d1);
                                 if (e2.isBoss || Math.random() > 0.8) { drops.push({id: genId(), x: e2.x + 10, y: e2.y, type: 'bandage'}); } 
                                 spawnParticles(e2.x + e2.w/2, e2.y + e2.h/2, '#ef4444', 15, 8);
-                                if (e2.eType === 'mega_boss' || e2.eType === 'boss') { spawnParticles(e2.x + e2.w/2, e2.y + e2.h/2, '#facc15', 30, 10); addScreenShake(10, 20); playSound('boss'); }
+                                if (e2.eType === 'mega_boss' || e2.eType === 'boss' || e2.eType === 'super_boss') { spawnParticles(e2.x + e2.w/2, e2.y + e2.h/2, '#facc15', 30, 10); addScreenShake(10, 20); playSound('boss'); }
                                 enemies.splice(k, 1);
                             } else { sendBroadcast('enemy_hit', { id: e2.id, damage: b.damage }); playSound('hit'); }
                         }
@@ -2591,7 +2604,7 @@ function loop() {
                         score += 50; kills++; let val = (e.isBoss ? 200 : 25) * moneyMultiplier; let d1 = {id: genId(), x: e.x, y: e.y, type: 'money', val: val}; drops.push(d1); sendBroadcast('enemy_died', { id: e.id }); sendBroadcast('item_dropped', d1); 
                         if (e.isBoss || Math.random() > 0.8) { drops.push({id: genId(), x: e.x + 10, y: e.y, type: 'bandage'}); } 
                         spawnParticles(e.x + e.w/2, e.y + e.h/2, '#ef4444', 15, 8); addScreenShake(5, 10);
-                        if (e.eType === 'mega_boss' || e.eType === 'boss') { spawnParticles(e.x + e.w/2, e.y + e.h/2, '#facc15', 30, 10); addScreenShake(10, 20); playSound('boss'); }
+                        if (e.eType === 'mega_boss' || e.eType === 'boss' || e.eType === 'super_boss') { spawnParticles(e.x + e.w/2, e.y + e.h/2, '#facc15', 30, 10); addScreenShake(10, 20); playSound('boss'); }
                         enemies.splice(j, 1); 
                     } 
                     else { sendBroadcast('enemy_hit', { id: e.id, damage: actualDamage }); }
