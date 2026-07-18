@@ -60,6 +60,14 @@
         .menu-top { position: absolute; top: 20px; width: 100%; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; padding: 0 10px; }
         .menu-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 100%; padding: 0 20px; }
         .menu-title { font-size: clamp(20px, 6vw, 40px); color: #facc15; text-shadow: clamp(2px, 0.5vw, 4px) clamp(2px, 0.5vw, 4px) 0px #713f12, 0 0 20px rgba(250,204,21,0.5); margin-bottom: 20px; line-height: 1.5; animation: titleGlow 2.4s ease-in-out infinite; }
+        .level-grid { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin: 18px 0; }
+        .level-card { width: clamp(130px, 28vw, 170px); background: linear-gradient(180deg, #fef3c7 0%, #fde68a 100%); border: 3px solid #92400e; border-radius: 12px; padding: 14px 10px; cursor: pointer; text-align: center; transition: transform 0.12s, box-shadow 0.12s; box-shadow: inset -3px -3px 0 rgba(0,0,0,0.15); }
+        .level-card:hover { transform: translateY(-4px); box-shadow: 0 6px 14px rgba(0,0,0,0.35); }
+        .level-card.voted { border-color: #16a34a; background: linear-gradient(180deg, #dcfce7 0%, #bbf7d0 100%); }
+        .level-card .lc-emoji { font-size: clamp(28px, 8vw, 40px); display: block; margin-bottom: 6px; }
+        .level-card .lc-name { font-family: 'Press Start 2P', monospace; font-size: clamp(10px, 2.6vw, 13px); color: #78350f; }
+        .level-card .lc-desc { font-size: clamp(8px, 2.2vw, 10px); color: #713f12; margin-top: 6px; line-height: 1.4; }
+        .level-card .lc-votes { margin-top: 8px; font-size: clamp(10px, 2.6vw, 13px); color: #16a34a; font-weight: bold; }
         @keyframes titleGlow { 0%,100% { text-shadow: clamp(2px, 0.5vw, 4px) clamp(2px, 0.5vw, 4px) 0px #713f12, 0 0 16px rgba(250,204,21,0.4); } 50% { text-shadow: clamp(2px, 0.5vw, 4px) clamp(2px, 0.5vw, 4px) 0px #713f12, 0 0 32px rgba(250,204,21,0.85); } }
         
         .dropdown { position: relative; display: inline-block; }
@@ -102,7 +110,7 @@
             opacity: 0.35; mix-blend-mode: overlay;
         }
         
-        #joystick-zone { position: absolute; bottom: clamp(60px, 15vh, 100px); left: clamp(10px, 5vw, 20px); width: clamp(90px, 25vw, 120px); height: clamp(90px, 25vw, 120px); border: 4px solid rgba(255,255,255,0.3); border-radius: 50%; display: block; z-index: 5; background: rgba(0,0,0,0.2); }
+        #joystick-zone { position: absolute; bottom: clamp(60px, 15vh, 100px); left: clamp(10px, 5vw, 20px); width: clamp(90px, 25vw, 120px); height: clamp(90px, 25vw, 120px); border: 4px solid rgba(255,255,255,0.3); border-radius: 50%; display: block; z-index: 5; background: rgba(0,0,0,0.2); touch-action: none; }
         #joystick-knob { position: absolute; top: 50%; left: 50%; width: 40%; height: 40%; background: #fcd34d; border: 4px solid #b45309; border-radius: 50%; transform: translate(-50%,-50%); pointer-events: none; }
         
         #action-buttons-container { position: absolute; display: flex; flex-direction: row; align-items: center; gap: clamp(5px, 2vw, 10px); z-index: 10; flex-wrap: wrap; max-width: clamp(150px, 40vw, 220px); justify-content: flex-end; }
@@ -111,7 +119,7 @@
         #action-buttons-container.bottom-right { bottom: clamp(60px, 15vh, 100px); right: 10px; top: auto; left: auto; }
         #action-buttons-container.bottom-left { bottom: clamp(60px, 15vh, 100px); left: 10px; top: auto; right: auto; justify-content: flex-start; }
         
-        .circle-btn { width: clamp(38px, 10vw, 48px); height: clamp(38px, 10vw, 48px); border-radius: 50%; background: linear-gradient(180deg, #fcd34d 0%, #d97706 100%); border: 3px solid #78350f; color: #fff; font-size: clamp(14px, 4vw, 20px); display: flex; align-items: center; justify-content: center; box-shadow: inset -2px -2px 0px rgba(0,0,0,0.3), inset 2px 2px 0px rgba(255,255,255,0.4); text-shadow: 1px 1px 0px #451a03; cursor: pointer; position: relative; transition: all 0.1s; padding: 0; line-height: 1; }
+        .circle-btn { width: clamp(38px, 10vw, 48px); height: clamp(38px, 10vw, 48px); border-radius: 50%; background: linear-gradient(180deg, #fcd34d 0%, #d97706 100%); border: 3px solid #78350f; color: #fff; font-size: clamp(14px, 4vw, 20px); display: flex; align-items: center; justify-content: center; box-shadow: inset -2px -2px 0px rgba(0,0,0,0.3), inset 2px 2px 0px rgba(255,255,255,0.4); text-shadow: 1px 1px 0px #451a03; cursor: pointer; position: relative; transition: all 0.1s; padding: 0; line-height: 1; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         .circle-btn:active { box-shadow: inset 3px 3px 0px rgba(0,0,0,0.5); transform: translateY(2px); }
         .circle-btn:disabled { filter: grayscale(100%); opacity: 0.6; cursor: not-allowed; }
         .circle-btn .price-badge, .circle-btn .badge, .circle-btn .mag-count { position: absolute; font-size: clamp(6px, 2vw, 8px); padding: 1px 4px; border-radius: 10px; line-height: 1.2; text-shadow: none; border: 2px solid; }
@@ -119,7 +127,7 @@
         .circle-btn .badge { top: -4px; right: -4px; background: #dc2626; color: white; border-color: #451a03; }
         .circle-btn .mag-count { top: -4px; right: -4px; background: #000; color: #facc15; border-color: #451a03; }
 
-        .settings-btn { background: none; border: none; font-size: clamp(20px, 5vw, 24px); cursor: pointer; padding: 5px; filter: drop-shadow(2px 2px 0px #451a03); }
+        .settings-btn { background: none; border: none; font-size: clamp(20px, 5vw, 24px); cursor: pointer; padding: 5px; filter: drop-shadow(2px 2px 0px #451a03); touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         .leaderboard-list { list-style: none; padding: 0; font-size: clamp(8px, 2.5vw, 10px); line-height: 2; }
         .leaderboard-list li { padding: 8px; border-bottom: 2px solid #854d0e; background: rgba(0,0,0,0.1); margin-bottom: 4px; }
         
@@ -188,6 +196,37 @@
 <div id="cutscene-overlay">
     <h2 id="cutscene-text"></h2>
     <button class="skip-btn" onclick="endCutscene()">Skip >></button>
+</div>
+
+<div id="mode-select-modal" class="modal-overlay">
+    <div class="modal-box yellow-ui">
+        <h2 class="modal-title">Choose Mode</h2>
+        <div style="display:flex; gap:15px; justify-content:center; flex-wrap:wrap; margin:20px 0;">
+            <button class="btn" style="font-size:clamp(12px, 3.4vw, 18px); padding:15px 24px;" onclick="chooseSingleplayer()">🧍 SINGLEPLAYER</button>
+            <button class="btn" style="font-size:clamp(12px, 3.4vw, 18px); padding:15px 24px; background: linear-gradient(180deg, #4ade80 0%, #16a34a 100%); border-color:#064e3b;" onclick="chooseMultiplayer()">👥 MULTIPLAYER</button>
+        </div>
+        <button class="btn" style="background:#71717a; border-color:#3f3f46;" onclick="hideModal('mode-select-modal')">Back</button>
+    </div>
+</div>
+
+<div id="level-select-modal" class="modal-overlay">
+    <div class="modal-box yellow-ui">
+        <h2 class="modal-title">Choose Terrain</h2>
+        <div class="level-grid" id="sp-level-grid"></div>
+        <button class="btn" style="background:#71717a; border-color:#3f3f46;" onclick="hideModal('level-select-modal'); showModal('mode-select-modal');">Back</button>
+    </div>
+</div>
+
+<div id="mp-vote-modal" class="modal-overlay">
+    <div class="modal-box yellow-ui">
+        <h2 class="modal-title">Vote for Terrain</h2>
+        <p style="font-size:10px; color:#713f12; text-align:center;">Tap a level to cast your vote. Votes update live for everyone in the room.</p>
+        <div class="level-grid" id="mp-level-grid"></div>
+        <div style="display:flex; gap:10px; justify-content:center; margin-top:10px;">
+            <button class="btn" style="background: linear-gradient(180deg, #4ade80 0%, #16a34a 100%); border-color:#064e3b;" onclick="startMultiplayerGame()">▶ START WITH LEADING VOTE</button>
+        </div>
+        <button class="btn" style="background:#71717a; border-color:#3f3f46; margin-top:10px;" onclick="leaveVoteModal()">Back</button>
+    </div>
 </div>
 
 <div id="instructions-modal" class="modal-overlay">
@@ -435,7 +474,7 @@
 const firebaseConfig = {
     apiKey: "AIzaSyAUZ0oXEwx_Cd429s4SmOaxicLkAnT2TSU",
     authDomain: "defence-evolution-bcaf0.firebaseapp.com",
-    databaseURL: "https://defence-evolution-bcaf0-default-rtdb.asia-southeast1.firebasedatabase.app",
+    databaseURL: "https://defence-evolution-bcaf0-default-rtdb.firebaseio.com",
     projectId: "defence-evolution-bcaf0",
     storageBucket: "defence-evolution-bcaf0.firebasestorage.app",
     messagingSenderId: "405080740974",
@@ -502,7 +541,7 @@ function useBomb() {
 function reloadGun() { if(hudEditActive) return; if (isReloading || currentAmmo === gunStats[currentGun].magSize) return; if (spareMags > 0) { isReloading = true; spareMags--; reloadEndTime = Date.now() + gunStats[currentGun].reloadTime; updateHUD(); } }
 
 
-let isMultiplayer = true; // Game always runs in multiplayer mode
+let isMultiplayer = true;
 
 let isContinueNext = false;
 function checkRankThenPlay(isContinueGame) {
@@ -511,7 +550,7 @@ function checkRankThenPlay(isContinueGame) {
     const name = document.getElementById('dropdown-username-input').value.trim() || selectedUser;
     if (!name) { document.getElementById('menu-error').innerText = "PLEASE CHOOSE A USERNAME FIRST!"; return; }
     const rankInfo = getPlayerRankInfo(name);
-    if (rankInfo.text === 'MEMBER') { startGame(); } else { showModal('verify-modal'); }
+    if (rankInfo.text === 'MEMBER') { showModal('mode-select-modal'); } else { showModal('verify-modal'); }
 }
 
 function checkVerification() {
@@ -532,16 +571,96 @@ function checkVerification() {
         errorMsg.innerText = ""; document.getElementById('verify-input').value = ""; hideModal('verify-modal');
         let docEl = document.documentElement;
         if (docEl.requestFullscreen) docEl.requestFullscreen(); else if (docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen(); else if (docEl.msRequestFullscreen) docEl.msRequestFullscreen();
-        startGame(); 
+        showModal('mode-select-modal');
     } else { errorMsg.innerText = "INVALID VERIFICATION CODE!"; }
 }
 
-let gameChannel = null; let isChannelReady = false; let otherPlayers = {}; let lastBroadcastTime = 0;
-function isSpawnAuthority() {
-    if (!isMultiplayer || !isChannelReady) return true; // solo play: always the authority
-    const ids = [mySessionId, ...Object.keys(otherPlayers)];
-    return mySessionId === ids.sort()[0]; // lowest session id in the room spawns for everyone
+// ---- MODE / TERRAIN SELECTION ----
+function renderLevelGrid(gridId, votes) {
+    const grid = document.getElementById(gridId);
+    grid.innerHTML = '';
+    LEVELS.forEach(lvl => {
+        const card = document.createElement('div');
+        card.className = 'level-card' + (votes && myVote === lvl.id ? ' voted' : '');
+        let voteCount = votes ? Object.values(votes).filter(v => v === lvl.id).length : null;
+        card.innerHTML = `<span class="lc-emoji">${lvl.emoji}</span><div class="lc-name">${lvl.name}</div><div class="lc-desc">${lvl.desc}</div>` + (voteCount !== null ? `<div class="lc-votes">${voteCount} vote${voteCount === 1 ? '' : 's'}</div>` : '');
+        card.onclick = () => { if (gridId === 'sp-level-grid') selectSPLevel(lvl.id); else castVote(lvl.id); };
+        grid.appendChild(card);
+    });
 }
+
+function chooseSingleplayer() {
+    hideModal('mode-select-modal');
+    isMultiplayer = false;
+    renderLevelGrid('sp-level-grid', null);
+    showModal('level-select-modal');
+}
+
+function selectSPLevel(id) {
+    selectedTerrain = id;
+    hideModal('level-select-modal');
+    startGame();
+}
+
+let myVote = null;
+let voteListenerRef = null, currentLevelListenerRef = null;
+function chooseMultiplayer() {
+    hideModal('mode-select-modal');
+    isMultiplayer = true;
+    myVote = null;
+    renderLevelGrid('mp-level-grid', {});
+    showModal('mp-vote-modal');
+
+    voteListenerRef = db.ref(ROOM_PATH + '/levelVotes');
+    voteListenerRef.on('value', snap => { renderLevelGrid('mp-level-grid', snap.val() || {}); });
+
+    // If another player already started the room's game, follow them in automatically.
+    currentLevelListenerRef = db.ref(ROOM_PATH + '/currentLevel');
+    currentLevelListenerRef.on('value', snap => {
+        const lvl = snap.val();
+        if (lvl && document.getElementById('mp-vote-modal').style.display === 'flex') {
+            selectedTerrain = lvl;
+            detachVoteListeners();
+            hideModal('mp-vote-modal');
+            startGame();
+        }
+    });
+}
+
+function castVote(id) {
+    myVote = id;
+    if (!mySessionId) mySessionId = genId();
+    db.ref(ROOM_PATH + '/levelVotes/' + mySessionId).set(id);
+}
+
+function detachVoteListeners() {
+    if (voteListenerRef) { voteListenerRef.off(); voteListenerRef = null; }
+    if (currentLevelListenerRef) { currentLevelListenerRef.off(); currentLevelListenerRef = null; }
+}
+
+function leaveVoteModal() {
+    detachVoteListeners();
+    hideModal('mp-vote-modal');
+    showModal('mode-select-modal');
+}
+
+function startMultiplayerGame() {
+    db.ref(ROOM_PATH + '/levelVotes').once('value').then(snap => {
+        const votes = snap.val() || {};
+        const tally = {};
+        LEVELS.forEach(l => tally[l.id] = 0);
+        Object.values(votes).forEach(v => { if (tally[v] !== undefined) tally[v]++; });
+        let winner = myVote || 'desert', best = -1;
+        LEVELS.forEach(l => { if (tally[l.id] > best) { best = tally[l.id]; winner = l.id; } });
+        selectedTerrain = winner;
+        db.ref(ROOM_PATH + '/currentLevel').set(winner);
+        detachVoteListeners();
+        hideModal('mp-vote-modal');
+        startGame();
+    });
+}
+
+let gameChannel = null; let isChannelReady = false; let otherPlayers = {}; let lastBroadcastTime = 0;
 let fbPlayersRef = null, fbEnemySyncRef = null, fbEventsRef = null;
 let mySessionId = '';
 const genId = () => Math.random().toString(36).substr(2, 9);
@@ -574,7 +693,7 @@ async function getGlobalLeaderboard() {
         const remote = Object.values(val);
         const merged = [...remote, ...local];
         const seen = new Set(); const deduped = [];
-        for (const e of merged) { const key = e.player_name + '-' + e.score + '-' + e.kills + '-' + e.time_lived; if (seen.has(key)) continue; seen.add(key); deduped.push(e); }
+        for (const e of merged) { const key = e.player_name + '-' + e.score + '-' + e.kills; if (seen.has(key)) continue; seen.add(key); deduped.push(e); }
         deduped.sort((a,b) => b.score - a.score);
         return deduped;
     } catch(e) { return local.sort((a,b) => b.score - a.score); }
@@ -667,6 +786,62 @@ function createPixelTexture(color, detailColor, type) {
             for (let seg = 0; seg < 3; seg++) { cx0 += (Math.random()-0.5)*8; cy0 += (Math.random()-0.5)*8; tctx.lineTo(cx0, cy0); }
             tctx.stroke();
         }
+    } else if (type === 'grassForest') {
+        let g = tctx.createLinearGradient(0,0,32,32);
+        g.addColorStop(0, '#2f5d2a'); g.addColorStop(0.5, '#254a22'); g.addColorStop(1, '#1c3a1a');
+        tctx.fillStyle = g; tctx.fillRect(0,0,32,32);
+        for(let i=0; i<3; i++) {
+            tctx.fillStyle = 'rgba(10,30,10,0.25)';
+            let px = Math.random()*32, py = Math.random()*32, r = 6 + Math.random()*7;
+            tctx.beginPath(); tctx.ellipse(px, py, r, r*0.6, Math.random()*Math.PI, 0, Math.PI*2); tctx.fill();
+        }
+        for (let t = 0; t < 30; t++) {
+            let gx = Math.random()*32, gy = Math.random()*32;
+            tctx.strokeStyle = Math.random() > 0.5 ? 'rgba(90,160,70,0.55)' : 'rgba(40,90,35,0.5)'; tctx.lineWidth = 1;
+            for (let b = 0; b < 3; b++) {
+                let ang = -Math.PI/2 + (b - 1) * 0.4;
+                tctx.beginPath(); tctx.moveTo(gx, gy); tctx.lineTo(gx + Math.cos(ang)*3.5, gy + Math.sin(ang)*3.5); tctx.stroke();
+            }
+        }
+        if (Math.random() < 0.3) {
+            // small bush/shrub clump
+            let bx = 5 + Math.random()*22, by = 5 + Math.random()*22;
+            tctx.fillStyle = 'rgba(15,45,15,0.55)';
+            tctx.beginPath(); tctx.arc(bx, by, 3.4, 0, Math.PI*2); tctx.fill();
+            tctx.fillStyle = 'rgba(70,130,55,0.4)';
+            tctx.beginPath(); tctx.arc(bx-1, by-1, 1.6, 0, Math.PI*2); tctx.fill();
+        } else if (Math.random() < 0.2) {
+            // fallen twig
+            tctx.strokeStyle = 'rgba(60,40,20,0.5)'; tctx.lineWidth = 1;
+            let tx0 = Math.random()*32, ty0 = Math.random()*32;
+            tctx.beginPath(); tctx.moveTo(tx0, ty0); tctx.lineTo(tx0 + 6, ty0 + 2); tctx.stroke();
+        }
+        tctx.strokeStyle = 'rgba(10,30,10,0.15)'; tctx.lineWidth = 1; tctx.strokeRect(0.5,0.5,31,31);
+    } else if (type === 'grassPlains') {
+        let g = tctx.createLinearGradient(0,0,32,32);
+        g.addColorStop(0, '#9bd35a'); g.addColorStop(0.5, '#86c74a'); g.addColorStop(1, '#71b23c');
+        tctx.fillStyle = g; tctx.fillRect(0,0,32,32);
+        for(let i=0; i<2; i++) {
+            tctx.fillStyle = 'rgba(60,140,30,0.15)';
+            let px = Math.random()*32, py = Math.random()*32, r = 7 + Math.random()*6;
+            tctx.beginPath(); tctx.ellipse(px, py, r, r*0.5, Math.random()*Math.PI, 0, Math.PI*2); tctx.fill();
+        }
+        for (let t = 0; t < 16; t++) {
+            let gx = Math.random()*32, gy = Math.random()*32;
+            tctx.strokeStyle = 'rgba(230,255,180,0.4)'; tctx.lineWidth = 0.8;
+            let ang = -Math.PI/2 + (Math.random()-0.5) * 0.5;
+            tctx.beginPath(); tctx.moveTo(gx, gy); tctx.lineTo(gx + Math.cos(ang)*2.6, gy + Math.sin(ang)*2.6); tctx.stroke();
+        }
+        if (Math.random() < 0.3) {
+            // small wildflower
+            let fx = 4 + Math.random()*24, fy = 4 + Math.random()*24;
+            tctx.fillStyle = Math.random() > 0.5 ? 'rgba(253,224,71,0.85)' : 'rgba(255,255,255,0.8)';
+            tctx.beginPath(); tctx.arc(fx, fy, 1.2, 0, Math.PI*2); tctx.fill();
+            tctx.fillStyle = 'rgba(255,255,255,0.5)';
+            tctx.beginPath(); tctx.arc(fx-1.6, fy, 0.9, 0, Math.PI*2); tctx.fill();
+            tctx.beginPath(); tctx.arc(fx+1.6, fy, 0.9, 0, Math.PI*2); tctx.fill();
+        }
+        tctx.strokeStyle = 'rgba(60,140,30,0.12)'; tctx.lineWidth = 1; tctx.strokeRect(0.5,0.5,31,31);
     } else if (type === 'chest') {
         tctx.fillStyle = 'rgba(0,0,0,0.35)'; tctx.beginPath(); tctx.ellipse(16,29,11,3,0,0,Math.PI*2); tctx.fill();
         let cg = tctx.createLinearGradient(0,6,0,28);
@@ -804,9 +979,19 @@ function createPixelTexture(color, detailColor, type) {
 
 const texSand = createPixelTexture('#7d7566', '#5e564a', 'sand');
 const texSandVariants = [texSand, createPixelTexture('#7d7566', '#5e564a', 'sand'), createPixelTexture('#7d7566', '#5e564a', 'sand'), createPixelTexture('#7d7566', '#5e564a', 'sand')];
+const texForestVariants = [createPixelTexture(null, null, 'grassForest'), createPixelTexture(null, null, 'grassForest'), createPixelTexture(null, null, 'grassForest'), createPixelTexture(null, null, 'grassForest')];
+const texPlainsVariants = [createPixelTexture(null, null, 'grassPlains'), createPixelTexture(null, null, 'grassPlains'), createPixelTexture(null, null, 'grassPlains'), createPixelTexture(null, null, 'grassPlains')];
+const TERRAIN_TILES = { desert: texSandVariants, forest: texForestVariants, plains: texPlainsVariants };
+const LEVELS = [
+    { id: 'desert', name: 'Desert', emoji: '🏜️', desc: 'Open sandy dunes, long sightlines.' },
+    { id: 'forest', name: 'Forest', emoji: '🌲', desc: 'Dense green cover, close-quarters fights.' },
+    { id: 'plains', name: 'Plains', emoji: '🌾', desc: 'Rolling grassland, balanced terrain.' }
+];
+let selectedTerrain = 'desert';
 function pickGroundTile(tileX, tileY) {
     let h = ((tileX * 374761393 + tileY * 668265263) ^ (tileX * 69069)) >>> 0;
-    return texSandVariants[h % texSandVariants.length];
+    let arr = TERRAIN_TILES[selectedTerrain] || texSandVariants;
+    return arr[h % arr.length];
 }
 function shadeColor(color, percent) {
     let f = parseInt(color.slice(1), 16), t = percent < 0 ? 0 : 255, p = percent < 0 ? percent * -1 : percent;
@@ -832,23 +1017,178 @@ function drawGroundShadow(cx, cy, rw, rh) {
     ctx.beginPath(); ctx.ellipse(cx, cy, rw, rh, 0, 0, Math.PI*2); ctx.fill();
     ctx.restore();
 }
-function drawGunSprite(outer, recoilKick) {
+function gunCategory(name) {
+    if (name === 'AK47' || name === 'MP40' || name === 'Machine Gun' || name === 'P90') return 'auto';
+    if (name === 'Shortgun' || name === 'S12K' || name === 'S1887') return 'shotgun';
+    if (name === 'AWM' || name === 'M24') return 'sniper';
+    if (name === 'RPG') return 'rpg';
+    return 'pistol'; // Pistol, D-Eagle
+}
+const gunVariants = {
+    'Pistol':      { scale: 0.92, accent: '#e5e7eb', mark: 'dot'      },
+    'D-Eagle':     { scale: 1.12, accent: '#fbbf24', mark: 'stripe'   },
+    'AK47':        { scale: 1.05, accent: '#78350f', mark: 'stripe'   },
+    'MP40':        { scale: 0.88, accent: '#94a3b8', mark: 'dot'      },
+    'Machine Gun': { scale: 1.30, accent: '#dc2626', mark: 'stripe2'  },
+    'P90':         { scale: 0.82, accent: '#a855f7', mark: 'dot'      },
+    'Shortgun':    { scale: 0.95, accent: '#78350f', mark: 'dot'      },
+    'S12K':        { scale: 1.08, accent: '#0891b2', mark: 'stripe'   },
+    'S1887':       { scale: 0.90, accent: '#b91c1c', mark: 'stripe2'  },
+    'AWM':         { scale: 1.22, accent: '#059669', mark: 'stripe'   },
+    'M24':         { scale: 1.00, accent: '#7c2d12', mark: 'dot'      },
+    'RPG':         { scale: 1.00, accent: '#facc15', mark: 'stripe2'  }
+};
+function drawGunSprite(outer, recoilKick, gunName) {
     recoilKick = recoilKick || 0;
+    let rk = recoilKick;
+    let cat = gunCategory(gunName);
+    let variant = gunVariants[gunName] || { scale: 1, accent: null, mark: null };
     let barrelDark = shadeColor(outer, -0.45), barrelLight = shadeColor(outer, 0.3);
     ctx.save();
-    let gg = ctx.createLinearGradient(0, -3.5, 0, 3.5);
-    gg.addColorStop(0, barrelLight); gg.addColorStop(0.5, outer); gg.addColorStop(1, barrelDark);
-    ctx.fillStyle = gg;
-    ctx.beginPath(); ctx.roundRect(10 - recoilKick, -3.5, 15, 7, 2); ctx.fill();
-    ctx.strokeStyle = 'rgba(0,0,0,0.45)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.roundRect(10 - recoilKick, -3.5, 15, 7, 2); ctx.stroke();
-    // grip
-    ctx.fillStyle = barrelDark;
-    ctx.beginPath(); ctx.roundRect(11 - recoilKick, 2.5, 5, 7, 2); ctx.fill();
-    // barrel tip
-    ctx.fillStyle = '#18181b'; ctx.fillRect(23 - recoilKick, -2, 3, 4);
-    // top highlight sheen + front sight glint
-    ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.fillRect(11 - recoilKick, -3, 12, 1);
-    ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fillRect(22 - recoilKick, -3, 1.5, 1.5);
+    ctx.scale(variant.scale, variant.scale);
+    if (cat === 'sniper') {
+        // long thin barrel with scope
+        let gg = ctx.createLinearGradient(0, -2.5, 0, 2.5);
+        gg.addColorStop(0, barrelLight); gg.addColorStop(0.5, outer); gg.addColorStop(1, barrelDark);
+        ctx.fillStyle = gg;
+        ctx.beginPath(); ctx.roundRect(9 - rk, -2.5, 22, 5, 2); ctx.fill();
+        ctx.strokeStyle = 'rgba(0,0,0,0.45)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.roundRect(9 - rk, -2.5, 22, 5, 2); ctx.stroke();
+        // scope
+        ctx.fillStyle = '#18181b'; ctx.beginPath(); ctx.roundRect(14 - rk, -7, 10, 3, 1); ctx.fill();
+        ctx.fillStyle = 'rgba(120,200,255,0.8)'; ctx.beginPath(); ctx.arc(23 - rk, -5.5, 1.3, 0, Math.PI * 2); ctx.fill();
+        // grip
+        ctx.fillStyle = barrelDark; ctx.beginPath(); ctx.roundRect(10 - rk, 2, 4, 6, 2); ctx.fill();
+        // barrel tip
+        ctx.fillStyle = '#18181b'; ctx.fillRect(30 - rk, -1.5, 3, 3);
+        ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.fillRect(10 - rk, -2, 16, 1);
+    } else if (cat === 'shotgun') {
+        // wide short barrel with pump ridges
+        let gg = ctx.createLinearGradient(0, -4.5, 0, 4.5);
+        gg.addColorStop(0, barrelLight); gg.addColorStop(0.5, outer); gg.addColorStop(1, barrelDark);
+        ctx.fillStyle = gg;
+        ctx.beginPath(); ctx.roundRect(10 - rk, -4.5, 13, 9, 2); ctx.fill();
+        ctx.strokeStyle = 'rgba(0,0,0,0.45)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.roundRect(10 - rk, -4.5, 13, 9, 2); ctx.stroke();
+        // pump ridges texture
+        ctx.strokeStyle = 'rgba(0,0,0,0.5)'; ctx.lineWidth = 1;
+        for (let i = 0; i < 4; i++) { let rx = 12 - rk + i * 2.5; ctx.beginPath(); ctx.moveTo(rx, -3.5); ctx.lineTo(rx, 3.5); ctx.stroke(); }
+        // grip
+        ctx.fillStyle = barrelDark; ctx.beginPath(); ctx.roundRect(11 - rk, 3, 6, 8, 2); ctx.fill();
+        // barrel tip - wide
+        ctx.fillStyle = '#18181b'; ctx.fillRect(21 - rk, -3, 4, 6);
+        ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.fillRect(11 - rk, -4, 10, 1);
+    } else if (cat === 'auto') {
+        // rifle/SMG with stock + curved magazine
+        let gg = ctx.createLinearGradient(0, -3.5, 0, 3.5);
+        gg.addColorStop(0, barrelLight); gg.addColorStop(0.5, outer); gg.addColorStop(1, barrelDark);
+        ctx.fillStyle = gg;
+        ctx.beginPath(); ctx.roundRect(8 - rk, -3.5, 20, 7, 2); ctx.fill();
+        ctx.strokeStyle = 'rgba(0,0,0,0.45)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.roundRect(8 - rk, -3.5, 20, 7, 2); ctx.stroke();
+        // stock
+        ctx.fillStyle = barrelDark; ctx.fillRect(2 - rk, -1.5, 7, 3);
+        // curved magazine
+        ctx.fillStyle = shadeColor(outer, -0.2);
+        ctx.beginPath(); ctx.moveTo(14 - rk, 3.5); ctx.lineTo(17 - rk, 3.5); ctx.lineTo(15.5 - rk, 10); ctx.lineTo(13 - rk, 10); ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = 'rgba(0,0,0,0.4)'; ctx.lineWidth = 1; ctx.stroke();
+        // grip
+        ctx.fillStyle = barrelDark; ctx.beginPath(); ctx.roundRect(9 - rk, 2.5, 5, 6, 2); ctx.fill();
+        // barrel tip
+        ctx.fillStyle = '#18181b'; ctx.fillRect(26 - rk, -2, 3, 4);
+        ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.fillRect(9 - rk, -3, 16, 1);
+        ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fillRect(25 - rk, -3, 1.5, 1.5);
+    } else if (cat === 'rpg') {
+        // thick tube launcher with flared warhead
+        let gg = ctx.createLinearGradient(0, -6, 0, 6);
+        gg.addColorStop(0, barrelLight); gg.addColorStop(0.5, outer); gg.addColorStop(1, barrelDark);
+        ctx.fillStyle = gg;
+        ctx.beginPath(); ctx.roundRect(4 - rk, -6, 24, 12, 4); ctx.fill();
+        ctx.strokeStyle = 'rgba(0,0,0,0.45)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.roundRect(4 - rk, -6, 24, 12, 4); ctx.stroke();
+        // flared warhead front
+        ctx.fillStyle = '#3f3f46';
+        ctx.beginPath(); ctx.moveTo(28 - rk, -7); ctx.lineTo(34 - rk, 0); ctx.lineTo(28 - rk, 7); ctx.closePath(); ctx.fill();
+        // grip/trigger housing
+        ctx.fillStyle = barrelDark; ctx.beginPath(); ctx.roundRect(10 - rk, 5, 6, 7, 2); ctx.fill();
+        // sight
+        ctx.fillStyle = '#18181b'; ctx.fillRect(14 - rk, -10, 3, 4);
+        ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.fillRect(6 - rk, -5, 18, 1.5);
+    } else {
+        // pistol (default)
+        let gg = ctx.createLinearGradient(0, -3.5, 0, 3.5);
+        gg.addColorStop(0, barrelLight); gg.addColorStop(0.5, outer); gg.addColorStop(1, barrelDark);
+        ctx.fillStyle = gg;
+        ctx.beginPath(); ctx.roundRect(10 - rk, -3.5, 15, 7, 2); ctx.fill();
+        ctx.strokeStyle = 'rgba(0,0,0,0.45)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.roundRect(10 - rk, -3.5, 15, 7, 2); ctx.stroke();
+        // grip
+        ctx.fillStyle = barrelDark;
+        ctx.beginPath(); ctx.roundRect(11 - rk, 2.5, 5, 7, 2); ctx.fill();
+        // barrel tip
+        ctx.fillStyle = '#18181b'; ctx.fillRect(23 - rk, -2, 3, 4);
+        // top highlight sheen + front sight glint
+        ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.fillRect(11 - rk, -3, 12, 1);
+        ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fillRect(22 - rk, -3, 1.5, 1.5);
+    }
+    let accent = variant.accent || barrelDark;
+    if (gunName === 'D-Eagle') {
+        // vented barrel slits + blocky hammer + angled slide serrations
+        ctx.fillStyle = '#0f0f10';
+        ctx.fillRect(14 - rk, -3.4, 2, 1); ctx.fillRect(18 - rk, -3.4, 2, 1);
+        ctx.fillStyle = accent; ctx.beginPath(); ctx.arc(9.5 - rk, -3, 1.4, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = 'rgba(0,0,0,0.5)'; ctx.lineWidth = 0.8;
+        for (let i = 0; i < 3; i++) { let sx = 17 - rk + i * 1.6; ctx.beginPath(); ctx.moveTo(sx, -3.5); ctx.lineTo(sx - 1, 3.5); ctx.stroke(); }
+    } else if (gunName === 'Pistol') {
+        // small rear sight notch, compact slide
+        ctx.fillStyle = accent; ctx.fillRect(10.5 - rk, -3.4, 2, 1);
+        ctx.fillStyle = '#18181b'; ctx.fillRect(9.5 - rk, -1, 1.5, 2);
+    } else if (gunName === 'AK47') {
+        // wood-grain stock + curved mag already drawn; add furniture grain lines + front sight post
+        ctx.strokeStyle = 'rgba(0,0,0,0.35)'; ctx.lineWidth = 0.7;
+        ctx.beginPath(); ctx.moveTo(2 - rk, -0.7); ctx.lineTo(9 - rk, -0.7); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(2 - rk, 0.7); ctx.lineTo(9 - rk, 0.7); ctx.stroke();
+        ctx.fillStyle = accent; ctx.fillRect(27 - rk, -4.5, 1.5, 3);
+    } else if (gunName === 'MP40') {
+        // straight box magazine (steeper, thinner) instead of curved + folding stock wire
+        ctx.fillStyle = '#18181b';
+        ctx.beginPath(); ctx.roundRect(14.5 - rk, 3.5, 2.4, 8, 1); ctx.fill();
+        ctx.strokeStyle = accent; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(2 - rk, -1); ctx.lineTo(-2 - rk, -4); ctx.lineTo(-2 - rk, 1); ctx.stroke();
+    } else if (gunName === 'Machine Gun') {
+        // big box/belt magazine + bipod legs up front
+        ctx.fillStyle = '#27272a';
+        ctx.beginPath(); ctx.roundRect(12 - rk, 3.5, 8, 9, 2); ctx.fill();
+        ctx.strokeStyle = accent; ctx.lineWidth = 1; ctx.strokeRect(12 - rk, 3.5, 8, 9);
+        ctx.strokeStyle = '#3f3f46'; ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.moveTo(26 - rk, 3.5); ctx.lineTo(23 - rk, 10); ctx.moveTo(26 - rk, 3.5); ctx.lineTo(29 - rk, 10); ctx.stroke();
+    } else if (gunName === 'P90') {
+        // top-mounted horizontal magazine, no bottom mag, compact bullpup body
+        ctx.fillStyle = 'rgba(255,255,255,0.55)';
+        ctx.beginPath(); ctx.roundRect(9 - rk, -7, 14, 3.2, 1.5); ctx.fill();
+        ctx.strokeStyle = accent; ctx.lineWidth = 1; ctx.beginPath(); ctx.roundRect(9 - rk, -7, 14, 3.2, 1.5); ctx.stroke();
+    } else if (gunName === 'Shortgun') {
+        // classic pump-action already drawn — add wood-tone foregrip cap
+        ctx.fillStyle = accent; ctx.fillRect(10 - rk, -4.5, 2, 9);
+    } else if (gunName === 'S12K') {
+        // detachable box magazine below receiver, smooth top rail
+        ctx.fillStyle = '#18181b';
+        ctx.beginPath(); ctx.roundRect(13 - rk, 3.5, 5, 7, 1.5); ctx.fill();
+        ctx.strokeStyle = accent; ctx.lineWidth = 1; ctx.strokeRect(13 - rk, 3.5, 5, 7);
+        ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.fillRect(11 - rk, -5.5, 10, 1.4);
+    } else if (gunName === 'S1887') {
+        // side-by-side double barrel with break-action hinge
+        ctx.fillStyle = '#18181b';
+        ctx.fillRect(20 - rk, -4, 4, 2.6); ctx.fillRect(20 - rk, 1.4, 4, 2.6);
+        ctx.strokeStyle = accent; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(16 - rk, -4.5); ctx.lineTo(16 - rk, 4.5); ctx.stroke();
+    } else if (gunName === 'AWM') {
+        // large muzzle brake + folded bipod legs at the tip
+        ctx.fillStyle = '#27272a'; ctx.fillRect(29 - rk, -3, 5, 6);
+        ctx.strokeStyle = accent; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(30 - rk, 2.5); ctx.lineTo(28 - rk, 8); ctx.moveTo(32 - rk, 2.5); ctx.lineTo(34 - rk, 8); ctx.stroke();
+    } else if (gunName === 'M24') {
+        // wood-tone bolt-action stock + bolt handle knob
+        ctx.fillStyle = accent; ctx.beginPath(); ctx.roundRect(4 - rk, -3, 8, 6, 2); ctx.fill();
+        ctx.fillStyle = '#18181b'; ctx.beginPath(); ctx.arc(18 - rk, 3, 1.5, 0, Math.PI * 2); ctx.fill();
+    } else if (gunName === 'RPG') {
+        ctx.fillStyle = accent; ctx.fillRect(6 - rk, -1, 20, 1.2);
+    }
     ctx.restore();
 }
 function drawAura(cx, cy, rankText) {
@@ -1230,7 +1570,7 @@ function toggleUsername() { const list = document.getElementById('username-list'
 function selectUser(name) { selectedUser = name; document.getElementById('username-btn').innerText = name + " ▼"; document.getElementById('dropdown-username-input').value = name; document.getElementById('username-list').classList.remove('show'); document.getElementById('menu-error').innerText = ""; }
 function showModal(id) { document.getElementById(id).style.display = 'flex'; }
 function hideModal(id) { document.getElementById(id).style.display = 'none'; }
-async function showLeaderboard() { showModal('leaderboard-modal'); const list = document.getElementById('leaderboard-list'); list.innerHTML = '<li>Loading top 5 players...</li>'; const leaderboard = await getGlobalLeaderboard(); const bestPerPlayer = new Map(); for (const entry of leaderboard) { const key = (entry.player_name || '').trim().toLowerCase(); if (!bestPerPlayer.has(key)) bestPerPlayer.set(key, entry); } const uniqueSorted = [...bestPerPlayer.values()].sort((a,b) => b.score - a.score); const top5 = uniqueSorted.slice(0,5); list.innerHTML = ''; if(!top5.length) list.innerHTML = '<li>No scores yet! Be the first!</li>'; else top5.forEach((entry,i) => { const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1); list.innerHTML += `<li><strong>${medal}</strong> ${entry.player_name} - ${entry.score} pts (Kills: ${entry.kills})</li>`; }); }
+async function showLeaderboard() { showModal('leaderboard-modal'); const list = document.getElementById('leaderboard-list'); list.innerHTML = '<li>Loading top 5 players...</li>'; const leaderboard = await getGlobalLeaderboard(); const top5 = leaderboard.slice(0,5); list.innerHTML = ''; if(!top5.length) list.innerHTML = '<li>No scores yet! Be the first!</li>'; else top5.forEach((entry,i) => { const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1); list.innerHTML += `<li><strong>${medal}</strong> ${entry.player_name} - ${entry.score} pts (Kills: ${entry.kills})</li>`; }); }
 
 function startGame() {
     const dropdownInput = document.getElementById('dropdown-username-input');
@@ -1356,6 +1696,15 @@ function equipCustomSkin() { customOuter = document.getElementById('custom-outer
 function equipPet(type) { currentPet = type; localStorage.setItem('savedPet', type); notifySkin("Equipped " + type.charAt(0).toUpperCase() + type.slice(1) + " Pet!"); }
 function equipCustomGun() { gunOuter = document.getElementById('gun-outer').value; gunInner = document.getElementById('gun-inner').value; localStorage.setItem('gunOuter', gunOuter); localStorage.setItem('gunInner', gunInner); notifySkin("Gun Skin Saved!"); }
 
+// ---- DEV/DEBUG TOGGLE ---- set to false before sharing/shipping this build
+const DEBUG_MODE = true;
+const DEBUG_INF_MONEY_AMOUNT = 999999;
+if (DEBUG_MODE) {
+    let dbg = document.createElement('div');
+    dbg.textContent = '⚠ DEBUG MODE — INFINITE MONEY — NOT A REAL BUILD';
+    dbg.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#dc2626;color:#fff;font-family:monospace;font-weight:bold;font-size:13px;text-align:center;padding:4px 0;pointer-events:none;';
+    document.body.appendChild(dbg);
+}
 let money = 0, bandages = 0, kills = 0, score = 0, timeLived = 0, playerHp = 10, maxHp = 10;
 let currentAmmo = 12, spareMags = 3, isReloading = false, reloadEndTime = 0; 
 let wallsCount = 0, wiresCount = 0, turretsCount = 0, lastTurretPlaceTime = 0;
@@ -1738,6 +2087,7 @@ function restartGame(isContinue = false) {
 
 function exitToMenu() {
     isPaused = true; clearInterval(timeInterval); hideModal('settings-modal'); hideModal('gameover-modal'); hideModal('shop-modal'); document.getElementById('game-screen').style.display = 'none'; document.getElementById('menu-screen').style.display = 'block'; updateUsernameDropdown(); if (gameLoopId) cancelAnimationFrame(gameLoopId); if (document.exitFullscreen) { document.exitFullscreen(); } else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); } else if (document.msExitFullscreen) { document.msExitFullscreen(); }
+    detachVoteListeners(); if (mySessionId) db.ref(ROOM_PATH + '/levelVotes/' + mySessionId).remove();
     // Actually leave the shared multiplayer room so teammates see us gone immediately
     // (their enemy-ownership handoff and room-cleanup logic depends on this).
     if (isChannelReady) {
@@ -1922,6 +2272,7 @@ function drawMinimap() {
 }
 
 function loop() {
+    if (DEBUG_MODE) money = DEBUG_INF_MONEY_AMOUNT;
     if (isPaused) { gameLoopId = requestAnimationFrame(loop); return; }
     let now = Date.now(); 
 
@@ -1990,7 +2341,7 @@ function loop() {
         lastBroadcastTime = now;
     }
     
-    if (!cutsceneActive && isSpawnAuthority()) {
+    if (!cutsceneActive) {
         if (Math.random() < 0.016) spawnEnemy(); 
         if (Math.random() < 0.001 && chests.length < 5) spawnChest();
         bossSpawnTimer++; if (bossSpawnTimer >= 1800) { spawnBoss(); bossSpawnTimer = 0; }
@@ -2332,7 +2683,7 @@ function loop() {
         drawAura(px + 12, py + 12, opRankInfo.text);
         drawGroundShadow(px + 12, py + 15, 13, 4.5);
         ctx.save(); ctx.translate(px + 12, py + 12); 
-        drawGunSprite(op.gunOuter || '#451a03', 0);
+        drawGunSprite(op.gunOuter || '#451a03', 0, op.gun);
         drawCharacter(op.skinOuter || '#1d4ed8', op.skinInner || '#3b82f6', op.moving, op.x + op.y);
         ctx.restore();
         
@@ -2357,7 +2708,7 @@ function loop() {
     let recoilT = now - muzzleFlashTime;
     let recoilKick = recoilT < 100 ? (1 - recoilT / 100) * 5 : 0;
     ctx.save(); ctx.translate(psx, psy); if (nearestLocal && !cutsceneActive) ctx.rotate(Math.atan2(nearestLocal.y - player.y, nearestLocal.x - player.x));
-    drawGunSprite(gunOuter || '#451a03', recoilKick);
+    drawGunSprite(gunOuter || '#451a03', recoilKick, currentGun);
     if (recoilT < 80) {
         ctx.globalAlpha = 1 - recoilT / 80;
         let fg = ctx.createRadialGradient(26 - recoilKick, 0, 0, 26 - recoilKick, 0, 10);
