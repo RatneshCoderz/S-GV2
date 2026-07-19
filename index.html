@@ -112,6 +112,18 @@
         
         #joystick-zone { position: absolute; bottom: clamp(60px, 15vh, 100px); left: clamp(10px, 5vw, 20px); width: clamp(90px, 25vw, 120px); height: clamp(90px, 25vw, 120px); border: 4px solid rgba(255,255,255,0.3); border-radius: 50%; display: block; z-index: 5; background: rgba(0,0,0,0.2); touch-action: none; }
         #joystick-knob { position: absolute; top: 50%; left: 50%; width: 40%; height: 40%; background: #fcd34d; border: 4px solid #b45309; border-radius: 50%; transform: translate(-50%,-50%); pointer-events: none; }
+
+        #weapon-zone { position: absolute; bottom: clamp(60px, 15vh, 100px); left: 50%; transform: translateX(-50%); width: clamp(70px, 18vw, 90px); height: clamp(70px, 18vw, 90px); border: 4px solid rgba(255,255,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5; background: rgba(0,0,0,0.2); touch-action: none; font-size: clamp(20px, 6vw, 28px); }
+        #weapon-zone.wheel-open { border-color: rgba(250,204,21,0.7); background: rgba(0,0,0,0.35); }
+        #weapon-zone-icon { pointer-events: none; opacity: 0.85; filter: drop-shadow(0 0 4px rgba(0,0,0,0.6)); }
+
+        #weapon-wheel { position: fixed; width: 0; height: 0; z-index: 60; display: none; pointer-events: none; }
+        #weapon-wheel.show { display: block; }
+        .weapon-wheel-item { position: absolute; top: 0; left: 0; width: clamp(50px, 13vw, 66px); height: clamp(50px, 13vw, 66px); margin-left: clamp(-25px, -6.5vw, -33px); margin-top: clamp(-25px, -6.5vw, -33px); border-radius: 50%; background: linear-gradient(180deg, #fcd34d 0%, #d97706 100%); border: 3px solid #78350f; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: clamp(16px, 4.5vw, 22px); box-shadow: inset -2px -2px 0px rgba(0,0,0,0.3), inset 2px 2px 0px rgba(255,255,255,0.4); transition: transform 0.1s ease-out, box-shadow 0.1s ease-out, filter 0.1s ease-out; opacity: 0.88; }
+        .weapon-wheel-item .wwi-label { font-family: 'Press Start 2P', monospace; font-size: clamp(5px, 1.4vw, 7px); color: #451a03; margin-top: 2px; text-align: center; line-height: 1.1; }
+        .weapon-wheel-item.wwi-active { transform: scale(1.28); background: linear-gradient(180deg, #fef08a 0%, #eab308 100%); box-shadow: 0 0 0 3px #fff, 0 0 18px rgba(250,204,21,0.9); opacity: 1; z-index: 2; }
+        .weapon-wheel-item.wwi-current { border-color: #16a34a; }
+        #weapon-wheel-center { position: absolute; top: 0; left: 0; width: 16px; height: 16px; margin-left: -8px; margin-top: -8px; border-radius: 50%; background: rgba(255,255,255,0.6); border: 2px solid rgba(0,0,0,0.4); }
         
         #action-buttons-container { position: absolute; display: flex; flex-direction: row; align-items: center; gap: clamp(5px, 2vw, 10px); z-index: 10; flex-wrap: wrap; max-width: clamp(150px, 40vw, 220px); justify-content: flex-end; }
         #action-buttons-container.top-right { top: 10px; right: 10px; left: auto; bottom: auto; }
@@ -370,6 +382,8 @@
     </div>
     
     <div id="joystick-zone"><div id="joystick-knob"></div></div>
+    <div id="weapon-zone" title="Hold & swipe to switch weapon"><span id="weapon-zone-icon">🔫</span></div>
+    <div id="weapon-wheel"><div id="weapon-wheel-center"></div></div>
 </div>
 
 <div id="shop-modal" class="modal-overlay">
@@ -2111,6 +2125,7 @@ function updateBombButton() { document.getElementById('bomb-price-badge').innerT
 function updateHUD() { 
     document.getElementById('ui-money').innerText = money; document.getElementById('ui-score').innerText = score; document.getElementById('ui-time').innerText = timeLived; 
     document.getElementById('ui-hp-display').innerText = playerHp + '/' + (potionActive ? maxHp+10 : maxHp);
+    let wzIcon = document.getElementById('weapon-zone-icon'); if (wzIcon && typeof GUN_EMOJI !== 'undefined') wzIcon.innerText = GUN_EMOJI[currentGun] || '🔫';
 
     let dropHeal = document.getElementById('drop-heal-count'); if(dropHeal) dropHeal.innerText = bandages; let dropWall = document.getElementById('drop-wall-count'); if(dropWall) dropWall.innerText = wallsCount; 
     let dropWire = document.getElementById('drop-wire-count'); if(dropWire) dropWire.innerText = wiresCount; let dropTurret = document.getElementById('drop-turret-count'); if(dropTurret) dropTurret.innerText = turretsCount;
@@ -2190,6 +2205,114 @@ joyZone.addEventListener('mousedown', e => { e.preventDefault(); joyMouseDown = 
 window.addEventListener('mousemove', e => { if (joyMouseDown && isDragging) handleJoy(e); });
 window.addEventListener('mouseup', e => { if (joyMouseDown) { joyMouseDown = false; isDragging = false; joyX = 0; joyY = 0; joyKnob.style.transform = 'translate(-50%,-50%)'; } });
 function handleJoy(t) { let r = joyZone.getBoundingClientRect(), cx = r.left + r.width/2, cy = r.top + r.height/2; let dx = t.clientX - cx, dy = t.clientY - cy, d = Math.hypot(dx, dy), maxR = 40; if (d > maxR) { dx = (dx / d) * maxR; dy = (dy / d) * maxR; } joyKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`; joyX = dx / maxR; joyY = dy / maxR; }
+
+// ---- Weapon wheel: hold the weapon button and swipe toward the gun you want ----
+const GUN_ORDER = ['Pistol', 'D-Eagle', 'AK47', 'MP40', 'Shortgun', 'S12K', 'S1887', 'Machine Gun', 'P90', 'AWM', 'M24', 'RPG'];
+const GUN_EMOJI = { 'Pistol': '🔫', 'D-Eagle': '🖤', 'AK47': '💥', 'MP40': '🔥', 'Shortgun': '🎯', 'S12K': '🎯', 'S1887': '🎯', 'Machine Gun': '⚙️', 'P90': '⚡', 'AWM': '🎖️', 'M24': '🏹', 'RPG': '🚀' };
+const weaponZone = document.getElementById('weapon-zone'), weaponWheel = document.getElementById('weapon-wheel');
+let weaponWheelTouchId = null, weaponWheelItems = [], weaponWheelActiveIndex = -1, weaponWheelCenterX = 0, weaponWheelCenterY = 0, weaponMouseDown = false;
+
+function ownedGunList() { return GUN_ORDER.filter(g => gunStats[g] && gunStats[g].owned); }
+
+function openWeaponWheel(clientX, clientY) {
+    if (hudEditActive || isPaused) return;
+    const owned = ownedGunList();
+    if (owned.length < 2) return;
+    weaponWheelCenterX = clientX; weaponWheelCenterY = clientY;
+    weaponWheel.querySelectorAll('.weapon-wheel-item').forEach(el => el.remove());
+    weaponWheelItems = [];
+    const radius = Math.max(70, Math.min(110, window.innerWidth * 0.16));
+    owned.forEach((name, i) => {
+        const angle = -Math.PI / 2 + (i / owned.length) * Math.PI * 2;
+        const el = document.createElement('div');
+        el.className = 'weapon-wheel-item' + (name === currentGun ? ' wwi-current' : '');
+        el.style.transform = `translate(${Math.cos(angle) * radius}px, ${Math.sin(angle) * radius}px)`;
+        el.innerHTML = `<span>${GUN_EMOJI[name] || '🔫'}</span><span class="wwi-label">${name}</span>`;
+        weaponWheel.appendChild(el);
+        weaponWheelItems.push({ name, angle, el });
+    });
+    weaponWheel.style.left = clientX + 'px';
+    weaponWheel.style.top = clientY + 'px';
+    weaponWheel.classList.add('show');
+    weaponZone.classList.add('wheel-open');
+    weaponWheelActiveIndex = -1;
+    updateWeaponWheelSelection(clientX, clientY);
+}
+
+function updateWeaponWheelSelection(clientX, clientY) {
+    if (!weaponWheelItems.length) return;
+    const dx = clientX - weaponWheelCenterX, dy = clientY - weaponWheelCenterY;
+    const dist = Math.hypot(dx, dy);
+    let idx = -1;
+    if (dist > 18) {
+        const swipeAngle = Math.atan2(dy, dx);
+        let best = Infinity;
+        weaponWheelItems.forEach((item, i) => {
+            let diff = Math.abs(swipeAngle - item.angle);
+            if (diff > Math.PI) diff = Math.PI * 2 - diff;
+            if (diff < best) { best = diff; idx = i; }
+        });
+    }
+    if (idx !== weaponWheelActiveIndex) {
+        weaponWheelItems.forEach((item, i) => item.el.classList.toggle('wwi-active', i === idx));
+        weaponWheelActiveIndex = idx;
+    }
+}
+
+function closeWeaponWheel(commit) {
+    if (!weaponWheel.classList.contains('show')) return;
+    if (commit && weaponWheelActiveIndex >= 0) {
+        selectGun(weaponWheelItems[weaponWheelActiveIndex].name);
+    }
+    weaponWheel.classList.remove('show');
+    weaponZone.classList.remove('wheel-open');
+    weaponWheelItems = []; weaponWheelActiveIndex = -1;
+}
+
+function selectGun(name) {
+    let gun = gunStats[name];
+    if (!gun || !gun.owned) return;
+    currentGun = name;
+    gunDamage = gun.baseDamage + (gun.level * 3);
+    currentAmmo = gun.magSize;
+    isReloading = false;
+    updateHUD();
+    playSound && typeof playSound === 'function' && playSound('coin');
+}
+
+weaponZone.addEventListener('touchstart', e => {
+    e.preventDefault();
+    if (weaponWheelTouchId !== null) return;
+    const t = e.changedTouches[0];
+    weaponWheelTouchId = t.identifier;
+    const r = weaponZone.getBoundingClientRect();
+    openWeaponWheel(r.left + r.width / 2, r.top + r.height / 2);
+    updateWeaponWheelSelection(t.clientX, t.clientY);
+}, { passive: false });
+weaponZone.addEventListener('touchmove', e => {
+    e.preventDefault();
+    for (let i = 0; i < e.changedTouches.length; i++) {
+        if (e.changedTouches[i].identifier === weaponWheelTouchId) updateWeaponWheelSelection(e.changedTouches[i].clientX, e.changedTouches[i].clientY);
+    }
+}, { passive: false });
+function endWeaponTouch(e) {
+    e.preventDefault();
+    for (let i = 0; i < e.changedTouches.length; i++) {
+        if (e.changedTouches[i].identifier === weaponWheelTouchId) { weaponWheelTouchId = null; closeWeaponWheel(true); }
+    }
+}
+weaponZone.addEventListener('touchend', endWeaponTouch, { passive: false });
+weaponZone.addEventListener('touchcancel', endWeaponTouch, { passive: false });
+
+weaponZone.addEventListener('mousedown', e => {
+    e.preventDefault();
+    weaponMouseDown = true;
+    const r = weaponZone.getBoundingClientRect();
+    openWeaponWheel(r.left + r.width / 2, r.top + r.height / 2);
+    updateWeaponWheelSelection(e.clientX, e.clientY);
+});
+window.addEventListener('mousemove', e => { if (weaponMouseDown) updateWeaponWheelSelection(e.clientX, e.clientY); });
+window.addEventListener('mouseup', () => { if (weaponMouseDown) { weaponMouseDown = false; closeWeaponWheel(true); } });
 
 function spawnEnemy(syncData = null) { 
     let newEnemy;
