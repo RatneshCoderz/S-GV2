@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Press Start 2P', monospace; user-select: none; }
         body { background: #111; display: flex; justify-content: center; align-items: center; width: 100vw; height: 100vh; overflow: hidden; touch-action: none; position: fixed; }
@@ -172,14 +173,7 @@
         <button class="btn" onclick="showModal('credits-modal')">Credits</button>
         <button class="btn" onclick="showLeaderboard()">🌍 Top 5</button>
         <button class="btn" onclick="showModal('video-modal')">▶️ Watch Video</button>
-        <div class="dropdown">
-            <button class="btn" id="username-btn" onclick="toggleUsername()">Username ▼</button>
-            <div class="dropdown-content yellow-ui" id="username-list">
-                <input type="text" class="username-input-in-dropdown" id="dropdown-username-input" placeholder="Type new username..." maxlength="16" onclick="event.stopPropagation()">
-                <div id="username-history-items"></div>
-                <div class="dropdown-item" style="color:#dc2626;" onclick="clearUsernameHistory()">Clear History</div>
-            </div>
-        </div>
+        <button class="btn" id="auth-btn" onclick="onAuthButtonClick()">👤 Login / Sign Up</button>
     </div>
     <div class="menu-center">
         <h1 class="menu-title">Defence Evolution</h1>
@@ -210,6 +204,32 @@
     <button class="skip-btn" onclick="endCutscene()">Skip >></button>
 </div>
 
+<div id="auth-modal" class="modal-overlay">
+    <div class="modal-box yellow-ui">
+        <h2 class="modal-title" id="auth-modal-title">Login</h2>
+        <input type="email" id="auth-email" placeholder="Email" class="username-input-in-dropdown" style="border:2px solid #854d0e;">
+        <input type="password" id="auth-password" placeholder="Password" class="username-input-in-dropdown" style="border:2px solid #854d0e; margin-top:10px;">
+        <input type="text" id="auth-username" placeholder="Username" maxlength="16" class="username-input-in-dropdown" style="border:2px solid #854d0e; margin-top:10px; display:none;">
+        <p id="auth-error" style="color:#dc2626; font-size:9px; margin-top:8px;"></p>
+        <div style="display:flex; gap:10px; justify-content:center; margin-top:10px;">
+            <button class="btn" id="auth-submit-btn" style="background: linear-gradient(180deg, #4ade80 0%, #16a34a 100%); border-color:#064e3b;" onclick="submitAuth()">Login</button>
+            <button class="btn" style="background:#71717a; border-color:#3f3f46;" onclick="hideModal('auth-modal')">Cancel</button>
+        </div>
+        <p style="font-size:9px; margin-top:12px; cursor:pointer; text-decoration:underline;" onclick="toggleAuthMode()" id="auth-toggle-text">Need an account? Sign Up</p>
+    </div>
+</div>
+
+<div id="profile-modal" class="modal-overlay">
+    <div class="modal-box yellow-ui">
+        <h2 class="modal-title">👤 Profile</h2>
+        <div id="profile-body" style="font-size:10px; line-height:2;"></div>
+        <div style="display:flex; gap:10px; justify-content:center; margin-top:15px;">
+            <button class="btn" style="background:#dc2626; border-color:#7f1d1d;" onclick="logOut()">Log Out</button>
+            <button class="btn" style="background:#71717a; border-color:#3f3f46;" onclick="hideModal('profile-modal')">Close</button>
+        </div>
+    </div>
+</div>
+
 <div id="mode-select-modal" class="modal-overlay">
     <div class="modal-box yellow-ui">
         <h2 class="modal-title">Choose Mode</h2>
@@ -229,15 +249,12 @@
     </div>
 </div>
 
-<div id="mp-vote-modal" class="modal-overlay">
+<div id="room-list-modal" class="modal-overlay">
     <div class="modal-box yellow-ui">
-        <h2 class="modal-title">Vote for Terrain</h2>
-        <p style="font-size:10px; color:#713f12; text-align:center;">Tap a level to cast your vote. Votes update live for everyone in the room.</p>
-        <div class="level-grid" id="mp-level-grid"></div>
-        <div style="display:flex; gap:10px; justify-content:center; margin-top:10px;">
-            <button class="btn" style="background: linear-gradient(180deg, #4ade80 0%, #16a34a 100%); border-color:#064e3b;" onclick="startMultiplayerGame()">▶ START WITH LEADING VOTE</button>
-        </div>
-        <button class="btn" style="background:#71717a; border-color:#3f3f46; margin-top:10px;" onclick="leaveVoteModal()">Back</button>
+        <h2 class="modal-title">Multiplayer Rooms</h2>
+        <button class="btn" style="background: linear-gradient(180deg, #4ade80 0%, #16a34a 100%); border-color:#064e3b; margin-bottom:12px;" onclick="createNewRoom()">➕ Create New Room</button>
+        <div id="room-list" style="max-height:280px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;"></div>
+        <button class="btn" style="background:#71717a; border-color:#3f3f46; margin-top:10px;" onclick="hideModal('room-list-modal'); showModal('mode-select-modal');">Back</button>
     </div>
 </div>
 
@@ -498,7 +515,136 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-const ROOM_PATH = 'defenceEvolution/gameRoom';
+const auth = firebase.auth();
+let currentRoomId = null;
+function ROOM_PATH_FN() { return 'rooms/' + currentRoomId; }
+Object.defineProperty(window, 'ROOM_PATH', { get: ROOM_PATH_FN });
+
+let currentUser = null;      // firebase auth user object
+let currentProfile = null;   // { username, createdAt, kills, wins, gamesPlayed }
+let isSignUpMode = false;
+
+auth.onAuthStateChanged(async (user) => {
+    currentUser = user;
+    const authBtn = document.getElementById('auth-btn');
+    if (user) {
+        const snap = await db.ref('users/' + user.uid).once('value');
+        currentProfile = snap.val() || { username: user.email.split('@')[0], createdAt: Date.now(), kills: 0, wins: 0, gamesPlayed: 0 };
+        selectedUser = currentProfile.username;
+        authBtn.innerText = '👤 ' + currentProfile.username;
+    } else {
+        currentProfile = null;
+        selectedUser = null;
+        authBtn.innerText = '👤 Login / Sign Up';
+    }
+});
+
+function onAuthButtonClick() {
+    if (currentUser) { showProfile(); } else { isSignUpMode = false; renderAuthModal(); showModal('auth-modal'); }
+}
+function toggleAuthMode() { isSignUpMode = !isSignUpMode; renderAuthModal(); }
+function renderAuthModal() {
+    document.getElementById('auth-modal-title').innerText = isSignUpMode ? 'Sign Up' : 'Login';
+    document.getElementById('auth-submit-btn').innerText = isSignUpMode ? 'Sign Up' : 'Login';
+    document.getElementById('auth-username').style.display = isSignUpMode ? 'block' : 'none';
+    document.getElementById('auth-toggle-text').innerText = isSignUpMode ? 'Have an account? Login' : 'Need an account? Sign Up';
+    document.getElementById('auth-error').innerText = '';
+}
+async function submitAuth() {
+    const email = document.getElementById('auth-email').value.trim();
+    const password = document.getElementById('auth-password').value;
+    const username = document.getElementById('auth-username').value.trim();
+    const errorEl = document.getElementById('auth-error');
+    errorEl.innerText = '';
+    if (!email || !password) { errorEl.innerText = 'Email and password required.'; return; }
+    try {
+        if (isSignUpMode) {
+            if (!username) { errorEl.innerText = 'Please choose a username.'; return; }
+            const nameKey = username.toLowerCase().replace(/[.#$\[\]\/]/g, '_');
+            const taken = await db.ref('usernames/' + nameKey).once('value');
+            if (taken.exists()) { errorEl.innerText = 'Username already taken.'; return; }
+            const cred = await auth.createUserWithEmailAndPassword(email, password);
+            const profile = { username: username, createdAt: firebase.database.ServerValue.TIMESTAMP, kills: 0, wins: 0, gamesPlayed: 0 };
+            await db.ref('users/' + cred.user.uid).set(profile);
+            await db.ref('usernames/' + nameKey).set({ uid: cred.user.uid });
+        } else {
+            await auth.signInWithEmailAndPassword(email, password);
+        }
+        hideModal('auth-modal');
+        document.getElementById('auth-email').value = ''; document.getElementById('auth-password').value = ''; document.getElementById('auth-username').value = '';
+    } catch (e) { errorEl.innerText = (e.message || 'Something went wrong.').replace('Firebase: ', ''); }
+}
+function logOut() { auth.signOut(); hideModal('profile-modal'); }
+function showProfile() {
+    const body = document.getElementById('profile-body');
+    if (!currentProfile) { body.innerHTML = 'Not logged in.'; } else {
+        body.innerHTML = `Username: ${currentProfile.username}<br>Kills: ${currentProfile.kills||0}<br>Wins: ${currentProfile.wins||0}<br>Games Played: ${currentProfile.gamesPlayed||0}`;
+    }
+    showModal('profile-modal');
+}
+async function recordGameStats({kills=0, won=false}={}) {
+    if (!currentUser) return;
+    const ref = db.ref('users/' + currentUser.uid);
+    try {
+        await ref.transaction(p => {
+            if (!p) return p;
+            p.kills = (p.kills||0) + kills;
+            p.gamesPlayed = (p.gamesPlayed||0) + 1;
+            if (won) p.wins = (p.wins||0) + 1;
+            return p;
+        });
+        const snap = await ref.once('value'); currentProfile = snap.val();
+    } catch(e) {}
+}
+
+// ---- ROOMS ----
+async function createNewRoom() {
+    if (!currentUser) { hideModal('room-list-modal'); isSignUpMode = false; renderAuthModal(); showModal('auth-modal'); return; }
+    const roomRef = db.ref('rooms').push();
+    await roomRef.set({ ownerId: currentUser.uid, ownerName: currentProfile.username, createdAt: firebase.database.ServerValue.TIMESTAMP, currentLevel: LEVELS[0].id });
+    joinRoom(roomRef.key);
+}
+function joinRoom(roomId) {
+    currentRoomId = roomId;
+    hideModal('room-list-modal');
+    db.ref(ROOM_PATH + '/currentLevel').once('value').then(snap => { selectedTerrain = snap.val() || LEVELS[0].id; startGame(); });
+}
+async function deleteRoom(roomId) {
+    await db.ref('rooms/' + roomId).remove();
+}
+let roomsListRef = null;
+function openRoomList() {
+    hideModal('mode-select-modal');
+    isMultiplayer = true;
+    showModal('room-list-modal');
+    if (roomsListRef) roomsListRef.off();
+    roomsListRef = db.ref('rooms');
+    roomsListRef.on('value', snap => {
+        const rooms = snap.val() || {};
+        const listEl = document.getElementById('room-list');
+        const ids = Object.keys(rooms);
+        if (!ids.length) { listEl.innerHTML = '<div class="dropdown-item">No rooms yet. Create one!</div>'; return; }
+        listEl.innerHTML = '';
+        ids.forEach(id => {
+            const r = rooms[id];
+            const playerCount = r.players ? Object.keys(r.players).length : 0;
+            const isOwner = currentUser && r.ownerId === currentUser.uid;
+            const row = document.createElement('div');
+            row.className = 'dropdown-item';
+            row.style.display = 'flex'; row.style.justifyContent = 'space-between'; row.style.alignItems = 'center';
+            row.innerHTML = `<span style="cursor:pointer;">🏠 ${r.ownerName}'s Room (${playerCount} online)</span>`;
+            row.querySelector('span').onclick = () => joinRoom(id);
+            if (isOwner) {
+                const delBtn = document.createElement('button');
+                delBtn.className = 'btn'; delBtn.style.cssText = 'background:#dc2626; border-color:#7f1d1d; padding:6px 10px; font-size:8px;';
+                delBtn.innerText = 'Delete';
+                delBtn.onclick = (e) => { e.stopPropagation(); deleteRoom(id); };
+                row.appendChild(delBtn);
+            }
+            listEl.appendChild(row);
+        });
+    });
+}
 
 // SYNTHESIZED SOUND EFFECTS ENGINE
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -563,8 +709,8 @@ let isContinueNext = false;
 function checkRankThenPlay(isContinueGame) {
     if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
     isContinueNext = isContinueGame;
-    const name = document.getElementById('dropdown-username-input').value.trim() || selectedUser;
-    if (!name) { document.getElementById('menu-error').innerText = "PLEASE CHOOSE A USERNAME FIRST!"; return; }
+    if (!currentUser || !currentProfile) { document.getElementById('menu-error').innerText = "PLEASE LOGIN / SIGN UP FIRST!"; isSignUpMode = false; renderAuthModal(); showModal('auth-modal'); return; }
+    const name = currentProfile.username;
     const rankInfo = getPlayerRankInfo(name);
     if (rankInfo.text === 'MEMBER') { showModal('mode-select-modal'); } else { showModal('verify-modal'); }
 }
@@ -573,11 +719,10 @@ function checkVerification() {
     if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
     const codeInput = document.getElementById('verify-input').value;
     const errorMsg = document.getElementById('verify-error');
-    const dropdownInput = document.getElementById('dropdown-username-input').value.trim();
-    const currentUser = dropdownInput || selectedUser;
-    if(!currentUser) { hideModal('verify-modal'); document.getElementById('menu-error').innerText = "PLEASE CHOOSE A USERNAME FIRST!"; return; }
+    const activeName = currentProfile ? currentProfile.username : null;
+    if(!activeName) { hideModal('verify-modal'); document.getElementById('menu-error').innerText = "PLEASE LOGIN / SIGN UP FIRST!"; return; }
 
-    const rankInfo = getPlayerRankInfo(currentUser);
+    const rankInfo = getPlayerRankInfo(activeName);
     let expectedCode = "";
     if (rankInfo.text === '👑 OWNER') expectedCode = "ratycaty";
     else if (rankInfo.text === '🤝 ASSIST-DEV') expectedCode = "meow";
@@ -618,62 +763,8 @@ function selectSPLevel(id) {
     startGame();
 }
 
-let myVote = null;
-let voteListenerRef = null, currentLevelListenerRef = null;
 function chooseMultiplayer() {
-    hideModal('mode-select-modal');
-    isMultiplayer = true;
-    myVote = null;
-    renderLevelGrid('mp-level-grid', {});
-    showModal('mp-vote-modal');
-
-    voteListenerRef = db.ref(ROOM_PATH + '/levelVotes');
-    voteListenerRef.on('value', snap => { renderLevelGrid('mp-level-grid', snap.val() || {}); });
-
-    // If another player already started the room's game, follow them in automatically.
-    currentLevelListenerRef = db.ref(ROOM_PATH + '/currentLevel');
-    currentLevelListenerRef.on('value', snap => {
-        const lvl = snap.val();
-        if (lvl && document.getElementById('mp-vote-modal').style.display === 'flex') {
-            selectedTerrain = lvl;
-            detachVoteListeners();
-            hideModal('mp-vote-modal');
-            startGame();
-        }
-    });
-}
-
-function castVote(id) {
-    myVote = id;
-    if (!mySessionId) mySessionId = genId();
-    db.ref(ROOM_PATH + '/levelVotes/' + mySessionId).set(id);
-}
-
-function detachVoteListeners() {
-    if (voteListenerRef) { voteListenerRef.off(); voteListenerRef = null; }
-    if (currentLevelListenerRef) { currentLevelListenerRef.off(); currentLevelListenerRef = null; }
-}
-
-function leaveVoteModal() {
-    detachVoteListeners();
-    hideModal('mp-vote-modal');
-    showModal('mode-select-modal');
-}
-
-function startMultiplayerGame() {
-    db.ref(ROOM_PATH + '/levelVotes').once('value').then(snap => {
-        const votes = snap.val() || {};
-        const tally = {};
-        LEVELS.forEach(l => tally[l.id] = 0);
-        Object.values(votes).forEach(v => { if (tally[v] !== undefined) tally[v]++; });
-        let winner = myVote || 'desert', best = -1;
-        LEVELS.forEach(l => { if (tally[l.id] > best) { best = tally[l.id]; winner = l.id; } });
-        selectedTerrain = winner;
-        db.ref(ROOM_PATH + '/currentLevel').set(winner);
-        detachVoteListeners();
-        hideModal('mp-vote-modal');
-        startGame();
-    });
+    openRoomList();
 }
 
 let gameChannel = null; let isChannelReady = false; let otherPlayers = {}; let lastBroadcastTime = 0;
@@ -714,13 +805,6 @@ async function getGlobalLeaderboard() {
         return deduped;
     } catch(e) { return local.sort((a,b) => b.score - a.score); }
 }
-async function getGlobalUsernames() { try { const snap = await withTimeout(db.ref('usernames').orderByChild('last_used').limitToLast(20).once('value'), 4000); const val = snap.val() || {}; return Object.keys(val).sort((a,b) => (val[b].last_used||0) - (val[a].last_used||0)); } catch(e) { return getLocalUsernames(); } }
-async function addGlobalUsername(username) {
-    const local = getLocalUsernames().filter(n => n !== username); local.unshift(username); saveLocalUsernames(local.slice(0,20));
-    try { await db.ref('usernames/' + username.replace(/[.#$\[\]\/]/g, '_')).set({ username: username, last_used: firebase.database.ServerValue.TIMESTAMP }); } catch(e) { /* saved locally already */ }
-}
-function getLocalUsernames() { try { return JSON.parse(localStorage.getItem('global_username_history')||'[]'); } catch(e) { return []; } }
-function saveLocalUsernames(usernames) { localStorage.setItem('global_username_history', JSON.stringify(usernames)); }
 async function addGlobalHighScore(playerName, score, timeLived, kills) {
     const local = getLocalLeaderboard(); local.push({player_name: playerName, score: score, time: timeLived, kills: kills, date: new Date().toISOString()}); local.sort((a,b) => b.score - a.score); saveLocalLeaderboard(local.slice(0,50));
     try { await withTimeout(db.ref('leaderboard').push({ player_name: playerName, score: score, time_lived: timeLived, kills: kills }), 4000); } catch(e) { /* saved locally already */ }
@@ -732,14 +816,6 @@ async function isNewGlobalHighScore(score) {
 }
 function getLocalLeaderboard() { try { return JSON.parse(localStorage.getItem('defence_leaderboard')||'[]'); } catch(e) { return []; } }
 function saveLocalLeaderboard(leaderboard) { localStorage.setItem('defence_leaderboard', JSON.stringify(leaderboard)); }
-
-async function updateUsernameDropdown() {
-    const container = document.getElementById('username-history-items'); container.innerHTML = '<div class="dropdown-item" style="color:#854d0e;">Loading...</div>';
-    const usernames = await getGlobalUsernames(); container.innerHTML = '';
-    if(usernames.length === 0) container.innerHTML = '<div class="dropdown-item" style="color:#854d0e;">No history yet</div>';
-    else usernames.forEach(name => { const div = document.createElement('div'); div.className = 'dropdown-item'; div.onclick = () => selectUser(name); div.innerText = name; container.appendChild(div); });
-}
-function clearUsernameHistory() { localStorage.removeItem('global_username_history'); document.getElementById('username-history-items').innerHTML = '<div class="dropdown-item" style="color:#854d0e;">No history yet</div>'; document.getElementById('username-list').classList.remove('show'); }
 
 function createPixelTexture(color, detailColor, type) {
     let tc = document.createElement('canvas');
@@ -1579,39 +1655,25 @@ const MAP_SIZE = 2048;
 const menuScreenEl = document.getElementById('menu-screen');
 menuScreenEl.style.backgroundImage = `url(${texSand.toDataURL()})`; 
 
-setTimeout(() => { document.getElementById('splash-screen').style.display = 'none'; document.getElementById('menu-screen').style.display = 'block'; updateUsernameDropdown(); }, 5000);
+setTimeout(() => { document.getElementById('splash-screen').style.display = 'none'; document.getElementById('menu-screen').style.display = 'block'; }, 5000);
 
 let selectedUser = "";
-function toggleUsername() { const list = document.getElementById('username-list'); list.classList.toggle('show'); if(list.classList.contains('show')) updateUsernameDropdown(); }
-function selectUser(name) { selectedUser = name; document.getElementById('username-btn').innerText = name + " ▼"; document.getElementById('dropdown-username-input').value = name; document.getElementById('username-list').classList.remove('show'); document.getElementById('menu-error').innerText = ""; }
 function showModal(id) { document.getElementById(id).style.display = 'flex'; }
 function hideModal(id) { document.getElementById(id).style.display = 'none'; }
 async function showLeaderboard() { showModal('leaderboard-modal'); const list = document.getElementById('leaderboard-list'); list.innerHTML = '<li>Loading top 5 players...</li>'; const leaderboard = await getGlobalLeaderboard(); const top5 = leaderboard.slice(0,5); list.innerHTML = ''; if(!top5.length) list.innerHTML = '<li>No scores yet! Be the first!</li>'; else top5.forEach((entry,i) => { const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1); list.innerHTML += `<li><strong>${medal}</strong> ${entry.player_name} - ${entry.score} pts (Kills: ${entry.kills})</li>`; }); }
 
 function startGame() {
-    const dropdownInput = document.getElementById('dropdown-username-input');
-    const dropdownName = dropdownInput.value.trim();
-    if(dropdownName) { selectedUser = dropdownName; addGlobalUsername(dropdownName); document.getElementById('username-btn').innerText = dropdownName + " ▼"; }
     document.getElementById('menu-error').innerText = ""; document.getElementById('menu-screen').style.display = 'none'; document.getElementById('game-screen').style.display = 'block';
 
     if (isMultiplayer) {
         if (!isChannelReady) {
             mySessionId = selectedUser + '_' + genId();
 
-            // Keeps our Firebase onDisconnect cleanup accurate as teammates join/leave:
-            // - If I'm the last player left in the room, my disconnect wipes the whole room
-            //   (enemies, props, events) so a fresh room greets the next people who join.
-            // - If teammates are still around, my disconnect only removes my own presence data.
+            // The room itself persists until its owner deletes it — a disconnect only
+            // ever removes MY own presence data, never the room.
             function refreshDisconnectCleanup() {
-                if (Object.keys(otherPlayers).length === 0) {
-                    db.ref(ROOM_PATH + '/players/' + mySessionId).onDisconnect().cancel();
-                    db.ref(ROOM_PATH + '/enemySync/' + mySessionId).onDisconnect().cancel();
-                    db.ref(ROOM_PATH).onDisconnect().remove();
-                } else {
-                    db.ref(ROOM_PATH).onDisconnect().cancel();
-                    db.ref(ROOM_PATH + '/players/' + mySessionId).onDisconnect().remove();
-                    db.ref(ROOM_PATH + '/enemySync/' + mySessionId).onDisconnect().remove();
-                }
+                db.ref(ROOM_PATH + '/players/' + mySessionId).onDisconnect().remove();
+                db.ref(ROOM_PATH + '/enemySync/' + mySessionId).onDisconnect().remove();
             }
 
             fbPlayersRef = db.ref(ROOM_PATH + '/players');
@@ -1968,6 +2030,7 @@ function triggerGameOver() {
     document.getElementById('go-score').innerText = score;
     document.getElementById('go-time').innerText = timeLived;
     document.getElementById('go-kills').innerText = kills;
+    recordGameStats({ kills: kills, won: false });
     isNewGlobalHighScore(score).then(isHigh => { 
         if (isHigh) { addGlobalHighScore(selectedUser, score, timeLived, kills); document.getElementById('go-highscore-msg').innerText = "🏆 NEW GLOBAL HIGH SCORE! 🏆"; } 
         else document.getElementById('go-highscore-msg').innerText = ""; 
@@ -2102,10 +2165,9 @@ function restartGame(isContinue = false) {
 }
 
 function exitToMenu() {
-    isPaused = true; clearInterval(timeInterval); hideModal('settings-modal'); hideModal('gameover-modal'); hideModal('shop-modal'); document.getElementById('game-screen').style.display = 'none'; document.getElementById('menu-screen').style.display = 'block'; updateUsernameDropdown(); if (gameLoopId) cancelAnimationFrame(gameLoopId); if (document.exitFullscreen) { document.exitFullscreen(); } else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); } else if (document.msExitFullscreen) { document.msExitFullscreen(); }
-    detachVoteListeners(); if (mySessionId) db.ref(ROOM_PATH + '/levelVotes/' + mySessionId).remove();
-    // Actually leave the shared multiplayer room so teammates see us gone immediately
-    // (their enemy-ownership handoff and room-cleanup logic depends on this).
+    isPaused = true; clearInterval(timeInterval); hideModal('settings-modal'); hideModal('gameover-modal'); hideModal('shop-modal'); document.getElementById('game-screen').style.display = 'none'; document.getElementById('menu-screen').style.display = 'block'; if (gameLoopId) cancelAnimationFrame(gameLoopId); if (document.exitFullscreen) { document.exitFullscreen(); } else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); } else if (document.msExitFullscreen) { document.msExitFullscreen(); }
+    // Leave the shared multiplayer room so teammates see us gone immediately.
+    // The room itself is untouched — only its owner can delete it.
     if (isChannelReady) {
         if (fbPlayersRef) fbPlayersRef.off();
         if (fbEnemySyncRef) fbEnemySyncRef.off();
@@ -2951,7 +3013,6 @@ function loop() {
 }
 
 document.addEventListener('click', function(e) {
-    if (!e.target.closest('.dropdown') && !e.target.closest('.game-action-dropdown')) { let userList = document.getElementById('username-list'); if (userList) userList.classList.remove('show'); const input = document.getElementById('dropdown-username-input'); if (input) { const name = input.value.trim(); if (name) { selectedUser = name; document.getElementById('username-btn').innerText = name + " ▼"; } else if (selectedUser) document.getElementById('username-btn').innerText = selectedUser + " ▼"; } }
     if (!e.target.closest('.game-action-dropdown')) { let invDrop = document.getElementById('inventory-dropdown'); if (invDrop) invDrop.classList.remove('show'); }
 });
 </script>
