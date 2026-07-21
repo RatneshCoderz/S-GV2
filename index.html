@@ -630,16 +630,28 @@ function chooseMultiplayer() {
     voteListenerRef = db.ref(ROOM_PATH + '/levelVotes');
     voteListenerRef.on('value', snap => { renderLevelGrid('mp-level-grid', snap.val() || {}); });
 
-    // If another player already started the room's game, follow them in automatically.
-    currentLevelListenerRef = db.ref(ROOM_PATH + '/currentLevel');
-    currentLevelListenerRef.on('value', snap => {
-        const lvl = snap.val();
-        if (lvl && document.getElementById('mp-vote-modal').style.display === 'flex') {
-            selectedTerrain = lvl;
-            detachVoteListeners();
-            hideModal('mp-vote-modal');
-            startGame();
-        }
+    // Safety net: if a previous player's tab crashed/closed before exitToMenu's
+    // cleanup ran, a stale currentLevel could still be sitting in the DB. If we
+    // attached the auto-join listener straight away it would instantly fire with
+    // that old value and skip voting entirely. Check for real players in the room
+    // first; if there are none, this is a stale leftover from a dead game — clear
+    // it before listening.
+    db.ref(ROOM_PATH + '/players').once('value').then(playersSnap => {
+        const hasPlayers = playersSnap.exists() && playersSnap.hasChildren();
+        const clearIfStale = hasPlayers ? Promise.resolve() : db.ref(ROOM_PATH + '/currentLevel').remove().catch(() => {});
+        clearIfStale.then(() => {
+            // If another player already started the room's game, follow them in automatically.
+            currentLevelListenerRef = db.ref(ROOM_PATH + '/currentLevel');
+            currentLevelListenerRef.on('value', snap => {
+                const lvl = snap.val();
+                if (lvl && document.getElementById('mp-vote-modal').style.display === 'flex') {
+                    selectedTerrain = lvl;
+                    detachVoteListeners();
+                    hideModal('mp-vote-modal');
+                    startGame();
+                }
+            });
+        });
     });
 }
 
@@ -2107,6 +2119,10 @@ function restartGame(isContinue = false) {
 function exitToMenu() {
     isPaused = true; clearInterval(timeInterval); hideModal('settings-modal'); hideModal('gameover-modal'); hideModal('shop-modal'); document.getElementById('game-screen').style.display = 'none'; document.getElementById('menu-screen').style.display = 'block'; updateUsernameDropdown(); if (gameLoopId) cancelAnimationFrame(gameLoopId); if (document.exitFullscreen) { document.exitFullscreen(); } else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); } else if (document.msExitFullscreen) { document.msExitFullscreen(); }
     detachVoteListeners(); if (mySessionId) db.ref(ROOM_PATH + '/levelVotes/' + mySessionId).remove();
+    // Clear the room's current level too — otherwise it lingers in the DB and the
+    // next person who opens the vote modal gets an instant "value" callback with
+    // this stale level, which auto-starts the game before any new voting happens.
+    db.ref(ROOM_PATH + '/currentLevel').remove().catch(() => {});
     // Actually leave the shared multiplayer room so teammates see us gone immediately
     // (their enemy-ownership handoff and room-cleanup logic depends on this).
     if (isChannelReady) {
