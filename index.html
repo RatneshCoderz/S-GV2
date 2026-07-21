@@ -669,8 +669,11 @@ function startMultiplayerGame() {
         let winner = myVote || 'desert', best = -1;
         LEVELS.forEach(l => { if (tally[l.id] > best) { best = tally[l.id]; winner = l.id; } });
         selectedTerrain = winner;
-        db.ref(ROOM_PATH + '/currentLevel').set(winner);
+        // Detach listeners FIRST — otherwise our own write below fires the
+        // "someone else started" auto-join listener on ourselves too,
+        // causing startGame() to run twice.
         detachVoteListeners();
+        db.ref(ROOM_PATH + '/currentLevel').set(winner);
         hideModal('mp-vote-modal');
         startGame();
     });
