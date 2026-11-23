@@ -3709,7 +3709,7 @@ function loop() {
         drawGunSprite(op.gunOuter || '#451a03', 0, op.gun);
         ctx.restore();
         ctx.save(); if (opFacingLeft) ctx.scale(-1, 1);
-        drawCharacter(op.skinOuter || '#1d4ed8', op.skinInner || '#3b82f6', op.moveBlend, op.x + op.y, opRankInfo.text === '👩 CO-OWNER');
+        drawCharacter(op.skinOuter || '#1d4ed8', op.skinInner || '#3b82f6', op.moveBlend, op.x + op.y, opRankInfo.text === 'CO-OWNER');
         ctx.restore();
         ctx.restore();
         
@@ -3764,7 +3764,7 @@ function loop() {
     ctx.save(); ctx.translate(psx, psy);
     let facingLeft = nearestLocal && !cutsceneActive && (nearestLocal.x < player.x);
     if (facingLeft) ctx.scale(-1, 1);
-    drawCharacter(mySkin.outer, mySkin.inner, player.moveBlend || 0, 0, myRankInfo.text === '👩 CO-OWNER');
+    drawCharacter(mySkin.outer, mySkin.inner, player.moveBlend || 0, 0, myRankInfo.text === 'CO-OWNER');
     ctx.restore();
 
     // Footstep dust while walking
@@ -3887,4 +3887,5 @@ document.addEventListener('click', function(e) {
 });
 </script>
 </body>
+
 </html>
