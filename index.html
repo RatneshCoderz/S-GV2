@@ -350,7 +350,7 @@
         <div class="credits-section">
             <div class="role">👨‍💻 DEVELOPER</div>
             <div class="names">Ratnesh Kumar</div>
-            <div class="role" style="margin-top:16px;">👩 CO-OWNER</div>
+            <div class="role" style="margin-top:16px;">CO-OWNER</div>
             <div class="names">Tanushri</div>
             <div class="role" style="margin-top:16px;">🤝 ASSIST-DEVELOPERS</div>
             <div class="names">Harshit · Priyanshu · Yash Kumar Singh · Ujjawal</div>
@@ -745,7 +745,7 @@ function checkRankThenPlay(isContinueGame) {
     const name = document.getElementById('dropdown-username-input').value.trim() || selectedUser;
     if (!name) { document.getElementById('menu-error').innerText = "PLEASE CHOOSE A USERNAME FIRST!"; return; }
     const rankInfo = getPlayerRankInfo(name);
-    if (rankInfo.text === 'MEMBER' || rankInfo.text === '👩 CO-OWNER') { showModal('mode-select-modal'); } else { showModal('verify-modal'); }
+    if (rankInfo.text === 'MEMBER' || rankInfo.text === 'CO-OWNER') { showModal('mode-select-modal'); } else { showModal('verify-modal'); }
 }
 
 function checkVerification() {
@@ -864,7 +864,7 @@ let mySessionId = '';
 const genId = () => Math.random().toString(36).substr(2, 9);
 const RATCAT_RANKS = {
     'ratnesh': { text: '👑 OWNER', color: '#00ffff' }, 'ratneshkumar': { text: '👑 OWNER', color: '#00ffff' },
-    'tanushri': { text: '👩 CO-OWNER', color: '#fb7185' },
+    'tanushri': { text: 'CO-OWNER', color: '#fb7185' },
     'harshit': { text: '🤝 ASSIST-DEV', color: '#00ffff' }, 'priyanshu': { text: '🤝 ASSIST-DEV', color: '#00ffff' },
     'yash kumar singh': { text: '🤝 ASSIST-DEV', color: '#00ffff' }, 'ujjwal': { text: '🤝 ASSIST-DEV', color: '#00ffff' },
 };
@@ -887,6 +887,8 @@ function toggleZombiesFreeze() {
     if (!isMultiplayer || !isChannelReady || getPlayerRankInfo(selectedUser).text !== '👑 OWNER') return;
     zombiesFrozen = !zombiesFrozen;
     updateFreezeButton();
+    const syncSkin = (currentSkin === 'custom') ? { outer: customOuter, inner: customInner } : (SKIN_COLORS[currentSkin] || SKIN_COLORS['blue']);
+    syncPlayerState(potionActive ? maxHp + 10 : maxHp, syncSkin);
 }
 
 function updateChatAvailability() {
@@ -957,6 +959,10 @@ function sendBroadcast(eventName, payloadData) {
     }
     if (eventName === 'all_enemies_sync') { db.ref(ROOM_PATH + '/enemySync/' + mySessionId).set({ enemies: payloadData.enemies, ts: firebase.database.ServerValue.TIMESTAMP }); return; }
     db.ref(ROOM_PATH + '/events').push({ event: eventName, payload: payloadData, sender: mySessionId, ts: firebase.database.ServerValue.TIMESTAMP });
+}
+
+function syncPlayerState(currentMaxHp, mySkin) {
+    sendBroadcast('player_sync', { user: selectedUser, x: player.x, y: player.y, hp: playerHp, maxHp: currentMaxHp, gun: currentGun, skinOuter: mySkin.outer, skinInner: mySkin.inner, petType: currentPet, gunOuter: gunOuter, gunInner: gunInner, aim: myAimAngle, moving: player.moving });
 }
 
 function withTimeout(promise, ms) { return Promise.race([promise, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]); }
@@ -1468,9 +1474,9 @@ function drawGunSprite(outer, recoilKick, gunName) {
     ctx.restore();
 }
 function drawAura(cx, cy, rankText) {
-    if (rankText !== '👑 OWNER' && rankText !== '👩 CO-OWNER' && rankText !== '🤝 ASSIST-DEV') return;
-    let isOwner = rankText === '👑 OWNER' || rankText === '👩 CO-OWNER';
-    let rgb = rankText === '👩 CO-OWNER' ? '244,114,182' : isOwner ? '250,204,21' : '56,189,248';
+    if (rankText !== '👑 OWNER' && rankText !== 'CO-OWNER' && rankText !== '🤝 ASSIST-DEV') return;
+    let isOwner = rankText === '👑 OWNER' || rankText === 'CO-OWNER';
+    let rgb = rankText === 'CO-OWNER' ? '244,114,182' : isOwner ? '250,204,21' : '56,189,248';
     let t = Date.now() / 1000;
     ctx.save();
     // soft glowing core
@@ -1661,49 +1667,14 @@ function buildCharacterTexture(outer, inner) {
 
     return tc;
 }
-function drawCharacter(outer, inner, moveBlend, seed, isGirl = false) {
+function drawCharacter(outer, inner, moveBlend, seed) {
     let anim = getWalkAnim(moveBlend, seed || 0, 3);
     ctx.save();
     ctx.translate(0, -anim.bob);
     ctx.rotate(anim.tilt);
     ctx.scale(1, anim.squash);
     let tex = getCharacterTexture(outer, inner);
-    if (isGirl) {
-        ctx.fillStyle = '#6b3f2a';
-        ctx.beginPath();
-        ctx.moveTo(-10, -21);
-        ctx.quadraticCurveTo(-18, -17, -16, -7);
-        ctx.lineTo(-13, 4);
-        ctx.quadraticCurveTo(-9, 1, -10, -7);
-        ctx.closePath();
-        ctx.moveTo(10, -21);
-        ctx.quadraticCurveTo(18, -17, 16, -7);
-        ctx.lineTo(13, 4);
-        ctx.quadraticCurveTo(9, 1, 10, -7);
-        ctx.closePath();
-        ctx.fill();
-    }
     ctx.drawImage(tex, -16, -27, 32, 44);
-    if (isGirl) {
-        ctx.strokeStyle = '#c08457';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(-14, -13); ctx.quadraticCurveTo(-12, -8, -13, -2);
-        ctx.moveTo(14, -13); ctx.quadraticCurveTo(12, -8, 13, -2);
-        ctx.stroke();
-        ctx.fillStyle = '#fb7185';
-        ctx.beginPath();
-        ctx.moveTo(5, -24); ctx.lineTo(1, -28); ctx.lineTo(1, -21); ctx.closePath();
-        ctx.moveTo(5, -24); ctx.lineTo(9, -28); ctx.lineTo(9, -21); ctx.closePath();
-        ctx.fill();
-        ctx.beginPath(); ctx.arc(5, -24, 1.5, 0, Math.PI * 2); ctx.fill();
-        ctx.strokeStyle = '#fb7185';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.moveTo(-13, 0); ctx.lineTo(-9, -2);
-        ctx.moveTo(13, 0); ctx.lineTo(9, -2);
-        ctx.stroke();
-    }
     ctx.restore();
 }
 const enemyTextureCache = new Map();
@@ -3334,7 +3305,7 @@ function loop() {
     let mySkin = (currentSkin === 'custom') ? { outer: customOuter, inner: customInner } : (SKIN_COLORS[currentSkin] || SKIN_COLORS['blue']);
     
     if (isMultiplayer && selectedUser && now - lastBroadcastTime > 30) {
-        sendBroadcast('player_sync', { user: selectedUser, x: player.x, y: player.y, hp: playerHp, maxHp: currentMaxHp, gun: currentGun, skinOuter: mySkin.outer, skinInner: mySkin.inner, petType: currentPet, gunOuter: gunOuter, gunInner: gunInner, aim: myAimAngle, moving: player.moving });
+        syncPlayerState(currentMaxHp, mySkin);
         lastBroadcastTime = now;
     }
     
@@ -3709,7 +3680,7 @@ function loop() {
         drawGunSprite(op.gunOuter || '#451a03', 0, op.gun);
         ctx.restore();
         ctx.save(); if (opFacingLeft) ctx.scale(-1, 1);
-        drawCharacter(op.skinOuter || '#1d4ed8', op.skinInner || '#3b82f6', op.moveBlend, op.x + op.y, opRankInfo.text === 'CO-OWNER');
+        drawCharacter(op.skinOuter || '#1d4ed8', op.skinInner || '#3b82f6', op.moveBlend, op.x + op.y);
         ctx.restore();
         ctx.restore();
         
@@ -3764,7 +3735,7 @@ function loop() {
     ctx.save(); ctx.translate(psx, psy);
     let facingLeft = nearestLocal && !cutsceneActive && (nearestLocal.x < player.x);
     if (facingLeft) ctx.scale(-1, 1);
-    drawCharacter(mySkin.outer, mySkin.inner, player.moveBlend || 0, 0, myRankInfo.text === 'CO-OWNER');
+    drawCharacter(mySkin.outer, mySkin.inner, player.moveBlend || 0, 0);
     ctx.restore();
 
     // Footstep dust while walking
@@ -3887,5 +3858,4 @@ document.addEventListener('click', function(e) {
 });
 </script>
 </body>
-
 </html>
